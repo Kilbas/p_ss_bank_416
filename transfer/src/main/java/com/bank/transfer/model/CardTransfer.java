@@ -1,5 +1,7 @@
 package com.bank.transfer.model;
 
+import lombok.Data;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,6 +12,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "card_transfer")
+@Data
 public class CardTransfer {
 
     @Id

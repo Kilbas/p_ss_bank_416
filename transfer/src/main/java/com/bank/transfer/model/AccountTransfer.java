@@ -11,8 +11,8 @@ import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Entity
-//@Data
 @Table(name = "account_transfer")
+@Data
 public class AccountTransfer {
 
     @Id

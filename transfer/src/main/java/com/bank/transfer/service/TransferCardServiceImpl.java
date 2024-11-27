@@ -5,36 +5,44 @@ import com.bank.transfer.repository.TransferCardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.webjars.NotFoundException;
 
 import java.util.List;
 
 @Service
 @Transactional
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class TransferCardServiceImpl implements TransferCardService {
+    private final TransferCardRepository transferCardRepository;
 
     @Override
-    public void addCardTransfer(CardTransfer phoneTransfer) {
-
+    @Transactional
+    public void addCardTransfer(CardTransfer cardTransfer) {
+        transferCardRepository.save(cardTransfer);
     }
 
     @Override
-    public void deleteCardTransfer(CardTransfer phoneTransfer) {
-
+    @Transactional
+    public void deleteCardTransfer(CardTransfer cardTransfer) {
+        transferCardRepository.delete(cardTransfer);
     }
 
     @Override
-    public void updateCardTransfer(CardTransfer phoneTransfer) {
-
+    @Transactional
+    public void updateCardTransfer(CardTransfer cardTransfer) {
+        transferCardRepository.save(cardTransfer);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CardTransfer> getAllCardTransfer() {
-        return List.of();
+        return transferCardRepository.findAll();
     }
 
     @Override
-    public CardTransfer getCardTransferById(long phoneTransferId) {
-        return null;
+    @Transactional(readOnly = true)
+    public CardTransfer getCardTransferById(long cardTransferId) {
+        return transferCardRepository.findById(cardTransferId).orElseThrow(() ->
+                new NotFoundException("card transfer not found"));
     }
 }
