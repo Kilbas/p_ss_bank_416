@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "account_transfer")
+@Table(name = "account_transfer", schema = "transfer")
 @Data
 public class AccountTransfer {
 

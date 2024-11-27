@@ -5,8 +5,8 @@ import com.bank.transfer.repository.TransferCardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.webjars.NotFoundException;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -23,19 +23,27 @@ public class TransferCardServiceImpl implements TransferCardService {
 
     @Override
     @Transactional
-    public void deleteCardTransfer(CardTransfer cardTransfer) {
-        transferCardRepository.delete(cardTransfer);
+    public void deleteCardTransfer(long id) {
+        transferCardRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public void updateCardTransfer(CardTransfer cardTransfer) {
-        transferCardRepository.save(cardTransfer);
+    public void updateCardTransfer(CardTransfer cardTransfer, long id) {
+        CardTransfer existingTransfer = transferCardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("CardTransfer с id " + cardTransfer.getId() + " не найден"));
+
+        existingTransfer.setAmount(cardTransfer.getAmount());
+        existingTransfer.setNumber(cardTransfer.getNumber());
+        existingTransfer.setPurpose(cardTransfer.getPurpose());
+        existingTransfer.setAccountDetailsId(cardTransfer.getAccountDetailsId());
+
+        transferCardRepository.save(existingTransfer);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CardTransfer> getAllCardTransfer() {
+    public List<CardTransfer> getAllCardTransfers() {
         return transferCardRepository.findAll();
     }
 
@@ -43,6 +51,6 @@ public class TransferCardServiceImpl implements TransferCardService {
     @Transactional(readOnly = true)
     public CardTransfer getCardTransferById(long cardTransferId) {
         return transferCardRepository.findById(cardTransferId).orElseThrow(() ->
-                new NotFoundException("card transfer not found"));
+                new EntityNotFoundException("CardTransfer с id " + cardTransferId + " не найден"));
     }
 }

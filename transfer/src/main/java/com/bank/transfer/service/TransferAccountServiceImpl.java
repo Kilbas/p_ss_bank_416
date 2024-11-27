@@ -5,8 +5,8 @@ import com.bank.transfer.repository.TransferAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.webjars.NotFoundException;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -23,14 +23,22 @@ public class TransferAccountServiceImpl implements TransferAccountService {
 
     @Override
     @Transactional
-    public void deleteAccountTransfer(AccountTransfer accountTransfer) {
-        transferAccountRepository.delete(accountTransfer);
+    public void deleteAccountTransfer(long id) {
+        transferAccountRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public void updateAccountTransfer(AccountTransfer accountTransfer) {
-        transferAccountRepository.save(accountTransfer);
+    public void updateAccountTransfer(AccountTransfer accountTransfer, long id) {
+        AccountTransfer existingTransfer = transferAccountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("AccountTransfer с id " + accountTransfer.getId() + " не найден"));
+
+        existingTransfer.setAmount(accountTransfer.getAmount());
+        existingTransfer.setNumber(accountTransfer.getNumber());
+        existingTransfer.setPurpose(accountTransfer.getPurpose());
+        existingTransfer.setAccountDetailsId(accountTransfer.getAccountDetailsId());
+
+        transferAccountRepository.save(existingTransfer);
     }
 
     @Override
@@ -43,6 +51,6 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     @Transactional(readOnly = true)
     public AccountTransfer getAccountTransferById(long accountTransferId) {
         return transferAccountRepository.findById(accountTransferId).orElseThrow(() ->
-                new NotFoundException("Account transfer not found"));
+                new EntityNotFoundException("Account transfer not found"));
     }
 }

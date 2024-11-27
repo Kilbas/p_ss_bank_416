@@ -5,8 +5,8 @@ import com.bank.transfer.repository.TransferPhoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.webjars.NotFoundException;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -23,14 +23,22 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
 
     @Override
     @Transactional
-    public void deletePhoneTransfer(PhoneTransfer phoneTransfer) {
-        transferPhoneRepository.delete(phoneTransfer);
+    public void deletePhoneTransfer(long id) {
+        transferPhoneRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public void updatePhoneTransfer(PhoneTransfer phoneTransfer) {
-        transferPhoneRepository.save(phoneTransfer);
+    public void updatePhoneTransfer(PhoneTransfer phoneTransfer, long id) {
+        PhoneTransfer existingTransfer = transferPhoneRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("CardTransfer с id " + id + " не найден"));
+
+        existingTransfer.setAmount(phoneTransfer.getAmount());
+        existingTransfer.setNumber(phoneTransfer.getNumber());
+        existingTransfer.setPurpose(phoneTransfer.getPurpose());
+        existingTransfer.setAccountDetailsId(phoneTransfer.getAccountDetailsId());
+
+        transferPhoneRepository.save(existingTransfer);
     }
 
     @Override
@@ -43,6 +51,6 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
     @Transactional(readOnly = true)
     public PhoneTransfer getPhoneTransferById(long phoneTransferId) {
         return transferPhoneRepository.findById(phoneTransferId).orElseThrow(() ->
-                new NotFoundException("phone transfer not found"));
+                new EntityNotFoundException("CardTransfer с id " + phoneTransferId + " не найден"));
     }
 }
