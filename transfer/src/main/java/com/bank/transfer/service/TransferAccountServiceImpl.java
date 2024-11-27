@@ -22,16 +22,19 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = EntityNotFoundException.class)
     public void deleteAccountTransfer(long id) {
-        transferAccountRepository.deleteById(id);
+        AccountTransfer accountTransfer = transferAccountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("AccountTransfer с id " + id + " не найден"));
+
+        transferAccountRepository.delete(accountTransfer);
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = EntityNotFoundException.class)
     public void updateAccountTransfer(AccountTransfer accountTransfer, long id) {
         AccountTransfer existingTransfer = transferAccountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("AccountTransfer с id " + accountTransfer.getId() + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("AccountTransfer с id " + id + " не найден"));
 
         existingTransfer.setAmount(accountTransfer.getAmount());
         existingTransfer.setNumber(accountTransfer.getNumber());
@@ -48,7 +51,7 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = EntityNotFoundException.class)
     public AccountTransfer getAccountTransferById(long accountTransferId) {
         return transferAccountRepository.findById(accountTransferId).orElseThrow(() ->
                 new EntityNotFoundException("Account transfer not found"));

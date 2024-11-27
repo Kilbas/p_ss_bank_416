@@ -22,16 +22,19 @@ public class TransferCardServiceImpl implements TransferCardService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = EntityNotFoundException.class)
     public void deleteCardTransfer(long id) {
-        transferCardRepository.deleteById(id);
+        CardTransfer accountTransfer = transferCardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("CardTransfer с id " + id + " не найден"));
+
+        transferCardRepository.delete(accountTransfer);
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = EntityNotFoundException.class)
     public void updateCardTransfer(CardTransfer cardTransfer, long id) {
         CardTransfer existingTransfer = transferCardRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("CardTransfer с id " + cardTransfer.getId() + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("CardTransfer с id " + id + " не найден"));
 
         existingTransfer.setAmount(cardTransfer.getAmount());
         existingTransfer.setNumber(cardTransfer.getNumber());
@@ -48,7 +51,7 @@ public class TransferCardServiceImpl implements TransferCardService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = EntityNotFoundException.class)
     public CardTransfer getCardTransferById(long cardTransferId) {
         return transferCardRepository.findById(cardTransferId).orElseThrow(() ->
                 new EntityNotFoundException("CardTransfer с id " + cardTransferId + " не найден"));
