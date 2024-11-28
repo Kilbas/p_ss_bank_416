@@ -3,6 +3,7 @@ package com.bank.transfer.service;
 import com.bank.transfer.model.CardTransfer;
 import com.bank.transfer.repository.TransferCardRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class TransferCardServiceImpl implements TransferCardService {
     private final TransferCardRepository transferCardRepository;
 
@@ -19,22 +21,24 @@ public class TransferCardServiceImpl implements TransferCardService {
     @Transactional
     public void addCardTransfer(CardTransfer cardTransfer) {
         transferCardRepository.save(cardTransfer);
+        log.info("Трансфер CardTransfer успешно добавлен");
     }
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public void deleteCardTransfer(long id) {
         CardTransfer accountTransfer = transferCardRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("CardTransfer с id " + id + " не найден"));
+                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
 
         transferCardRepository.delete(accountTransfer);
+        log.info("Удален CardTransfer с id {}", id);
     }
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public void updateCardTransfer(CardTransfer cardTransfer, long id) {
         CardTransfer existingTransfer = transferCardRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("CardTransfer с id " + id + " не найден"));
+                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
 
         existingTransfer.setAmount(cardTransfer.getAmount());
         existingTransfer.setNumber(cardTransfer.getNumber());
@@ -42,18 +46,25 @@ public class TransferCardServiceImpl implements TransferCardService {
         existingTransfer.setAccountDetailsId(cardTransfer.getAccountDetailsId());
 
         transferCardRepository.save(existingTransfer);
+        log.info("Обновлен CardTransfer с id {}", id);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CardTransfer> getAllCardTransfers() {
+        log.info("Получение всех CardTransfer");
         return transferCardRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true, rollbackFor = EntityNotFoundException.class)
     public CardTransfer getCardTransferById(long cardTransferId) {
-        return transferCardRepository.findById(cardTransferId).orElseThrow(() ->
-                new EntityNotFoundException("CardTransfer с id " + cardTransferId + " не найден"));
+        return transferCardRepository.findById(cardTransferId)
+                .orElseThrow(() -> logAndThrowEntityNitFoundException(cardTransferId));
+    }
+
+    private EntityNotFoundException logAndThrowEntityNitFoundException(long id) {
+        log.error("Не найден CardTransfer с указанным id {}", id);
+        return new EntityNotFoundException("Не найден CardTransfer с id" + id);
     }
 }

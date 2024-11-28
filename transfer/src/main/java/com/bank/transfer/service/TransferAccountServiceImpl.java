@@ -3,6 +3,7 @@ package com.bank.transfer.service;
 import com.bank.transfer.model.AccountTransfer;
 import com.bank.transfer.repository.TransferAccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class TransferAccountServiceImpl implements TransferAccountService {
     private final TransferAccountRepository transferAccountRepository;
 
@@ -19,22 +21,24 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     @Transactional
     public void addAccountTransfer(AccountTransfer accountTransfer) {
         transferAccountRepository.save(accountTransfer);
+        log.info("Трансфер AccountTransfer успешно добавлен");
     }
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public void deleteAccountTransfer(long id) {
         AccountTransfer accountTransfer = transferAccountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("AccountTransfer с id " + id + " не найден"));
+                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
 
         transferAccountRepository.delete(accountTransfer);
+        log.info("Удален AccountTransfer c id {}", id);
     }
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public void updateAccountTransfer(AccountTransfer accountTransfer, long id) {
         AccountTransfer existingTransfer = transferAccountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("AccountTransfer с id " + id + " не найден"));
+                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
 
         existingTransfer.setAmount(accountTransfer.getAmount());
         existingTransfer.setNumber(accountTransfer.getNumber());
@@ -42,18 +46,26 @@ public class TransferAccountServiceImpl implements TransferAccountService {
         existingTransfer.setAccountDetailsId(accountTransfer.getAccountDetailsId());
 
         transferAccountRepository.save(existingTransfer);
+        log.info("Обновлены данные о трансфере AccountTransfer id {}", id);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AccountTransfer> getAllAccountTransfers() {
+        log.info("Получены все AccountTransfer");
         return transferAccountRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true, rollbackFor = EntityNotFoundException.class)
     public AccountTransfer getAccountTransferById(long accountTransferId) {
-        return transferAccountRepository.findById(accountTransferId).orElseThrow(() ->
-                new EntityNotFoundException("Account transfer not found"));
+        log.info("Поиск AccountTransfer c id {}", accountTransferId);
+        return transferAccountRepository.findById(accountTransferId).
+                orElseThrow(() -> logAndThrowEntityNitFoundException(accountTransferId));
+    }
+
+    private EntityNotFoundException logAndThrowEntityNitFoundException(long id) {
+        log.error("Не найден AccountTransfer с указанным id {}", id);
+        return new EntityNotFoundException("Не найден AccountTransfer с id" + id);
     }
 }
