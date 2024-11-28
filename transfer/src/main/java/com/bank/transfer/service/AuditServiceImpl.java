@@ -19,7 +19,7 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     @Transactional
-    public void AddAudit(Audit audit) {
+    public void addAudit(Audit audit) {
         auditRepository.save(audit);
         log.info("Audit added successfully");
     }
