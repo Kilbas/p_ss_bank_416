@@ -2,6 +2,10 @@ package com.bank.transfer.controller;
 
 import com.bank.transfer.model.PhoneTransfer;
 import com.bank.transfer.service.TransferPhoneService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,32 +22,60 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/phone")
+@Tag(name = "Transfer Phone Controller", description = "Управление переводами, связанными с телефонными платежами")
 public class TransferPhoneRestController {
     private final TransferPhoneService transferPhoneService;
 
+    @Operation(summary = "Получить все переводы по телефонам", description = "Возвращает список всех операций перевода, связанных с телефонными платежами")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Список переводов успешно получен"),
+            @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
+    })
     @GetMapping
     public ResponseEntity<List<PhoneTransfer>> getPhoneTransfers() {
         return ResponseEntity.ok(transferPhoneService.getAllPhoneTransfers());
     }
 
+    @Operation(summary = "Получить перевод по ID", description = "Возвращает данные о переводе на основании указанного идентификатора")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Данные перевода успешно получены"),
+            @ApiResponse(responseCode = "404", description = "Перевод с указанным ID не найден")
+    })
     @GetMapping("{id}")
     public ResponseEntity<PhoneTransfer> getPhoneTransfer(@PathVariable Long id) {
         PhoneTransfer phoneTransfer = transferPhoneService.getPhoneTransferById(id);
         return ResponseEntity.ok(phoneTransfer);
     }
 
+    @Operation(summary = "Создать новый перевод", description = "Добавляет новый перевод по телефону в базу данных")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Перевод успешно создан"),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные для создания перевода"),
+            @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
+    })
     @PostMapping
     public ResponseEntity<PhoneTransfer> createPhoneTransfer(@RequestBody PhoneTransfer phoneTransfer) {
         transferPhoneService.addPhoneTransfer(phoneTransfer);
         return ResponseEntity.ok(phoneTransfer);
     }
 
+    @Operation(summary = "Обновить перевод", description = "Обновляет данные перевода по телефону на основании указанного ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Перевод успешно обновлён"),
+            @ApiResponse(responseCode = "404", description = "Перевод с указанным ID не найден"),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные для обновления перевода")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<PhoneTransfer> updatePhoneTransfer(@RequestBody PhoneTransfer phoneTransfer, @PathVariable long id) {
         transferPhoneService.updatePhoneTransfer(phoneTransfer, id);
         return ResponseEntity.ok(phoneTransfer);
     }
 
+    @Operation(summary = "Удалить перевод", description = "Удаляет перевод по телефону на основании указанного ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Перевод успешно удалён"),
+            @ApiResponse(responseCode = "404", description = "Перевод с указанным ID не найден")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<PhoneTransfer> deletePhoneTransfer(@PathVariable long id) {
         transferPhoneService.deletePhoneTransfer(id);
