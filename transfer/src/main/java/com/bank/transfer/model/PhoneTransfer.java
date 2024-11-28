@@ -14,6 +14,12 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
+/**
+ * Представляет операцию перевода, связанную с конкретным номером телефона.
+ * <p>
+ * Эта сущность соответствует таблице {@code phone_transfer} в схеме {@code transfer}.
+ * </p>
+ */
 @Entity
 @Table(name = "phone_transfer", schema = "transfer")
 @Data

@@ -14,33 +14,78 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
+/**
+ * Представляет операцию перевода, связанную с конкретным банковским счётом.
+ * <p>
+ * Эта сущность соответствует таблице {@code account_transfer} в схеме {@code transfer}.
+ * Содержит информацию о номере счёта, сумме перевода, цели перевода и
+ * связанных деталях счёта.
+ * </p>
+ * <p>
+ * Для обеспечения целостности данных применяются аннотации валидации,
+ * такие как проверка на положительное значение номера счёта и суммы,
+ * а также ограничение масштаба и точности суммы перевода.
+ * </p>
+ */
 @Entity
 @Table(name = "account_transfer", schema = "transfer")
 @Data
 @NoArgsConstructor
 public class AccountTransfer {
 
+    /**
+     * Уникальный идентификатор операции перевода.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private long id;
 
+    /**
+     * Уникальный номер счёта, с которого выполняется перевод.
+     * <p>
+     * Должен быть положительным числом.
+     * </p>
+     */
     @Column(name = "account_number", nullable = false, unique = true)
     @Positive(message = "Номер счёта должен быть положительным")
     private long number;
 
+    /**
+     * Сумма денег, подлежащая переводу.
+     * <p>
+     * Должна быть больше 0.01 и содержать не более 20 цифр и 2 знака после запятой.
+     * </p>
+     */
     @Column(name = "amount", nullable = false)
     @DecimalMin(value = "0.01", message = "Сумма перевода должна быть больше 0.01")
     @Digits(integer = 20, fraction = 2, message = "Сумма перевода должна содержать не более 20 цифр")
     private BigDecimal amount;
 
+    /**
+     * Цель или описание перевода (необязательное поле).
+     */
     @Column(name = "purpose")
     private String purpose;
 
+    /**
+     * Идентификатор деталей счёта, связанных с переводом.
+     * <p>
+     * Должен быть положительным числом.
+     * </p>
+     */
     @Column(name = "account_details_id", nullable = false)
     @Positive(message = "ID должен быть положительным")
     private long accountDetailsId;
 
+    /**
+     * Конструктор для создания объекта {@code AccountTransfer} с указанными значениями.
+     *
+     * @param number           уникальный номер счёта, с которого выполняется перевод
+     * @param amount           сумма денег, подлежащая переводу
+     * @param purpose          цель или описание перевода
+     * @param accountDetailsId идентификатор связанных деталей счёта
+     */
     public AccountTransfer(long number, BigDecimal amount, String purpose, long accountDetailsId) {
         this.number = number;
         this.amount = amount;

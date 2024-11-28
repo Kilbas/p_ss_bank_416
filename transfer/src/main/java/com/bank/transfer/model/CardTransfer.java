@@ -14,6 +14,12 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
+/**
+ * Представляет операцию перевода, связанную с конкретной банковской картой.
+ * <p>
+ * Эта сущность соответствует таблице {@code card_transfer} в схеме {@code transfer}.
+ * </p>
+ */
 @Entity
 @Table(name = "card_transfer", schema = "transfer")
 @Data
