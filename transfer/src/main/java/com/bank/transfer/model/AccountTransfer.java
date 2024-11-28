@@ -1,6 +1,7 @@
 package com.bank.transfer.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "account_transfer", schema = "transfer")
 @Data
+@NoArgsConstructor
 public class AccountTransfer {
 
     @Id
@@ -38,4 +40,11 @@ public class AccountTransfer {
     @Column(name = "account_details_id", nullable = false)
     @Positive(message = "ID должен быть положительным")
     private long accountDetailsId;
+
+    public AccountTransfer(long number, BigDecimal amount, String purpose, long accountDetailsId) {
+        this.number = number;
+        this.amount = amount;
+        this.purpose = purpose;
+        this.accountDetailsId = accountDetailsId;
+    }
 }
