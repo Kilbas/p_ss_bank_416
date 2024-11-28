@@ -51,7 +51,9 @@ public class Audit {
     @Column(name = "entity_json", nullable = false)
     private String entityJson;
 
-    public Audit(String entityType, String operationType, String createdBy, String modifiedBy, LocalDateTime createdAt, LocalDateTime modifiedAt, String newEntityJson, String entityJson) {
+    public Audit(String entityType, String operationType, String createdBy,
+                 String modifiedBy, LocalDateTime createdAt, LocalDateTime modifiedAt,
+                 String newEntityJson, String entityJson) {
         this.entityType = entityType;
         this.operationType = operationType;
         this.createdBy = createdBy;
