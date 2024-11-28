@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
@@ -49,6 +50,7 @@ public class AccountTransfer {
      */
     @Column(name = "account_number", nullable = false, unique = true)
     @Positive(message = "Номер счёта должен быть положительным")
+    @NotNull
     private long number;
 
     /**
@@ -60,6 +62,7 @@ public class AccountTransfer {
     @Column(name = "amount", nullable = false)
     @DecimalMin(value = "0.01", message = "Сумма перевода должна быть больше 0.01")
     @Digits(integer = 20, fraction = 2, message = "Сумма перевода должна содержать не более 20 цифр")
+    @NotNull
     private BigDecimal amount;
 
     /**
@@ -76,6 +79,7 @@ public class AccountTransfer {
      */
     @Column(name = "account_details_id", nullable = false)
     @Positive(message = "ID должен быть положительным")
+    @NotNull
     private long accountDetailsId;
 
     /**

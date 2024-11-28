@@ -25,7 +25,7 @@ public class AuditAspect {
         audit.setEntityType(joinPoint.getArgs()[0].getClass().getSimpleName());
         audit.setOperationType(joinPoint.getSignature().getName());
         audit.setCreatedBy("Anton");
-        audit.setModifiedBy(null);
+        audit.setModifiedBy("Anton");
         audit.setCreatedAt(LocalDateTime.now());
         audit.setModifiedAt(null);
         audit.setNewEntityJson(null);

@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
@@ -29,15 +30,18 @@ public class PhoneTransfer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
+    @NotNull
     private long id;
 
     @Column(name = "phone_number", nullable = false)
     @Positive(message = "Номер счёта должен быть положительным")
+    @NotNull
     private long number;
 
     @Column(name = "amount", nullable = false)
     @DecimalMin(value = "0.01", message = "Сумма перевода должна быть больше 0.01")
     @Digits(integer = 20, fraction = 2, message = "Сумма перевода должна содержать не более 20 цифр")
+    @NotNull
     private BigDecimal amount;
 
     @Column(name = "purpose")
@@ -45,6 +49,7 @@ public class PhoneTransfer {
 
     @Column(name = "account_details_id", nullable = false)
     @Positive(message = "ID должен быть положительным")
+    @NotNull
     private long accountDetailsId;
 
     public PhoneTransfer(long number, BigDecimal amount, String purpose, long accountDetailsId) {
