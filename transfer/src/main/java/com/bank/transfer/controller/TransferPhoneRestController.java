@@ -1,5 +1,7 @@
 package com.bank.transfer.controller;
 
+import com.bank.transfer.dto.TransferDTO;
+import com.bank.transfer.mapper.TransferMapper;
 import com.bank.transfer.model.PhoneTransfer;
 import com.bank.transfer.service.TransferPhoneService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,7 +56,8 @@ public class TransferPhoneRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping
-    public ResponseEntity<PhoneTransfer> createPhoneTransfer(@RequestBody PhoneTransfer phoneTransfer) {
+    public ResponseEntity<PhoneTransfer> createPhoneTransfer(@RequestBody TransferDTO transferDTO) {
+        PhoneTransfer phoneTransfer = TransferMapper.dtoToPhoneTransfer(transferDTO);
         transferPhoneService.addPhoneTransfer(phoneTransfer);
         return ResponseEntity.ok(phoneTransfer);
     }

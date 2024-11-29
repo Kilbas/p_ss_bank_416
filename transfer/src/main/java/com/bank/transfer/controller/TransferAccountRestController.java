@@ -1,5 +1,7 @@
 package com.bank.transfer.controller;
 
+import com.bank.transfer.dto.TransferDTO;
+import com.bank.transfer.mapper.TransferMapper;
 import com.bank.transfer.model.AccountTransfer;
 import com.bank.transfer.service.TransferAccountService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +57,8 @@ public class TransferAccountRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping
-    public ResponseEntity<AccountTransfer> createAccountTransfer(@RequestBody AccountTransfer accountTransfer) {
+    public ResponseEntity<AccountTransfer> createAccountTransfer(@RequestBody TransferDTO transferDTO) {
+        AccountTransfer accountTransfer = TransferMapper.dtoToAccountTransfer(transferDTO);
         transferAccountService.addAccountTransfer(accountTransfer);
         return ResponseEntity.ok(accountTransfer);
     }
