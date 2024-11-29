@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
-public class TransferDTO {
+public class AccountTransferDTO {
 
     @Positive(message = "Номер счёта должен быть положительным")
     @NotNull
@@ -28,7 +28,7 @@ public class TransferDTO {
     @NotNull
     private long accountDetailsId;
 
-    public TransferDTO(long number, BigDecimal amount, String purpose, long accountDetailsId) {
+    public AccountTransferDTO(long number, BigDecimal amount, String purpose, long accountDetailsId) {
         this.number = number;
         this.amount = amount;
         this.purpose = purpose;

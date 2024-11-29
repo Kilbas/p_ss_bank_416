@@ -1,7 +1,7 @@
 package com.bank.transfer.controller;
 
-import com.bank.transfer.dto.TransferDTO;
-import com.bank.transfer.mapper.TransferMapper;
+import com.bank.transfer.dto.CardTransferDTO;
+import com.bank.transfer.mapper.CardTransferMapper;
 import com.bank.transfer.model.CardTransfer;
 import com.bank.transfer.service.TransferCardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,8 +56,8 @@ public class TransferCardRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping
-    public ResponseEntity<CardTransfer> createCardTransfer(@RequestBody TransferDTO transferDTO) {
-        CardTransfer cardTransfer = TransferMapper.dtoToCardTransfer(transferDTO);
+    public ResponseEntity<CardTransfer> createCardTransfer(@RequestBody CardTransferDTO cardTransferDTO) {
+        CardTransfer cardTransfer = CardTransferMapper.dtoToCardTransfer(cardTransferDTO);
         transferCardService.addCardTransfer(cardTransfer);
         return ResponseEntity.ok(cardTransfer);
     }
