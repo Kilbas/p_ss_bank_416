@@ -35,14 +35,16 @@ public class AuditAspect {
         auditService.addAudit(audit);
     }
 
-//    @AfterReturning(value = "execution(* com.bank.transfer.service.*.update*Transfer(..))")
-//    public void afterUpdateTransfer(JoinPoint joinPoint) {
-//        Audit audit = auditService.findByEntityId;
-//
-//        audit.setOperationType(joinPoint.getSignature().getName());
-//        audit.setModifiedBy("Anton");
-//        audit.setModifiedAt(LocalDateTime.now());
-//        audit.setNewEntityJson(null);
-//
-//    }
+    @AfterReturning(value = "execution(* com.bank.transfer.service.*.update*Transfer(*, *))")
+    public void afterUpdateTransfer(JoinPoint joinPoint) {
+        long entityId = Long.parseLong(joinPoint.getArgs()[1].toString());
+        String entityType = joinPoint.getSignature().getDeclaringType().getSimpleName();
+        Audit audit = new Audit();
+
+        audit.setOperationType(joinPoint.getSignature().getName());
+        audit.setModifiedBy("Anton");
+        audit.setModifiedAt(LocalDateTime.now());
+        audit.setNewEntityJson(null);
+
+    }
 }
