@@ -27,6 +27,7 @@ import java.util.List;
 @Tag(name = "Transfer Phone Controller", description = "Управление переводами, связанными с телефонными платежами")
 public class TransferPhoneRestController {
     private final TransferPhoneService transferPhoneService;
+    private final PhoneTransferMapper phoneTransferMapper;
 
     @Operation(summary = "Получить все переводы по телефонам", description = "Возвращает список всех операций перевода, связанных с телефонными платежами")
     @ApiResponses(value = {
@@ -57,7 +58,7 @@ public class TransferPhoneRestController {
     })
     @PostMapping
     public ResponseEntity<PhoneTransfer> createPhoneTransfer(@RequestBody PhoneTransferDTO phoneTransferDTO) {
-        PhoneTransfer phoneTransfer = PhoneTransferMapper.dtoToPhoneTransfer(phoneTransferDTO);
+        PhoneTransfer phoneTransfer = phoneTransferMapper.dtoToPhoneTransfer(phoneTransferDTO);
         transferPhoneService.addPhoneTransfer(phoneTransfer);
         return ResponseEntity.ok(phoneTransfer);
     }

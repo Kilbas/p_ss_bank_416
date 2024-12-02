@@ -23,10 +23,11 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/account/")
+@RequestMapping("/v1/account")
 @Tag(name = "Transfer Account Controller", description = "Управление переводами, связанными с банковскими счетами")
 public class TransferAccountRestController {
     private final TransferAccountService transferAccountService;
+    private final AccountTransferMapper accountTransferMapper;
 
     @Operation(summary = "Получить все переводы по счетам", description = "Возвращает список всех операций перевода, связанных с банковскими счетами")
     @ApiResponses(value = {
@@ -57,7 +58,7 @@ public class TransferAccountRestController {
     })
     @PostMapping
     public ResponseEntity<AccountTransfer> createAccountTransfer(@RequestBody AccountTransferDTO accountTransferDTO) {
-        AccountTransfer accountTransfer = AccountTransferMapper.dtoToAccountTransfer(accountTransferDTO);
+        AccountTransfer accountTransfer = accountTransferMapper.dtoToAccountTransfer(accountTransferDTO);
         transferAccountService.addAccountTransfer(accountTransfer);
         return ResponseEntity.ok(accountTransfer);
     }

@@ -27,6 +27,7 @@ import java.util.List;
 @Tag(name = "Transfer Card Controller", description = "Управление переводами, связанными с банковскими картами")
 public class TransferCardRestController {
     private final TransferCardService transferCardService;
+    private final CardTransferMapper cardTransferMapper;
 
     @Operation(summary = "Получить все переводы по картам", description = "Возвращает список всех операций перевода, связанных с банковскими картами")
     @ApiResponses(value = {
@@ -57,7 +58,7 @@ public class TransferCardRestController {
     })
     @PostMapping
     public ResponseEntity<CardTransfer> createCardTransfer(@RequestBody CardTransferDTO cardTransferDTO) {
-        CardTransfer cardTransfer = CardTransferMapper.dtoToCardTransfer(cardTransferDTO);
+        CardTransfer cardTransfer = cardTransferMapper.dtoToCardTransfer(cardTransferDTO);
         transferCardService.addCardTransfer(cardTransfer);
         return ResponseEntity.ok(cardTransfer);
     }
