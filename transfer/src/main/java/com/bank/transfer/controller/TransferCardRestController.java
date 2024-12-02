@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/card")
+@RequestMapping("/v1/card")
 @Tag(name = "Transfer Card Controller", description = "Управление переводами, связанными с банковскими картами")
 public class TransferCardRestController {
     private final TransferCardService transferCardService;

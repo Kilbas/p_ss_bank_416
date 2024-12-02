@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/account")
+@RequestMapping("/v1/account/")
 @Tag(name = "Transfer Account Controller", description = "Управление переводами, связанными с банковскими счетами")
 public class TransferAccountRestController {
     private final TransferAccountService transferAccountService;

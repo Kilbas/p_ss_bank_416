@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/audit")
+@RequestMapping("/v1/audit")
 public class AuditController {
     private final AuditService auditService;
 

@@ -1,5 +1,6 @@
 package com.bank.transfer.aspect;
 
+import com.bank.transfer.model.AccountTransfer;
 import com.bank.transfer.model.Audit;
 import com.bank.transfer.service.AuditService;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,16 @@ public class AuditAspect {
         audit.setEntityJson(joinPoint.getArgs()[0].toString());
 
         auditService.addAudit(audit);
+    }
+
+    @AfterReturning(value = "execution(* com.bank.transfer.service.*.update*Transfer(..))")
+    public void afterUpdateTransfer(JoinPoint joinPoint) {
+        Audit audit = new Audit();
+
+        audit.setOperationType(joinPoint.getSignature().getName());
+        audit.setModifiedBy("Anton");
+        audit.setModifiedAt(LocalDateTime.now());
+        audit.setNewEntityJson(null);
+
     }
 }

@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/phone")
+@RequestMapping("/v1/phone")
 @Tag(name = "Transfer Phone Controller", description = "Управление переводами, связанными с телефонными платежами")
 public class TransferPhoneRestController {
     private final TransferPhoneService transferPhoneService;
