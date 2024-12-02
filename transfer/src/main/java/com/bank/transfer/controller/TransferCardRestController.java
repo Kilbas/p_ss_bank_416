@@ -71,8 +71,8 @@ public class TransferCardRestController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<CardTransfer> updateCardTransfer(@RequestBody CardTransfer cardTransfer, @PathVariable long id) {
-        transferCardService.updateCardTransfer(cardTransfer, id);
-        return ResponseEntity.ok(cardTransfer);
+        CardTransfer updatedCardTransfer = transferCardService.updateCardTransfer(cardTransfer, id);
+        return ResponseEntity.ok(updatedCardTransfer);
     }
 
     @Operation(summary = "Удалить перевод", description = "Удаляет перевод по карте на основании указанного ID")

@@ -36,7 +36,7 @@ public class TransferAccountServiceImpl implements TransferAccountService {
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
-    public void updateAccountTransfer(AccountTransfer accountTransfer, long id) {
+    public AccountTransfer updateAccountTransfer(AccountTransfer accountTransfer, long id) {
         AccountTransfer existingTransfer = transferAccountRepository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
 
@@ -47,6 +47,7 @@ public class TransferAccountServiceImpl implements TransferAccountService {
 
         transferAccountRepository.save(existingTransfer);
         log.info("Обновлены данные о трансфере AccountTransfer id {}", id);
+        return existingTransfer;
     }
 
     @Override

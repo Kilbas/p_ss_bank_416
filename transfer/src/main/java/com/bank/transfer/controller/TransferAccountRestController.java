@@ -71,8 +71,8 @@ public class TransferAccountRestController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<AccountTransfer> updateAccountTransfer(@RequestBody AccountTransfer accountTransfer, @PathVariable long id) {
-        transferAccountService.updateAccountTransfer(accountTransfer, id);
-        return ResponseEntity.ok(accountTransfer);
+        AccountTransfer updatedAccountTransfer = transferAccountService.updateAccountTransfer(accountTransfer, id);
+        return ResponseEntity.ok(updatedAccountTransfer);
     }
 
     @Operation(summary = "Удалить перевод", description = "Удаляет перевод на основании указанного ID")

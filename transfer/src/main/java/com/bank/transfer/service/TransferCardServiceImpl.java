@@ -36,7 +36,7 @@ public class TransferCardServiceImpl implements TransferCardService {
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
-    public void updateCardTransfer(CardTransfer cardTransfer, long id) {
+    public CardTransfer updateCardTransfer(CardTransfer cardTransfer, long id) {
         CardTransfer existingTransfer = transferCardRepository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
 
@@ -47,6 +47,7 @@ public class TransferCardServiceImpl implements TransferCardService {
 
         transferCardRepository.save(existingTransfer);
         log.info("Обновлен CardTransfer с id {}", id);
+        return existingTransfer;
     }
 
     @Override

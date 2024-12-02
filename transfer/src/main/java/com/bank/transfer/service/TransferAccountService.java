@@ -7,7 +7,7 @@ import java.util.List;
 public interface TransferAccountService {
     void addAccountTransfer(AccountTransfer accountTransfer);
     void deleteAccountTransfer(long id);
-    void updateAccountTransfer(AccountTransfer accountTransfer, long id);
+    AccountTransfer updateAccountTransfer(AccountTransfer accountTransfer, long id);
     List<AccountTransfer> getAllAccountTransfers();
     AccountTransfer getAccountTransferById(long accountTransferId);
 }

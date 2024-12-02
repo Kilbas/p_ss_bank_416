@@ -9,7 +9,7 @@ import java.util.List;
 public interface TransferPhoneService {
     void addPhoneTransfer(PhoneTransfer phoneTransfer);
     void deletePhoneTransfer(long id);
-    void updatePhoneTransfer(PhoneTransfer phoneTransfer, long id);
+    PhoneTransfer updatePhoneTransfer(PhoneTransfer phoneTransfer, long id);
     List<PhoneTransfer> getAllPhoneTransfers();
     PhoneTransfer getPhoneTransferById(long phoneTransferId);
 }

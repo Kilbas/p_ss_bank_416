@@ -36,7 +36,7 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
-    public void updatePhoneTransfer(PhoneTransfer phoneTransfer, long id) {
+    public PhoneTransfer updatePhoneTransfer(PhoneTransfer phoneTransfer, long id) {
         PhoneTransfer existingTransfer = transferPhoneRepository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
 
@@ -47,6 +47,7 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
 
         transferPhoneRepository.save(existingTransfer);
         log.info("Обновлен PhoneTransfer c id {}", id);
+        return existingTransfer;
     }
 
     @Override

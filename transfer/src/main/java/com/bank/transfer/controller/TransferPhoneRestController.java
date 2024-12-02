@@ -71,8 +71,8 @@ public class TransferPhoneRestController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<PhoneTransfer> updatePhoneTransfer(@RequestBody PhoneTransfer phoneTransfer, @PathVariable long id) {
-        transferPhoneService.updatePhoneTransfer(phoneTransfer, id);
-        return ResponseEntity.ok(phoneTransfer);
+        PhoneTransfer updatedPhoneTransfer = transferPhoneService.updatePhoneTransfer(phoneTransfer, id);
+        return ResponseEntity.ok(updatedPhoneTransfer);
     }
 
     @Operation(summary = "Удалить перевод", description = "Удаляет перевод по телефону на основании указанного ID")
