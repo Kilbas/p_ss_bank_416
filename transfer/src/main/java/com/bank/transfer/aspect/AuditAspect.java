@@ -1,6 +1,5 @@
 package com.bank.transfer.aspect;
 
-import com.bank.transfer.model.AccountTransfer;
 import com.bank.transfer.model.Audit;
 import com.bank.transfer.service.AuditService;
 import lombok.RequiredArgsConstructor;
@@ -22,29 +21,28 @@ public class AuditAspect {
     @AfterReturning("execution(* com.bank.transfer.service.*.add*Transfer(*))")
     public void afterAddTransfer(JoinPoint joinPoint) {
         Audit audit = new Audit();
+        Auditable auditObject = (Auditable) joinPoint.getArgs()[0];
 
-        audit.setEntityType(joinPoint.getArgs()[0].getClass().getSimpleName());
+        audit.setEntityType(auditObject.getClass().getSimpleName());
         audit.setOperationType(joinPoint.getSignature().getName());
-        audit.setCreatedBy("Anton");
-        audit.setModifiedBy("Anton");
+        audit.setCreatedBy("User");
         audit.setCreatedAt(LocalDateTime.now());
-        audit.setModifiedAt(null);
-        audit.setNewEntityJson(null);
-        audit.setEntityJson(joinPoint.getArgs()[0].toString());
+        audit.setEntityJson(auditObject.toString());
 
         auditService.addAudit(audit);
     }
 
-    @AfterReturning(value = "execution(* com.bank.transfer.service.*.update*Transfer(*, *))")
-    public void afterUpdateTransfer(JoinPoint joinPoint) {
-        long entityId = Long.parseLong(joinPoint.getArgs()[1].toString());
-        String entityType = joinPoint.getSignature().getDeclaringType().getSimpleName();
-        Audit audit = new Audit();
+    @AfterReturning(value = "execution(* com.bank.transfer.service.*.update*Transfer(*, long))", returning = "result")
+    public void afterUpdateTransfer(JoinPoint joinPoint, Auditable result) {
+        String entityId =  joinPoint.getArgs()[1].toString();
+        String entityType = result.getClass().getSimpleName();
 
-        audit.setOperationType(joinPoint.getSignature().getName());
-        audit.setModifiedBy("Anton");
+        Audit audit = auditService.findByEntityTypeAndEntityId(entityType, entityId);
+
+        audit.setModifiedBy("Admin");
         audit.setModifiedAt(LocalDateTime.now());
-        audit.setNewEntityJson(null);
+        audit.setNewEntityJson(result.toString());
 
+        auditService.updateAudit(audit);
     }
 }

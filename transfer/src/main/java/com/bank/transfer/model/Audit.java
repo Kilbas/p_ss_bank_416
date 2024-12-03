@@ -72,7 +72,7 @@ public class Audit {
      * Обязательное поле. Максимальная длина — 255 символов.
      * </p>
      */
-    @Column(name = "modified_by", nullable = false)
+    @Column(name = "modified_by")
     @Size(max = 255)
     private String modifiedBy;
 

@@ -17,11 +17,22 @@ import java.util.List;
 public class AuditServiceImpl implements AuditService {
     private final AuditRepository auditRepository;
 
+    @Transactional(readOnly = true)
+    public Audit findByEntityTypeAndEntityId(String entityType, String entityId) {
+        return auditRepository.findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
     @Override
     @Transactional
     public void addAudit(Audit audit) {
         auditRepository.save(audit);
         log.info("Audit added successfully");
+    }
+
+    @Override
+    @Transactional
+    public void updateAudit(Audit audit) {
+        auditRepository.save(audit);
     }
 
     @Override

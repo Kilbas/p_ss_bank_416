@@ -1,5 +1,6 @@
 package com.bank.transfer.model;
 
+import com.bank.transfer.aspect.Auditable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,7 +26,7 @@ import java.math.BigDecimal;
 @Table(name = "card_transfer", schema = "transfer")
 @Data
 @NoArgsConstructor
-public class CardTransfer {
+public class CardTransfer implements Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,5 +57,15 @@ public class CardTransfer {
         this.amount = amount;
         this.purpose = purpose;
         this.accountDetailsId = accountDetailsId;
+    }
+
+    @Override
+    public String toString() {
+        return "{\"id\":" + id +
+                ",\"number\":" + number +
+                ",\"amount\":" + amount +
+                ",\"purpose\":\"" + purpose + '\"' +
+                ",\"accountDetailsId\":" + accountDetailsId +
+                '}';
     }
 }
