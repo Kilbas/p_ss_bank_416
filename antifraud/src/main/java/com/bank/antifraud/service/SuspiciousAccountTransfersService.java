@@ -8,8 +8,12 @@ import java.util.List;
 public interface SuspiciousAccountTransfersService {
 
     SuspiciousAccountTransfersDTO create(SuspiciousAccountTransfersDTO transferDTO);
+
     SuspiciousAccountTransfersDTO update(Long id, SuspiciousAccountTransfersDTO transferDTO);
+
     void delete(Long id);
+
     SuspiciousAccountTransfersDTO findById(Long id);
+
     List<SuspiciousAccountTransfersDTO> findAll();
 }
