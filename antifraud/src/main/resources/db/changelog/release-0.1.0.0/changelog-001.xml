@@ -5,6 +5,10 @@
         xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet author="admin" id="create-schema">
+        <sql>CREATE SCHEMA IF NOT EXISTS anti_fraud</sql>
+    </changeSet>
     <changeSet author="Рустам" id="1672954987388-1">
         <createTable remarks="аудит" tableName="audit">
             <column autoIncrement="true" name="id" remarks="технический идентификатор" type="BIGINT">

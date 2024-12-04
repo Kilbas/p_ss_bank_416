@@ -4,11 +4,12 @@ import com.bank.antifraud.dto.AuditDTO;
 import com.bank.antifraud.entity.Audit;
 import com.bank.antifraud.mapper.AuditMapper;
 import com.bank.antifraud.repository.AuditRepository;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Service
 public class AuditServiceImpl implements AuditService {
 
     AuditRepository repository;

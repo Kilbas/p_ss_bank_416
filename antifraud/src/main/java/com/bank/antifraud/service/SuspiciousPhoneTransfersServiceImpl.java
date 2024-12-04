@@ -4,11 +4,13 @@ import com.bank.antifraud.dto.SuspiciousPhoneTransferDTO;
 import com.bank.antifraud.entity.SuspiciousPhoneTransfers;
 import com.bank.antifraud.mapper.SuspiciousPhoneTransfersMapper;
 import com.bank.antifraud.repository.SuspiciousPhoneTransfersRepository;
-import liquibase.pro.packaged.S;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Service
 public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTransfersService {
 
     private final SuspiciousPhoneTransfersRepository repository;
@@ -29,7 +31,8 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
 
     @Override
     public List<SuspiciousPhoneTransferDTO> findAll() {
-        return List.of();
+        return repository.findAll().stream()
+                .map(mapper::toDTO).collect(Collectors.toList());
     }
 
     @Override
