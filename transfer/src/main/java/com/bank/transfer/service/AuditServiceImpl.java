@@ -26,13 +26,14 @@ public class AuditServiceImpl implements AuditService {
     @Transactional
     public void addAudit(Audit audit) {
         auditRepository.save(audit);
-        log.info("Audit added successfully");
+        log.info("Audit успешно добавлен");
     }
 
     @Override
     @Transactional
     public void updateAudit(Audit audit) {
         auditRepository.save(audit);
+        log.info("обновлен audit с id {}", audit.getId());
     }
 
     @Override

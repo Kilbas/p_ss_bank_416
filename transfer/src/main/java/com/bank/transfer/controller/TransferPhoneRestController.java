@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -57,7 +58,7 @@ public class TransferPhoneRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping
-    public ResponseEntity<PhoneTransfer> createPhoneTransfer(@RequestBody PhoneTransferDTO phoneTransferDTO) {
+    public ResponseEntity<PhoneTransfer> createPhoneTransfer(@Valid @RequestBody PhoneTransferDTO phoneTransferDTO) {
         PhoneTransfer phoneTransfer = phoneTransferMapper.dtoToPhoneTransfer(phoneTransferDTO);
         transferPhoneService.addPhoneTransfer(phoneTransfer);
         return ResponseEntity.ok(phoneTransfer);
@@ -70,7 +71,8 @@ public class TransferPhoneRestController {
             @ApiResponse(responseCode = "400", description = "Некорректные данные для обновления перевода")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<PhoneTransfer> updatePhoneTransfer(@RequestBody PhoneTransfer phoneTransfer, @PathVariable long id) {
+    public ResponseEntity<PhoneTransfer> updatePhoneTransfer(@Valid @RequestBody PhoneTransferDTO phoneTransferDTO, @PathVariable long id) {
+        PhoneTransfer phoneTransfer = phoneTransferMapper.dtoToPhoneTransfer(phoneTransferDTO);
         PhoneTransfer updatedPhoneTransfer = transferPhoneService.updatePhoneTransfer(phoneTransfer, id);
         return ResponseEntity.ok(updatedPhoneTransfer);
     }

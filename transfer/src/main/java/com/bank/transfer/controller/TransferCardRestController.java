@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -57,7 +58,7 @@ public class TransferCardRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping
-    public ResponseEntity<CardTransfer> createCardTransfer(@RequestBody CardTransferDTO cardTransferDTO) {
+    public ResponseEntity<CardTransfer> createCardTransfer(@Valid @RequestBody CardTransferDTO cardTransferDTO) {
         CardTransfer cardTransfer = cardTransferMapper.dtoToCardTransfer(cardTransferDTO);
         transferCardService.addCardTransfer(cardTransfer);
         return ResponseEntity.ok(cardTransfer);
@@ -70,7 +71,8 @@ public class TransferCardRestController {
             @ApiResponse(responseCode = "400", description = "Некорректные данные для обновления перевода")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<CardTransfer> updateCardTransfer(@RequestBody CardTransfer cardTransfer, @PathVariable long id) {
+    public ResponseEntity<CardTransfer> updateCardTransfer(@Valid @RequestBody CardTransferDTO cardTransferDTO, @PathVariable long id) {
+        CardTransfer cardTransfer = cardTransferMapper.dtoToCardTransfer(cardTransferDTO);
         CardTransfer updatedCardTransfer = transferCardService.updateCardTransfer(cardTransfer, id);
         return ResponseEntity.ok(updatedCardTransfer);
     }

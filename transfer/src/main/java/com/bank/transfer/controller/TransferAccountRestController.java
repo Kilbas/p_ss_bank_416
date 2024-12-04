@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,7 +62,7 @@ public class TransferAccountRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping
-    public ResponseEntity<AccountTransfer> createAccountTransfer(@RequestBody AccountTransferDTO accountTransferDTO) {
+    public ResponseEntity<AccountTransfer> createAccountTransfer(@Valid @RequestBody AccountTransferDTO accountTransferDTO) {
         AccountTransfer accountTransfer = accountTransferMapper.dtoToAccountTransfer(accountTransferDTO);
         transferAccountService.addAccountTransfer(accountTransfer);
         return ResponseEntity.ok(accountTransfer);
@@ -70,7 +75,8 @@ public class TransferAccountRestController {
             @ApiResponse(responseCode = "400", description = "Некорректные данные для обновления перевода")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<AccountTransfer> updateAccountTransfer(@RequestBody AccountTransfer accountTransfer, @PathVariable long id) {
+    public ResponseEntity<AccountTransfer> updateAccountTransfer(@Valid @RequestBody AccountTransferDTO accountTransferDTO, @PathVariable long id) {
+        AccountTransfer accountTransfer = accountTransferMapper.dtoToAccountTransfer(accountTransferDTO);
         AccountTransfer updatedAccountTransfer = transferAccountService.updateAccountTransfer(accountTransfer, id);
         return ResponseEntity.ok(updatedAccountTransfer);
     }
