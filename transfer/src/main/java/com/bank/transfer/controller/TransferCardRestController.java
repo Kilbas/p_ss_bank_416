@@ -36,8 +36,12 @@ public class TransferCardRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping
-    public ResponseEntity<List<CardTransfer>> getCardTransfers() {
-        return ResponseEntity.ok(transferCardService.getAllCardTransfers());
+    public ResponseEntity<List<CardTransferDTO>> getCardTransfers() {
+        List<CardTransfer> cardTransfers = transferCardService.getAllCardTransfers();
+        List<CardTransferDTO> cardTransferDTOs = cardTransfers.stream()
+                .map(cardTransferMapper::cardTransferToDTO)
+                .toList();
+        return ResponseEntity.ok(cardTransferDTOs);
     }
 
     @Operation(summary = "Получить перевод по ID", description = "Возвращает данные о переводе на основании указанного идентификатора")
@@ -46,9 +50,10 @@ public class TransferCardRestController {
             @ApiResponse(responseCode = "404", description = "Перевод с указанным ID не найден")
     })
     @GetMapping("{id}")
-    public ResponseEntity<CardTransfer> getCardTransfer(@PathVariable Long id) {
+    public ResponseEntity<CardTransferDTO> getCardTransfer(@PathVariable Long id) {
         CardTransfer cardTransfer = transferCardService.getCardTransferById(id);
-        return ResponseEntity.ok(cardTransfer);
+        CardTransferDTO cardTransferDTO = cardTransferMapper.cardTransferToDTO(cardTransfer);
+        return ResponseEntity.ok(cardTransferDTO);
     }
 
     @Operation(summary = "Создать новый перевод", description = "Добавляет новый перевод по карте в базу данных")
@@ -58,10 +63,10 @@ public class TransferCardRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping
-    public ResponseEntity<CardTransfer> createCardTransfer(@Valid @RequestBody CardTransferDTO cardTransferDTO) {
+    public ResponseEntity<CardTransferDTO> createCardTransfer(@Valid @RequestBody CardTransferDTO cardTransferDTO) {
         CardTransfer cardTransfer = cardTransferMapper.dtoToCardTransfer(cardTransferDTO);
         transferCardService.addCardTransfer(cardTransfer);
-        return ResponseEntity.ok(cardTransfer);
+        return ResponseEntity.ok(cardTransferDTO);
     }
 
     @Operation(summary = "Обновить перевод", description = "Обновляет данные перевода по карте на основании указанного ID")
@@ -71,10 +76,11 @@ public class TransferCardRestController {
             @ApiResponse(responseCode = "400", description = "Некорректные данные для обновления перевода")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<CardTransfer> updateCardTransfer(@Valid @RequestBody CardTransferDTO cardTransferDTO, @PathVariable long id) {
+    public ResponseEntity<CardTransferDTO> updateCardTransfer(@Valid @RequestBody CardTransferDTO cardTransferDTO, @PathVariable long id) {
         CardTransfer cardTransfer = cardTransferMapper.dtoToCardTransfer(cardTransferDTO);
         CardTransfer updatedCardTransfer = transferCardService.updateCardTransfer(cardTransfer, id);
-        return ResponseEntity.ok(updatedCardTransfer);
+        CardTransferDTO updatedCardTransferDTO = cardTransferMapper.cardTransferToDTO(updatedCardTransfer);
+        return ResponseEntity.ok(updatedCardTransferDTO);
     }
 
     @Operation(summary = "Удалить перевод", description = "Удаляет перевод по карте на основании указанного ID")

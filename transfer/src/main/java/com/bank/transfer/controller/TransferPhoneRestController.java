@@ -36,8 +36,12 @@ public class TransferPhoneRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping
-    public ResponseEntity<List<PhoneTransfer>> getPhoneTransfers() {
-        return ResponseEntity.ok(transferPhoneService.getAllPhoneTransfers());
+    public ResponseEntity<List<PhoneTransferDTO>> getPhoneTransfers() {
+        List<PhoneTransfer> phoneTransfers = transferPhoneService.getAllPhoneTransfers();
+        List<PhoneTransferDTO> phoneTransferDTOs = phoneTransfers.stream()
+                .map(phoneTransferMapper::phoneTransferToDTO)
+                .toList();
+        return ResponseEntity.ok(phoneTransferDTOs);
     }
 
     @Operation(summary = "Получить перевод по ID", description = "Возвращает данные о переводе на основании указанного идентификатора")
@@ -46,9 +50,10 @@ public class TransferPhoneRestController {
             @ApiResponse(responseCode = "404", description = "Перевод с указанным ID не найден")
     })
     @GetMapping("{id}")
-    public ResponseEntity<PhoneTransfer> getPhoneTransfer(@PathVariable Long id) {
+    public ResponseEntity<PhoneTransferDTO> getPhoneTransfer(@PathVariable Long id) {
         PhoneTransfer phoneTransfer = transferPhoneService.getPhoneTransferById(id);
-        return ResponseEntity.ok(phoneTransfer);
+        PhoneTransferDTO phoneTransferDTO = phoneTransferMapper.phoneTransferToDTO(phoneTransfer);
+        return ResponseEntity.ok(phoneTransferDTO);
     }
 
     @Operation(summary = "Создать новый перевод", description = "Добавляет новый перевод по телефону в базу данных")
@@ -58,10 +63,10 @@ public class TransferPhoneRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping
-    public ResponseEntity<PhoneTransfer> createPhoneTransfer(@Valid @RequestBody PhoneTransferDTO phoneTransferDTO) {
+    public ResponseEntity<PhoneTransferDTO> createPhoneTransfer(@Valid @RequestBody PhoneTransferDTO phoneTransferDTO) {
         PhoneTransfer phoneTransfer = phoneTransferMapper.dtoToPhoneTransfer(phoneTransferDTO);
         transferPhoneService.addPhoneTransfer(phoneTransfer);
-        return ResponseEntity.ok(phoneTransfer);
+        return ResponseEntity.ok(phoneTransferDTO);
     }
 
     @Operation(summary = "Обновить перевод", description = "Обновляет данные перевода по телефону на основании указанного ID")
@@ -71,10 +76,11 @@ public class TransferPhoneRestController {
             @ApiResponse(responseCode = "400", description = "Некорректные данные для обновления перевода")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<PhoneTransfer> updatePhoneTransfer(@Valid @RequestBody PhoneTransferDTO phoneTransferDTO, @PathVariable long id) {
+    public ResponseEntity<PhoneTransferDTO> updatePhoneTransfer(@Valid @RequestBody PhoneTransferDTO phoneTransferDTO, @PathVariable long id) {
         PhoneTransfer phoneTransfer = phoneTransferMapper.dtoToPhoneTransfer(phoneTransferDTO);
         PhoneTransfer updatedPhoneTransfer = transferPhoneService.updatePhoneTransfer(phoneTransfer, id);
-        return ResponseEntity.ok(updatedPhoneTransfer);
+        PhoneTransferDTO updatedPhoneTransferDTO = phoneTransferMapper.phoneTransferToDTO(updatedPhoneTransfer);
+        return ResponseEntity.ok(updatedPhoneTransferDTO);
     }
 
     @Operation(summary = "Удалить перевод", description = "Удаляет перевод по телефону на основании указанного ID")

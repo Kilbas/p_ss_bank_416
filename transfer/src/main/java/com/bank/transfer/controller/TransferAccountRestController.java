@@ -40,8 +40,12 @@ public class TransferAccountRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping
-    public ResponseEntity<List<AccountTransfer>> getAccountTransfers() {
-        return ResponseEntity.ok(transferAccountService.getAllAccountTransfers());
+    public ResponseEntity<List<AccountTransferDTO>> getAccountTransfers() {
+        List<AccountTransfer> accountTransfers = transferAccountService.getAllAccountTransfers();
+        List<AccountTransferDTO> accountTransferDTOs = accountTransfers.stream()
+                .map(accountTransferMapper::accountTransferToDTO)
+                .toList();
+        return ResponseEntity.ok(accountTransferDTOs);
     }
 
     @Operation(summary = "Получить перевод по ID", description = "Возвращает данные о переводе на основании указанного идентификатора")
@@ -50,9 +54,10 @@ public class TransferAccountRestController {
             @ApiResponse(responseCode = "404", description = "Перевод с указанным ID не найден")
     })
     @GetMapping("{id}")
-    public ResponseEntity<AccountTransfer> getAccountTransfer(@PathVariable Long id) {
+    public ResponseEntity<AccountTransferDTO> getAccountTransfer(@PathVariable Long id) {
         AccountTransfer accountTransfer = transferAccountService.getAccountTransferById(id);
-        return ResponseEntity.ok(accountTransfer);
+        AccountTransferDTO accountTransferDTO = accountTransferMapper.accountTransferToDTO(accountTransfer);
+        return ResponseEntity.ok(accountTransferDTO);
     }
 
     @Operation(summary = "Создать новый перевод", description = "Добавляет новый перевод в базу данных")
@@ -62,10 +67,10 @@ public class TransferAccountRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping
-    public ResponseEntity<AccountTransfer> createAccountTransfer(@Valid @RequestBody AccountTransferDTO accountTransferDTO) {
+    public ResponseEntity<AccountTransferDTO> createAccountTransfer(@Valid @RequestBody AccountTransferDTO accountTransferDTO) {
         AccountTransfer accountTransfer = accountTransferMapper.dtoToAccountTransfer(accountTransferDTO);
         transferAccountService.addAccountTransfer(accountTransfer);
-        return ResponseEntity.ok(accountTransfer);
+        return ResponseEntity.ok(accountTransferDTO);
     }
 
     @Operation(summary = "Обновить перевод", description = "Обновляет данные перевода на основании указанного ID")
@@ -75,10 +80,11 @@ public class TransferAccountRestController {
             @ApiResponse(responseCode = "400", description = "Некорректные данные для обновления перевода")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<AccountTransfer> updateAccountTransfer(@Valid @RequestBody AccountTransferDTO accountTransferDTO, @PathVariable long id) {
+    public ResponseEntity<AccountTransferDTO> updateAccountTransfer(@Valid @RequestBody AccountTransferDTO accountTransferDTO, @PathVariable long id) {
         AccountTransfer accountTransfer = accountTransferMapper.dtoToAccountTransfer(accountTransferDTO);
         AccountTransfer updatedAccountTransfer = transferAccountService.updateAccountTransfer(accountTransfer, id);
-        return ResponseEntity.ok(updatedAccountTransfer);
+        AccountTransferDTO updatedAccountTransferDTO = accountTransferMapper.accountTransferToDTO(updatedAccountTransfer);
+        return ResponseEntity.ok(updatedAccountTransferDTO);
     }
 
     @Operation(summary = "Удалить перевод", description = "Удаляет перевод на основании указанного ID")
