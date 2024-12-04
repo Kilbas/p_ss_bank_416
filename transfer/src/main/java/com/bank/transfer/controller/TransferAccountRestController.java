@@ -10,9 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,6 +41,7 @@ public class TransferAccountRestController {
         List<AccountTransferDTO> accountTransferDTOs = accountTransfers.stream()
                 .map(accountTransferMapper::accountTransferToDTO)
                 .toList();
+
         return ResponseEntity.ok(accountTransferDTOs);
     }
 
@@ -57,6 +54,7 @@ public class TransferAccountRestController {
     public ResponseEntity<AccountTransferDTO> getAccountTransfer(@PathVariable Long id) {
         AccountTransfer accountTransfer = transferAccountService.getAccountTransferById(id);
         AccountTransferDTO accountTransferDTO = accountTransferMapper.accountTransferToDTO(accountTransfer);
+
         return ResponseEntity.ok(accountTransferDTO);
     }
 
@@ -70,6 +68,7 @@ public class TransferAccountRestController {
     public ResponseEntity<AccountTransferDTO> createAccountTransfer(@Valid @RequestBody AccountTransferDTO accountTransferDTO) {
         AccountTransfer accountTransfer = accountTransferMapper.dtoToAccountTransfer(accountTransferDTO);
         transferAccountService.addAccountTransfer(accountTransfer);
+
         return ResponseEntity.ok(accountTransferDTO);
     }
 
@@ -84,6 +83,7 @@ public class TransferAccountRestController {
         AccountTransfer accountTransfer = accountTransferMapper.dtoToAccountTransfer(accountTransferDTO);
         AccountTransfer updatedAccountTransfer = transferAccountService.updateAccountTransfer(accountTransfer, id);
         AccountTransferDTO updatedAccountTransferDTO = accountTransferMapper.accountTransferToDTO(updatedAccountTransfer);
+
         return ResponseEntity.ok(updatedAccountTransferDTO);
     }
 
@@ -95,6 +95,7 @@ public class TransferAccountRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<AccountTransfer> deleteAccountTransfer(@PathVariable long id) {
         transferAccountService.deleteAccountTransfer(id);
+
         return ResponseEntity.noContent().build();
     }
 }

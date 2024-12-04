@@ -1,5 +1,7 @@
 package com.bank.transfer.controller;
 
+import com.bank.transfer.dto.AuditDTO;
+import com.bank.transfer.mapper.AuditMapper;
 import com.bank.transfer.model.Audit;
 import com.bank.transfer.service.AuditService;
 import lombok.RequiredArgsConstructor;
@@ -16,15 +18,23 @@ import java.util.List;
 @RequestMapping("/v1/audit")
 public class AuditController {
     private final AuditService auditService;
+    private final AuditMapper auditMapper;
 
     @GetMapping
-    public ResponseEntity<List<Audit>> getAllAudits() {
-        return ResponseEntity.ok(auditService.getAllAudit());
+    public ResponseEntity<List<AuditDTO>> getAllAudits() {
+        List<Audit> audits = auditService.getAllAudit();
+        List<AuditDTO> auditDTOs = audits.stream()
+                .map(auditMapper::auditToAuditDTO)
+                .toList();
+
+        return ResponseEntity.ok(auditDTOs);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Audit> getAuditById(@PathVariable long id) {
+    public ResponseEntity<AuditDTO> getAuditById(@PathVariable long id) {
         Audit audit = auditService.getAuditById(id);
-        return ResponseEntity.ok(audit);
+        AuditDTO auditDTO = auditMapper.auditToAuditDTO(audit);
+
+        return ResponseEntity.ok(auditDTO);
     }
 }

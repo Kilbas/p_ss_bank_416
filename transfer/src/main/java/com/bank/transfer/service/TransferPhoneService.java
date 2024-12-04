@@ -1,7 +1,5 @@
 package com.bank.transfer.service;
 
-import com.bank.transfer.model.AccountTransfer;
-import com.bank.transfer.model.CardTransfer;
 import com.bank.transfer.model.PhoneTransfer;
 
 import java.util.List;

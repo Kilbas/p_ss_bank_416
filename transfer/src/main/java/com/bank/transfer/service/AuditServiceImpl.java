@@ -40,6 +40,7 @@ public class AuditServiceImpl implements AuditService {
     @Transactional(readOnly = true)
     public List<Audit> getAllAudit() {
         log.info("Получены все Audit");
+
         return auditRepository.findAll();
     }
 
@@ -47,12 +48,14 @@ public class AuditServiceImpl implements AuditService {
     @Transactional(readOnly = true)
     public Audit getAuditById(long id) {
         log.info("Поиск Audit c id {}", id);
+
         return auditRepository.findById(id).
-                orElseThrow(() -> logAndThrowEntityNitFoundException(id));
+                orElseThrow(() -> logAndThrowEntityNotFoundException(id));
     }
 
-    private EntityNotFoundException logAndThrowEntityNitFoundException(long id) {
+    private EntityNotFoundException logAndThrowEntityNotFoundException(long id) {
         log.error("Не найден Audit с указанным id {}", id);
+
         return new EntityNotFoundException("Не найден Audit с id" + id);
     }
 }

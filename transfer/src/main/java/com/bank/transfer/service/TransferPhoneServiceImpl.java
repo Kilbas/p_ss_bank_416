@@ -28,7 +28,7 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public void deletePhoneTransfer(long id) {
         PhoneTransfer accountTransfer = transferPhoneRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
 
         transferPhoneRepository.delete(accountTransfer);
         log.info("Удален PhoneTransfer с id {}", id);
@@ -38,7 +38,7 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public PhoneTransfer updatePhoneTransfer(PhoneTransfer phoneTransfer, long id) {
         PhoneTransfer existingTransfer = transferPhoneRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
 
         existingTransfer.setAmount(phoneTransfer.getAmount());
         existingTransfer.setNumber(phoneTransfer.getNumber());
@@ -47,6 +47,7 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
 
         transferPhoneRepository.save(existingTransfer);
         log.info("Обновлен PhoneTransfer c id {}", id);
+
         return existingTransfer;
     }
 
@@ -54,19 +55,23 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
     @Transactional(readOnly = true)
     public List<PhoneTransfer> getAllPhoneTransfers() {
         log.info("Получение всех PhoneTransfer");
+
         return transferPhoneRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true, rollbackFor = EntityNotFoundException.class)
     public PhoneTransfer getPhoneTransferById(long phoneTransferId) {
+        log.info("Поиск PhoneTransfer c id {}", phoneTransferId);
+
         return transferPhoneRepository.findById(phoneTransferId)
-                .orElseThrow(() -> logAndThrowEntityNitFoundException(phoneTransferId)
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(phoneTransferId)
         );
     }
 
-    private EntityNotFoundException logAndThrowEntityNitFoundException(long id) {
+    private EntityNotFoundException logAndThrowEntityNotFoundException(long id) {
         log.error("Не найден PhoneTransfer с указанным id {}", id);
+
         return new EntityNotFoundException("Не найден PhoneTransfer с id" + id);
     }
 }

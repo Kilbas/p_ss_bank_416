@@ -1,5 +1,6 @@
 package com.bank.transfer.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class PhoneTransferDTO {
 
     @Positive(message = "Номер счёта должен быть положительным")
@@ -27,11 +29,4 @@ public class PhoneTransferDTO {
     @Positive(message = "ID должен быть положительным")
     @NotNull
     private long accountDetailsId;
-
-    public PhoneTransferDTO(long number, BigDecimal amount, String purpose, long accountDetailsId) {
-        this.number = number;
-        this.amount = amount;
-        this.purpose = purpose;
-        this.accountDetailsId = accountDetailsId;
-    }
 }

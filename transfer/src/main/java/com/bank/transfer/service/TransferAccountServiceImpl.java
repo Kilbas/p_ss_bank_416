@@ -28,7 +28,7 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public void deleteAccountTransfer(long id) {
         AccountTransfer accountTransfer = transferAccountRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
 
         transferAccountRepository.delete(accountTransfer);
         log.info("Удален AccountTransfer c id {}", id);
@@ -38,7 +38,7 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public AccountTransfer updateAccountTransfer(AccountTransfer accountTransfer, long id) {
         AccountTransfer existingTransfer = transferAccountRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
 
         existingTransfer.setAmount(accountTransfer.getAmount());
         existingTransfer.setNumber(accountTransfer.getNumber());
@@ -47,6 +47,7 @@ public class TransferAccountServiceImpl implements TransferAccountService {
 
         transferAccountRepository.save(existingTransfer);
         log.info("Обновлены данные о трансфере AccountTransfer id {}", id);
+
         return existingTransfer;
     }
 
@@ -54,6 +55,7 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     @Transactional(readOnly = true)
     public List<AccountTransfer> getAllAccountTransfers() {
         log.info("Получены все AccountTransfer");
+
         return transferAccountRepository.findAll();
     }
 
@@ -61,12 +63,14 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     @Transactional(readOnly = true, rollbackFor = EntityNotFoundException.class)
     public AccountTransfer getAccountTransferById(long accountTransferId) {
         log.info("Поиск AccountTransfer c id {}", accountTransferId);
+
         return transferAccountRepository.findById(accountTransferId).
-                orElseThrow(() -> logAndThrowEntityNitFoundException(accountTransferId));
+                orElseThrow(() -> logAndThrowEntityNotFoundException(accountTransferId));
     }
 
-    private EntityNotFoundException logAndThrowEntityNitFoundException(long id) {
+    private EntityNotFoundException logAndThrowEntityNotFoundException(long id) {
         log.error("Не найден AccountTransfer с указанным id {}", id);
+
         return new EntityNotFoundException("Не найден AccountTransfer с id" + id);
     }
 }

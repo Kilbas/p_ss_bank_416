@@ -41,6 +41,7 @@ public class TransferCardRestController {
         List<CardTransferDTO> cardTransferDTOs = cardTransfers.stream()
                 .map(cardTransferMapper::cardTransferToDTO)
                 .toList();
+
         return ResponseEntity.ok(cardTransferDTOs);
     }
 
@@ -53,6 +54,7 @@ public class TransferCardRestController {
     public ResponseEntity<CardTransferDTO> getCardTransfer(@PathVariable Long id) {
         CardTransfer cardTransfer = transferCardService.getCardTransferById(id);
         CardTransferDTO cardTransferDTO = cardTransferMapper.cardTransferToDTO(cardTransfer);
+
         return ResponseEntity.ok(cardTransferDTO);
     }
 
@@ -66,6 +68,7 @@ public class TransferCardRestController {
     public ResponseEntity<CardTransferDTO> createCardTransfer(@Valid @RequestBody CardTransferDTO cardTransferDTO) {
         CardTransfer cardTransfer = cardTransferMapper.dtoToCardTransfer(cardTransferDTO);
         transferCardService.addCardTransfer(cardTransfer);
+
         return ResponseEntity.ok(cardTransferDTO);
     }
 
@@ -80,6 +83,7 @@ public class TransferCardRestController {
         CardTransfer cardTransfer = cardTransferMapper.dtoToCardTransfer(cardTransferDTO);
         CardTransfer updatedCardTransfer = transferCardService.updateCardTransfer(cardTransfer, id);
         CardTransferDTO updatedCardTransferDTO = cardTransferMapper.cardTransferToDTO(updatedCardTransfer);
+
         return ResponseEntity.ok(updatedCardTransferDTO);
     }
 
@@ -91,6 +95,7 @@ public class TransferCardRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<CardTransfer> deleteCardTransfer(@PathVariable long id) {
         transferCardService.deleteCardTransfer(id);
+
         return ResponseEntity.noContent().build();
     }
 }

@@ -28,7 +28,7 @@ public class TransferCardServiceImpl implements TransferCardService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public void deleteCardTransfer(long id) {
         CardTransfer accountTransfer = transferCardRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
 
         transferCardRepository.delete(accountTransfer);
         log.info("Удален CardTransfer с id {}", id);
@@ -38,7 +38,7 @@ public class TransferCardServiceImpl implements TransferCardService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public CardTransfer updateCardTransfer(CardTransfer cardTransfer, long id) {
         CardTransfer existingTransfer = transferCardRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNitFoundException(id));
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
 
         existingTransfer.setAmount(cardTransfer.getAmount());
         existingTransfer.setNumber(cardTransfer.getNumber());
@@ -47,6 +47,7 @@ public class TransferCardServiceImpl implements TransferCardService {
 
         transferCardRepository.save(existingTransfer);
         log.info("Обновлен CardTransfer с id {}", id);
+
         return existingTransfer;
     }
 
@@ -54,18 +55,22 @@ public class TransferCardServiceImpl implements TransferCardService {
     @Transactional(readOnly = true)
     public List<CardTransfer> getAllCardTransfers() {
         log.info("Получение всех CardTransfer");
+
         return transferCardRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true, rollbackFor = EntityNotFoundException.class)
     public CardTransfer getCardTransferById(long cardTransferId) {
+        log.info("Поиск CardTransfer c id {}", cardTransferId);
+
         return transferCardRepository.findById(cardTransferId)
-                .orElseThrow(() -> logAndThrowEntityNitFoundException(cardTransferId));
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(cardTransferId));
     }
 
-    private EntityNotFoundException logAndThrowEntityNitFoundException(long id) {
+    private EntityNotFoundException logAndThrowEntityNotFoundException(long id) {
         log.error("Не найден CardTransfer с указанным id {}", id);
+
         return new EntityNotFoundException("Не найден CardTransfer с id" + id);
     }
 }

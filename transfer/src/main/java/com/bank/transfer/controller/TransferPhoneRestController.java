@@ -41,6 +41,7 @@ public class TransferPhoneRestController {
         List<PhoneTransferDTO> phoneTransferDTOs = phoneTransfers.stream()
                 .map(phoneTransferMapper::phoneTransferToDTO)
                 .toList();
+
         return ResponseEntity.ok(phoneTransferDTOs);
     }
 
@@ -53,6 +54,7 @@ public class TransferPhoneRestController {
     public ResponseEntity<PhoneTransferDTO> getPhoneTransfer(@PathVariable Long id) {
         PhoneTransfer phoneTransfer = transferPhoneService.getPhoneTransferById(id);
         PhoneTransferDTO phoneTransferDTO = phoneTransferMapper.phoneTransferToDTO(phoneTransfer);
+
         return ResponseEntity.ok(phoneTransferDTO);
     }
 
@@ -66,6 +68,7 @@ public class TransferPhoneRestController {
     public ResponseEntity<PhoneTransferDTO> createPhoneTransfer(@Valid @RequestBody PhoneTransferDTO phoneTransferDTO) {
         PhoneTransfer phoneTransfer = phoneTransferMapper.dtoToPhoneTransfer(phoneTransferDTO);
         transferPhoneService.addPhoneTransfer(phoneTransfer);
+
         return ResponseEntity.ok(phoneTransferDTO);
     }
 
@@ -80,6 +83,7 @@ public class TransferPhoneRestController {
         PhoneTransfer phoneTransfer = phoneTransferMapper.dtoToPhoneTransfer(phoneTransferDTO);
         PhoneTransfer updatedPhoneTransfer = transferPhoneService.updatePhoneTransfer(phoneTransfer, id);
         PhoneTransferDTO updatedPhoneTransferDTO = phoneTransferMapper.phoneTransferToDTO(updatedPhoneTransfer);
+
         return ResponseEntity.ok(updatedPhoneTransferDTO);
     }
 
@@ -91,6 +95,7 @@ public class TransferPhoneRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<PhoneTransfer> deletePhoneTransfer(@PathVariable long id) {
         transferPhoneService.deletePhoneTransfer(id);
+
         return ResponseEntity.noContent().build();
     }
 }
