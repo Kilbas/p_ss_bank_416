@@ -1,4 +1,4 @@
-package com.bank.transfer.aspect;
+package com.bank.transfer.model;
 
 /**
  * Интерфейс-маркер, предназначенный для пометки сущностей, которые подлежат аудированию.

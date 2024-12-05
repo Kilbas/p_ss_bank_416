@@ -1,6 +1,5 @@
 package com.bank.transfer.model;
 
-import com.bank.transfer.aspect.Auditable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -1,6 +1,7 @@
 package com.bank.transfer.aspect;
 
 import com.bank.transfer.model.Audit;
+import com.bank.transfer.model.Auditable;
 import com.bank.transfer.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
