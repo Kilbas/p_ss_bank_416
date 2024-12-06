@@ -1,7 +1,6 @@
 server:
   port: 8088
-  servlet:
-    context-path: /api/history
+
 management:
   server:
     port: 8188
@@ -14,9 +13,9 @@ management:
         include: '*'
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
-    password: password
+    url: jdbc:postgresql://localhost:5433/history
+    username: postgres
+    password: root
   liquibase:
     default-schema: history
     change-log: db/changelog/db.changelog-master.yaml
