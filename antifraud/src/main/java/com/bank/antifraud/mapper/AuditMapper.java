@@ -5,7 +5,7 @@ import com.bank.antifraud.entity.Audit;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AuditMapper {
     AuditDTO toDTO(Audit audit);
 

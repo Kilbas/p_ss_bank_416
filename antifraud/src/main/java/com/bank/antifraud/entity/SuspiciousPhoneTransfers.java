@@ -27,7 +27,7 @@ public class SuspiciousPhoneTransfers {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "phone_transport_id", nullable = false, unique = true)
+    @Column(name = "phone_transfer_id", nullable = false, unique = true)
     private Long phoneTransferId;
 
     @Column(name = "is_blocked", nullable = false)

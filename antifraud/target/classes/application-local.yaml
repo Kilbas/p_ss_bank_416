@@ -15,7 +15,7 @@ management:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
-    username: user
+    username: postgres
     password: password
   liquibase:
     default-schema: anti_fraud

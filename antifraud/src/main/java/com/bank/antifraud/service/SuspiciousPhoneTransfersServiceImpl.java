@@ -37,7 +37,10 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
 
     @Override
     public SuspiciousPhoneTransferDTO create(SuspiciousPhoneTransferDTO transferDTO) {
-        SuspiciousPhoneTransfers entity = new SuspiciousPhoneTransfers();
+        if (transferDTO.getPhoneTransferId() == null) {
+            throw new IllegalArgumentException("PhoneTransferId cannot be null");
+        }
+        SuspiciousPhoneTransfers entity = mapper.toEntity(transferDTO);
         entity = repository.save(entity);
         return mapper.toDTO(entity);
     }

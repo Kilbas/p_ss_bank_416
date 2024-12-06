@@ -5,7 +5,7 @@ import com.bank.antifraud.entity.SuspiciousPhoneTransfers;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface SuspiciousPhoneTransfersMapper {
     SuspiciousPhoneTransferDTO toDTO(SuspiciousPhoneTransfers suspiciousPhoneTransfers);
 

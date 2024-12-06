@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -26,7 +27,7 @@ public class SuspiciousAccountTransferController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SuspiciousAccountTransfersDTO> findById(@PathVariable long id) {
+    public ResponseEntity<SuspiciousAccountTransfersDTO> findById(@PathVariable ("id") long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
@@ -36,17 +37,17 @@ public class SuspiciousAccountTransferController {
     }
 
     @PostMapping
-    public ResponseEntity<SuspiciousAccountTransfersDTO> create(@RequestBody SuspiciousAccountTransfersDTO suspiciousAccountTransfersDTO) {
+    public ResponseEntity<SuspiciousAccountTransfersDTO> create(@Valid @RequestBody SuspiciousAccountTransfersDTO suspiciousAccountTransfersDTO) {
         return ResponseEntity.ok(service.create(suspiciousAccountTransfersDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SuspiciousAccountTransfersDTO> update (@PathVariable long id, @RequestBody SuspiciousAccountTransfersDTO suspiciousAccountTransfersDTO) {
+    public ResponseEntity<SuspiciousAccountTransfersDTO> update (@Valid @PathVariable ("id") long id, @RequestBody SuspiciousAccountTransfersDTO suspiciousAccountTransfersDTO) {
         return ResponseEntity.ok(service.update(id, suspiciousAccountTransfersDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable long id) {
+    public ResponseEntity<Void> delete(@PathVariable ("id") long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
