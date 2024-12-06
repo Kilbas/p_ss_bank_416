@@ -6,6 +6,7 @@ import com.bank.history.models.History;
 import com.bank.history.repositories.HistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
@@ -32,6 +33,7 @@ public class HistoryServiceImpl implements HistoryService {
         return historyMapper.toDTO(historyRepository.findById(id).orElseThrow(EntityNotFoundException::new));
     }
 
+    @Transactional
     @Override
     public void update(HistoryDTO historyDTO, int id) {
         History historyOld = historyRepository.findById(id).orElseThrow(EntityNotFoundException::new);
@@ -39,11 +41,13 @@ public class HistoryServiceImpl implements HistoryService {
         historyRepository.save(historyOld);
     }
 
+    @Transactional
     public void deleteById(int id) {
         historyRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         historyRepository.deleteById(id);
     }
 
+    @Transactional
     public void save(HistoryDTO historyDTO) {
         historyRepository.save(historyMapper.toEntitySave(historyDTO));
     }
