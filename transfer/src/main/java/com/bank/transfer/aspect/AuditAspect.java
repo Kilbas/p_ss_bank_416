@@ -38,12 +38,23 @@ public class AuditAspect {
         String entityId =  joinPoint.getArgs()[1].toString();
         String entityType = result.getClass().getSimpleName();
 
-        Audit audit = auditService.findByEntityTypeAndEntityId(entityType, entityId);
+        Audit savedAudit = auditService.findByEntityTypeAndEntityId(entityType, entityId);
+        Audit newAudit = new Audit();
 
-        audit.setModifiedBy("Admin");
-        audit.setModifiedAt(LocalDateTime.now());
-        audit.setNewEntityJson(result.toString());
+        fromSavedAuditToNewAudit(savedAudit, newAudit);
 
-        auditService.updateAudit(audit);
+        newAudit.setOperationType(joinPoint.getSignature().getName());
+        newAudit.setModifiedBy("Admin");
+        newAudit.setModifiedAt(LocalDateTime.now());
+        newAudit.setNewEntityJson(result.toString());
+
+        auditService.addAudit(newAudit);
+    }
+
+    private void fromSavedAuditToNewAudit (Audit savedAudit, Audit newAudit) {
+        newAudit.setEntityType(savedAudit.getEntityType());
+        newAudit.setCreatedAt(savedAudit.getCreatedAt());
+        newAudit.setCreatedBy(savedAudit.getCreatedBy());
+        newAudit.setEntityJson(savedAudit.getEntityJson());
     }
 }
