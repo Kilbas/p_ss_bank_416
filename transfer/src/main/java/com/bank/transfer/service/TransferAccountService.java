@@ -5,7 +5,7 @@ import com.bank.transfer.model.AccountTransfer;
 import java.util.List;
 
 public interface TransferAccountService {
-    void addAccountTransfer(AccountTransfer accountTransfer);
+    AccountTransfer addAccountTransfer(AccountTransfer accountTransfer);
     void deleteAccountTransfer(long id);
     AccountTransfer updateAccountTransfer(AccountTransfer accountTransfer, long id);
     List<AccountTransfer> getAllAccountTransfers();

@@ -67,9 +67,10 @@ public class TransferPhoneRestController {
     @PostMapping
     public ResponseEntity<PhoneTransferDTO> createPhoneTransfer(@Valid @RequestBody PhoneTransferDTO phoneTransferDTO) {
         PhoneTransfer phoneTransfer = phoneTransferMapper.dtoToPhoneTransfer(phoneTransferDTO);
-        transferPhoneService.addPhoneTransfer(phoneTransfer);
+        PhoneTransfer addedPhoneTransfer = transferPhoneService.addPhoneTransfer(phoneTransfer);
+        PhoneTransferDTO addedPhoneTransferDTO = phoneTransferMapper.phoneTransferToDTO(addedPhoneTransfer);
 
-        return ResponseEntity.ok(phoneTransferDTO);
+        return ResponseEntity.ok(addedPhoneTransferDTO);
     }
 
     @Operation(summary = "Обновить перевод", description = "Обновляет данные перевода по телефону на основании указанного ID")

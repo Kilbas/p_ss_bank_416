@@ -4,7 +4,6 @@ import com.bank.transfer.model.Audit;
 import com.bank.transfer.model.Auditable;
 import com.bank.transfer.service.AuditService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
 @Aspect
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class AuditAspect {
     private final AuditService auditService;
 

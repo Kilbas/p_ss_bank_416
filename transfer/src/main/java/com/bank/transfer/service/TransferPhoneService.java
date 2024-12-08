@@ -5,7 +5,7 @@ import com.bank.transfer.model.PhoneTransfer;
 import java.util.List;
 
 public interface TransferPhoneService {
-    void addPhoneTransfer(PhoneTransfer phoneTransfer);
+    PhoneTransfer addPhoneTransfer(PhoneTransfer phoneTransfer);
     void deletePhoneTransfer(long id);
     PhoneTransfer updatePhoneTransfer(PhoneTransfer phoneTransfer, long id);
     List<PhoneTransfer> getAllPhoneTransfers();

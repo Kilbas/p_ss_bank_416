@@ -19,9 +19,10 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
 
     @Override
     @Transactional
-    public void addPhoneTransfer(PhoneTransfer phoneTransfer) {
+    public PhoneTransfer addPhoneTransfer(PhoneTransfer phoneTransfer) {
         transferPhoneRepository.save(phoneTransfer);
         log.info("Трансфер PhoneTransfer успешно добавлен");
+        return phoneTransfer;
     }
 
     @Override

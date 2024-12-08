@@ -19,9 +19,10 @@ public class TransferAccountServiceImpl implements TransferAccountService {
 
     @Override
     @Transactional
-    public void addAccountTransfer(AccountTransfer accountTransfer) {
+    public AccountTransfer addAccountTransfer(AccountTransfer accountTransfer) {
         transferAccountRepository.save(accountTransfer);
         log.info("Трансфер AccountTransfer успешно добавлен");
+        return  accountTransfer;
     }
 
     @Override

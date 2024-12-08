@@ -67,9 +67,10 @@ public class TransferCardRestController {
     @PostMapping
     public ResponseEntity<CardTransferDTO> createCardTransfer(@Valid @RequestBody CardTransferDTO cardTransferDTO) {
         CardTransfer cardTransfer = cardTransferMapper.dtoToCardTransfer(cardTransferDTO);
-        transferCardService.addCardTransfer(cardTransfer);
+        CardTransfer addedCardTransfer = transferCardService.addCardTransfer(cardTransfer);
+        CardTransferDTO addedCardTransferDTO = cardTransferMapper.cardTransferToDTO(addedCardTransfer);
 
-        return ResponseEntity.ok(cardTransferDTO);
+        return ResponseEntity.ok(addedCardTransferDTO);
     }
 
     @Operation(summary = "Обновить перевод", description = "Обновляет данные перевода по карте на основании указанного ID")

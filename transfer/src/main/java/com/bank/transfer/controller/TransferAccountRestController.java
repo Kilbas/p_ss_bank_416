@@ -67,9 +67,10 @@ public class TransferAccountRestController {
     @PostMapping
     public ResponseEntity<AccountTransferDTO> createAccountTransfer(@Valid @RequestBody AccountTransferDTO accountTransferDTO) {
         AccountTransfer accountTransfer = accountTransferMapper.dtoToAccountTransfer(accountTransferDTO);
-        transferAccountService.addAccountTransfer(accountTransfer);
+        AccountTransfer addedAccountTransfer = transferAccountService.addAccountTransfer(accountTransfer);
+        AccountTransferDTO addedAccountTransferDTO = accountTransferMapper.accountTransferToDTO(addedAccountTransfer);
 
-        return ResponseEntity.ok(accountTransferDTO);
+        return ResponseEntity.ok(addedAccountTransferDTO);
     }
 
     @Operation(summary = "Обновить перевод", description = "Обновляет данные перевода на основании указанного ID")

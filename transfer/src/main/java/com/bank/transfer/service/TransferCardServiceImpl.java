@@ -19,9 +19,10 @@ public class TransferCardServiceImpl implements TransferCardService {
 
     @Override
     @Transactional
-    public void addCardTransfer(CardTransfer cardTransfer) {
+    public CardTransfer addCardTransfer(CardTransfer cardTransfer) {
         transferCardRepository.save(cardTransfer);
         log.info("Трансфер CardTransfer успешно добавлен");
+        return cardTransfer;
     }
 
     @Override
