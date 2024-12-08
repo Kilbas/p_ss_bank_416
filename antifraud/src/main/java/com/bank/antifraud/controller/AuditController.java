@@ -30,20 +30,11 @@ public class AuditController {
      * @return Ответ с данными аудита.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<AuditDTO> getById(@PathVariable("id") Long id) {
-        logger.info("Получен запрос на получение аудита по ID: {}", id);
-        if (id == null || id <= 0) {
-            logger.warn("Некорректный ID: {}", id);
-            return ResponseEntity.badRequest().build();
-        }
-        try {
-            AuditDTO audit = auditService.findById(id);
-            logger.info("Аудит найден: {}", audit);
-            return ResponseEntity.ok(audit);
-        } catch (Exception e) {
-            logger.error("Ошибка при получении аудита по ID: {}", id, e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public ResponseEntity<AuditDTO> findById(@PathVariable("id") Long id) {
+        logger.info("Получен запрос на получение аудита ID: {}", id);
+        AuditDTO auditDTO = auditService.findById(id);
+        logger.info("Возвращены данные о аудите : {}", auditDTO);
+        return new ResponseEntity<>(auditDTO, HttpStatus.OK);
     }
 
     /**
@@ -72,10 +63,6 @@ public class AuditController {
     @PostMapping
     public ResponseEntity<AuditDTO> create(@Valid @RequestBody AuditDTO auditDTO) {
         logger.info("Получен запрос на создание аудита: {}", auditDTO);
-        if (auditDTO == null) {
-            logger.warn("Данные для создания аудита пусты.");
-            return ResponseEntity.badRequest().build();
-        }
         try {
             AuditDTO createdAudit = auditService.create(auditDTO);
             logger.info("Аудит успешно создан: {}", createdAudit);
@@ -95,15 +82,13 @@ public class AuditController {
     @GetMapping("/entity-type/{entityType}")
     public ResponseEntity<List<AuditDTO>> findByEntityType(@PathVariable("entityType") String entityType) {
         logger.info("Получен запрос на поиск аудитов по типу сущности: {}", entityType);
-        if (entityType == null || entityType.isEmpty()) {
-            logger.warn("Некорректный тип сущности: {}", entityType);
-            return ResponseEntity.badRequest().build();
-        }
+
         List<AuditDTO> audits = auditService.findByEntityType(entityType);
         if (audits.isEmpty()) {
             logger.info("Аудиты с типом сущности '{}' не найдены.", entityType);
             return ResponseEntity.noContent().build();
         }
+
         logger.info("Найдены аудиты по типу сущности '{}', количество: {}", entityType, audits.size());
         return ResponseEntity.ok(audits);
     }
@@ -117,16 +102,15 @@ public class AuditController {
     @GetMapping("/operation-type/{operationType}")
     public ResponseEntity<List<AuditDTO>> findByOperationType(@PathVariable("operationType") String operationType) {
         logger.info("Получен запрос на поиск аудитов по типу операции: {}", operationType);
-        if (operationType == null || operationType.isEmpty()) {
-            logger.warn("Некорректный тип операции: {}", operationType);
-            return ResponseEntity.badRequest().build();
-        }
+
         List<AuditDTO> audits = auditService.findByOperationType(operationType);
         if (audits.isEmpty()) {
             logger.info("Аудиты с типом операции '{}' не найдены.", operationType);
             return ResponseEntity.noContent().build();
         }
+
         logger.info("Найдены аудиты по типу операции '{}', количество: {}", operationType, audits.size());
         return ResponseEntity.ok(audits);
     }
+
 }

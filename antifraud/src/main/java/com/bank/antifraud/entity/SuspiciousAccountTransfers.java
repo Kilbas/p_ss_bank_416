@@ -15,6 +15,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Objects;
 
+/**
+ * Сущность "SuspiciousAccountTransfers" для представления данных
+ * о подозрительных банковских переводах.
+ */
 @Entity
 @Getter
 @Setter
@@ -24,25 +28,54 @@ import java.util.Objects;
 @Table(name = "Suspicious_account_transfers", schema = "anti_fraud")
 public class SuspiciousAccountTransfers {
 
+    /**
+     * Уникальный идентификатор записи.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Идентификатор банковского перевода, связанного с записью.
+     * Должен быть уникальным.
+     */
     @Column(name = "account_transfer_id", nullable = false, unique = true)
     private long accountTransferId;
 
+    /**
+     * Статус блокировки перевода.
+     * true - перевод заблокирован, false - нет.
+     */
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked;
 
+    /**
+     * Статус подозрительности перевода.
+     * true - перевод является подозрительным, false - нет.
+     */
     @Column(name = "is_Suspicious", nullable = false, columnDefinition = "text")
     private boolean isSuspicious;
 
-    @Column(name = "blocked_reason",nullable = true, columnDefinition = "text")
+    /**
+     * Причина блокировки перевода (если применимо).
+     * Может быть null.
+     */
+    @Column(name = "blocked_reason", nullable = true, columnDefinition = "text")
     private String blockedReason;
 
+    /**
+     * Причина, по которой перевод был помечен как подозрительный.
+     */
     @Column(name = "suspicious_reason", nullable = false)
     private String suspiciousReason;
 
+    /**
+     * Переопределенный метод equals для сравнения объектов.
+     * Учитывает использование Hibernate-прокси для корректной работы.
+     *
+     * @param o объект для сравнения.
+     * @return true, если объекты равны, иначе false.
+     */
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
@@ -50,15 +83,19 @@ public class SuspiciousAccountTransfers {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Audit audit = (Audit) o;
-        return getId() != null && Objects.equals(getId(), audit.getId());
+        SuspiciousAccountTransfers that = (SuspiciousAccountTransfers) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
+    /**
+     * Переопределенный метод hashCode для корректной работы хэш-таблиц.
+     *
+     * @return хэш-код объекта.
+     */
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy
                 ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
                 : getClass().hashCode();
     }
-
 }
