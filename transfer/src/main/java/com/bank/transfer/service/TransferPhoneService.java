@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface TransferPhoneService {
     PhoneTransfer addPhoneTransfer(PhoneTransfer phoneTransfer);
-    void deletePhoneTransfer(long id);
+    PhoneTransfer deletePhoneTransfer(long id);
     PhoneTransfer updatePhoneTransfer(PhoneTransfer phoneTransfer, long id);
     List<PhoneTransfer> getAllPhoneTransfers();
     PhoneTransfer getPhoneTransferById(long phoneTransferId);

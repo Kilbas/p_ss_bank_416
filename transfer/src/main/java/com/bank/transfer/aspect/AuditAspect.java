@@ -49,6 +49,24 @@ public class AuditAspect {
         auditService.addAudit(newAudit);
     }
 
+    @AfterReturning(value = "execution(* com.bank.transfer.service.*.delete*Transfer(long))", returning = "result")
+    public void afterDeleteTransfer(JoinPoint joinPoint, Auditable result) {
+        String entityId =  joinPoint.getArgs()[0].toString();
+        String entityType = result.getClass().getSimpleName();
+
+        Audit savedAudit = auditService.findByEntityTypeAndEntityId(entityType, entityId);
+        Audit newAudit = new Audit();
+
+        fromSavedAuditToNewAudit(savedAudit, newAudit);
+
+        newAudit.setOperationType(joinPoint.getSignature().getName());
+        newAudit.setModifiedBy("Admin");
+        newAudit.setModifiedAt(LocalDateTime.now());
+        newAudit.setNewEntityJson(null);
+
+        auditService.addAudit(newAudit);
+    }
+
     private void fromSavedAuditToNewAudit (Audit savedAudit, Audit newAudit) {
         newAudit.setEntityType(savedAudit.getEntityType());
         newAudit.setCreatedAt(savedAudit.getCreatedAt());

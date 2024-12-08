@@ -27,12 +27,13 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
-    public void deletePhoneTransfer(long id) {
-        PhoneTransfer accountTransfer = transferPhoneRepository.findById(id)
+    public PhoneTransfer deletePhoneTransfer(long id) {
+        PhoneTransfer phoneTransfer = transferPhoneRepository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
 
-        transferPhoneRepository.delete(accountTransfer);
+        transferPhoneRepository.delete(phoneTransfer);
         log.info("Удален PhoneTransfer с id {}", id);
+        return phoneTransfer;
     }
 
     @Override
