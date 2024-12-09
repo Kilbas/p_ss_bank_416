@@ -29,20 +29,20 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
-    public HistoryDTO findById(int id) {
+    public HistoryDTO findById(Long id) {
         return historyMapper.toDTO(historyRepository.findById(id).orElseThrow(EntityNotFoundException::new));
     }
 
     @Transactional
     @Override
-    public void update(HistoryDTO historyDTO, int id) {
+    public void update(HistoryDTO historyDTO, Long id) {
         History historyOld = historyRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         historyMapper.toEntityUpdate(historyDTO, historyOld);
         historyRepository.save(historyOld);
     }
 
     @Transactional
-    public void deleteById(int id) {
+    public void deleteById(Long id) {
         historyRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         historyRepository.deleteById(id);
     }

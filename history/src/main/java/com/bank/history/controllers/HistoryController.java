@@ -39,18 +39,18 @@ public class HistoryController {
     }
 
     @GetMapping("/{id}")
-    public HistoryDTO getHistoryById(@PathVariable int id) {
+    public HistoryDTO getHistoryById(@PathVariable Long id) {
         return historyService.findById(id);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<HttpStatus> updateHistory(@PathVariable int id, @RequestBody HistoryDTO dto) {
+    public ResponseEntity<HttpStatus> updateHistory(@PathVariable Long id, @RequestBody HistoryDTO dto) {
         historyService.update(dto, id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteHistoryById(@PathVariable int id) {
+    public ResponseEntity<HttpStatus> deleteHistoryById(@PathVariable Long id) {
         historyService.deleteById(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }

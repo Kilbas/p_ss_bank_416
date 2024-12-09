@@ -8,11 +8,11 @@ public interface HistoryService {
 
     List<HistoryDTO> findAll();
 
-    HistoryDTO findById(int id);
+    HistoryDTO findById(Long id);
 
-    void update(HistoryDTO historyDTO, int id);
+    void update(HistoryDTO historyDTO, Long id);
 
-    void deleteById(int id);
+    void deleteById(Long id);
 
     void save(HistoryDTO historyDTO);
 }
