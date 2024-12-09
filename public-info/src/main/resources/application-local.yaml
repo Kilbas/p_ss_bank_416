@@ -1,3 +1,4 @@
+
 server:
   port: 8091
   servlet:
@@ -14,8 +15,9 @@ management:
         include: '*'
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
+
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: postgres
     password: password
   liquibase:
     default-schema: public_bank_information
@@ -24,3 +26,7 @@ spring:
     drop-first: false
   application:
     name: public-info-app
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
