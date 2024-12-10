@@ -1,11 +1,14 @@
-package com.bank.transfer.service;
+package com.bank.transfer.serviceImpl;
 
 import com.bank.transfer.model.Audit;
 import com.bank.transfer.repository.AuditRepository;
+import com.bank.transfer.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -16,13 +19,19 @@ public class AuditServiceImpl implements AuditService {
 
     @Transactional(readOnly = true)
     public Audit findByEntityTypeAndEntityId(String entityType, String entityId) {
+        Audit audit = auditRepository.findByEntityTypeAndEntityId(entityType, entityId);
+
+        if (audit == null) {
+            throw new EntityNotFoundException(
+                    String.format("не найден аудит с типом сущности %s и айди сущности %s", entityType, entityId)
+            );
+        }
+
         return auditRepository.findByEntityTypeAndEntityId(entityType, entityId);
     }
 
     @Override
-    @Transactional
     public void addAudit(Audit audit) {
         auditRepository.save(audit);
-        log.info("Audit успешно добавлен");
     }
 }
