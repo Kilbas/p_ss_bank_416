@@ -4,6 +4,8 @@ import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.entity.SuspiciousCardTransfer;
 import com.bank.antifraud.mapper.SuspiciousCardTransferMapper;
 import com.bank.antifraud.repository.SuspiciousCardTransferRepository;
+import liquibase.pro.packaged.S;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,10 @@ import java.util.stream.Collectors;
 /**
  * Реализация сервиса для работы с подозрительными переводами по картам.
  */
+@Slf4j
 @Service
 public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransferService {
 
-    private static final Logger log = LoggerFactory.getLogger(SuspiciousCardTransferServiceImpl.class);
 
     private final SuspiciousCardTransferRepository repository;
     private final SuspiciousCardTransferMapper mapper;
@@ -89,23 +91,17 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
      */
     @Override
     public SuspiciousCardTransferDTO update(Long id, SuspiciousCardTransferDTO transferDTO) {
-        log.info("Запрос на обновление подозрительного перевода с ID: {}", id);
-        if (id == null) {
-            log.error("ID для обновления не может быть null");
-            throw new IllegalArgumentException("ID для обновления не может быть null!");
-        }
+
         SuspiciousCardTransfer existing = repository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Перевод с ID {} не найден для обновления", id);
                     return new IllegalArgumentException("Перевод не найден с ID: " + id);
                 });
-        existing.setIsBlocked(transferDTO.getIsBlocked());
-        existing.setIsSuspicious(transferDTO.getIsSuspicious());
-        existing.setBlockedReason(transferDTO.getBlockedReason());
-        existing.setSuspiciousReason(transferDTO.getSuspiciousReason());
-        repository.save(existing);
-        log.info("Подозрительный перевод с ID {} успешно обновлен", id);
-        return mapper.toDTO(existing);
+        mapper.toDtoUpdate(transferDTO, existing);
+
+        SuspiciousCardTransfer updatedEntity = repository.save(existing);
+
+        return mapper.toDTO(updatedEntity);
     }
 
     /**

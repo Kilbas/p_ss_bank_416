@@ -3,7 +3,6 @@ package com.bank.antifraud.controller;
 import com.bank.antifraud.dto.SuspiciousAccountTransfersDTO;
 import com.bank.antifraud.service.SuspiciousAccountTransfersService;
 
-import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +26,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/suspicious-account-transfers")
-public class SuspiciousAccountTransferController {
+public class SuspiciousAccountTransfersController {
 
-private static final Logger logger = LoggerFactory.getLogger(SuspiciousAccountTransferController.class);
+private static final Logger logger = LoggerFactory.getLogger(SuspiciousAccountTransfersController.class);
 
     private final SuspiciousAccountTransfersService service;
 
-    public SuspiciousAccountTransferController(SuspiciousAccountTransfersService service) {
+    public SuspiciousAccountTransfersController(SuspiciousAccountTransfersService service) {
         this.service = service;
     }
 

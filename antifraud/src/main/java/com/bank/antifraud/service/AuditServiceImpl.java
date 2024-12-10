@@ -4,6 +4,7 @@ import com.bank.antifraud.dto.AuditDTO;
 import com.bank.antifraud.entity.Audit;
 import com.bank.antifraud.mapper.AuditMapper;
 import com.bank.antifraud.repository.AuditRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class AuditServiceImpl implements AuditService {
 
@@ -34,7 +36,6 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public AuditDTO findById(Long id) {
-        logger.info("Запрос на поиск аудита с ID: {}", id);
 
         if (id == null) {
             logger.error("Идентификатор ID не может быть null");
@@ -47,8 +48,6 @@ public class AuditServiceImpl implements AuditService {
                     logger.error("Аудит с ID {} не найден", id);
                     return new EntityNotFoundException("Audit not found with ID: " + id);
                 });
-
-        logger.info("Успешно найден аудит с ID: {}", id);
         return auditDTO;
     }
 
@@ -59,7 +58,6 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public List<AuditDTO> findAll() {
-        logger.info("Запрос на получение всех записей аудита");
         List<AuditDTO> audits = repository.findAll().stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
@@ -75,7 +73,6 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public AuditDTO create(AuditDTO transferDTO) {
-        logger.info("Запрос на создание нового аудита");
 
         if (transferDTO == null) {
             logger.error("AuditDTO не может быть null");
@@ -84,7 +81,6 @@ public class AuditServiceImpl implements AuditService {
 
         Audit entity = mapper.toEntity(transferDTO);
         Audit savedEntity = repository.save(entity);
-        logger.info("Аудит успешно создан с ID: {}", savedEntity.getId());
         return mapper.toDTO(savedEntity);
     }
 
@@ -96,7 +92,6 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public List<AuditDTO> findByEntityType(String entityType) {
-        logger.info("Запрос на поиск аудита с типом сущности: {}", entityType);
 
         if (entityType == null || entityType.isEmpty()) {
             logger.error("Тип сущности не может быть null или пустым");
@@ -106,7 +101,6 @@ public class AuditServiceImpl implements AuditService {
         List<AuditDTO> audits = repository.findByEntityType(entityType).stream()
                 .map(mapper::toDTO)
                 .toList();
-        logger.info("Найдено {} записей аудита с типом сущности: {}", audits.size(), entityType);
         return audits;
     }
 
@@ -118,7 +112,6 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public List<AuditDTO> findByOperationType(String operationType) {
-        logger.info("Запрос на поиск аудита с типом операции: {}", operationType);
 
         if (operationType == null || operationType.isEmpty()) {
             logger.error("Тип операции не может быть null или пустым");
@@ -128,7 +121,6 @@ public class AuditServiceImpl implements AuditService {
         List<AuditDTO> audits = repository.findByOperationType(operationType).stream()
                 .map(mapper::toDTO)
                 .toList();
-        logger.info("Найдено {} записей аудита с типом операции: {}", audits.size(), operationType);
         return audits;
     }
 }
