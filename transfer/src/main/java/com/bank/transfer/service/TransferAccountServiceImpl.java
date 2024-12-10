@@ -27,13 +27,12 @@ public class TransferAccountServiceImpl implements TransferAccountService {
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
-    public AccountTransfer deleteAccountTransfer(long id) {
+    public void deleteAccountTransfer(long id) {
         AccountTransfer accountTransfer = transferAccountRepository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
 
         transferAccountRepository.delete(accountTransfer);
         log.info("Удален AccountTransfer c id {}", id);
-        return accountTransfer;
     }
 
     @Override

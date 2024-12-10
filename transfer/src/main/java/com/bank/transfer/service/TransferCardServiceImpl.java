@@ -27,13 +27,12 @@ public class TransferCardServiceImpl implements TransferCardService {
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
-    public CardTransfer deleteCardTransfer(long id) {
+    public void deleteCardTransfer(long id) {
         CardTransfer cardTransfer = transferCardRepository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
 
         transferCardRepository.delete(cardTransfer);
         log.info("Удален CardTransfer с id {}", id);
-        return cardTransfer;
     }
 
     @Override
