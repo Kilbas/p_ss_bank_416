@@ -15,18 +15,19 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class AuditAspect {
+    private final String ADMIN_ROLE = "ADMIN";
+    private final String USER_ROLE = "USER";
     private final AuditService auditService;
 
-    @AfterReturning("execution(* com.bank.transfer.service.*.add*Transfer(*))")
-    public void afterAddTransfer(JoinPoint joinPoint) {
+    @AfterReturning(value = "execution(* com.bank.transfer.service.*.add*Transfer(*))", returning = "result")
+    public void afterAddTransfer(JoinPoint joinPoint, Auditable result) {
         Audit audit = new Audit();
-        Auditable auditObject = (Auditable) joinPoint.getArgs()[0];
 
-        audit.setEntityType(auditObject.getClass().getSimpleName());
+        audit.setEntityType(result.getClass().getSimpleName());
         audit.setOperationType(joinPoint.getSignature().getName());
-        audit.setCreatedBy("User");
+        audit.setCreatedBy(USER_ROLE);
         audit.setCreatedAt(LocalDateTime.now());
-        audit.setEntityJson(auditObject.toString());
+        audit.setEntityJson(result.toString());
 
         auditService.addAudit(audit);
     }
@@ -42,7 +43,7 @@ public class AuditAspect {
         fromSavedAuditToNewAudit(savedAudit, newAudit);
 
         newAudit.setOperationType(joinPoint.getSignature().getName());
-        newAudit.setModifiedBy("Admin");
+        newAudit.setModifiedBy(ADMIN_ROLE);
         newAudit.setModifiedAt(LocalDateTime.now());
         newAudit.setNewEntityJson(result.toString());
 
