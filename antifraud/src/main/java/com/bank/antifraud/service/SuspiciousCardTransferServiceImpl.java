@@ -4,18 +4,19 @@ import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.entity.SuspiciousCardTransfer;
 import com.bank.antifraud.mapper.SuspiciousCardTransferMapper;
 import com.bank.antifraud.repository.SuspiciousCardTransferRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Slf4j
+@Transactional(readOnly = true)
 @Service
 public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransferService {
-
-    private static final Logger log = LoggerFactory.getLogger(SuspiciousCardTransferServiceImpl.class);
 
     private final SuspiciousCardTransferRepository repository;
     private final SuspiciousCardTransferMapper mapper;

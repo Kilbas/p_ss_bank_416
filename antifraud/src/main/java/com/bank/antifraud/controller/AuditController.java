@@ -15,102 +15,102 @@ import java.util.List;
 @RequestMapping("/api/audits")
 public class AuditController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuditController.class);
-
-    private final AuditService auditService;
-
-    public AuditController(AuditService auditService) {
-        this.auditService = auditService;
-    }
-
-    /**
-     * Получение аудита по ID.
-     *
-     * @param id ID аудита.
-     * @return Ответ с данными аудита.
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<AuditDTO> findById(@PathVariable("id") Long id) {
-        logger.info("Получен запрос на получение аудита ID: {}", id);
-        AuditDTO auditDTO = auditService.findById(id);
-        logger.info("Возвращены данные о аудите : {}", auditDTO);
-        return new ResponseEntity<>(auditDTO, HttpStatus.OK);
-    }
-
-    /**
-     * Получение всех аудитов.
-     *
-     * @return Список всех аудитов.
-     */
-    @GetMapping
-    public ResponseEntity<List<AuditDTO>> getAll() {
-        logger.info("Получен запрос на получение всех аудитов.");
-        List<AuditDTO> audits = auditService.findAll();
-        if (audits.isEmpty()) {
-            logger.info("Список аудитов пуст.");
-            return ResponseEntity.noContent().build();
-        }
-        logger.info("Возвращен список аудитов, количество записей: {}", audits.size());
-        return ResponseEntity.ok(audits);
-    }
-
-    /**
-     * Создание нового аудита.
-     *
-     * @param auditDTO Данные для создания аудита.
-     * @return Созданный аудит.
-     */
-    @PostMapping
-    public ResponseEntity<AuditDTO> create(@Valid @RequestBody AuditDTO auditDTO) {
-        logger.info("Получен запрос на создание аудита: {}", auditDTO);
-        try {
-            AuditDTO createdAudit = auditService.create(auditDTO);
-            logger.info("Аудит успешно создан: {}", createdAudit);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdAudit);
-        } catch (Exception e) {
-            logger.error("Ошибка при создании аудита.", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    /**
-     * Получение аудитов по типу сущности.
-     *
-     * @param entityType Тип сущности.
-     * @return Список аудитов по типу сущности.
-     */
-    @GetMapping("/entity-type/{entityType}")
-    public ResponseEntity<List<AuditDTO>> findByEntityType(@PathVariable("entityType") String entityType) {
-        logger.info("Получен запрос на поиск аудитов по типу сущности: {}", entityType);
-
-        List<AuditDTO> audits = auditService.findByEntityType(entityType);
-        if (audits.isEmpty()) {
-            logger.info("Аудиты с типом сущности '{}' не найдены.", entityType);
-            return ResponseEntity.noContent().build();
-        }
-
-        logger.info("Найдены аудиты по типу сущности '{}', количество: {}", entityType, audits.size());
-        return ResponseEntity.ok(audits);
-    }
-
-    /**
-     * Получение аудитов по типу операции.
-     *
-     * @param operationType Тип операции.
-     * @return Список аудитов по типу операции.
-     */
-    @GetMapping("/operation-type/{operationType}")
-    public ResponseEntity<List<AuditDTO>> findByOperationType(@PathVariable("operationType") String operationType) {
-        logger.info("Получен запрос на поиск аудитов по типу операции: {}", operationType);
-
-        List<AuditDTO> audits = auditService.findByOperationType(operationType);
-        if (audits.isEmpty()) {
-            logger.info("Аудиты с типом операции '{}' не найдены.", operationType);
-            return ResponseEntity.noContent().build();
-        }
-
-        logger.info("Найдены аудиты по типу операции '{}', количество: {}", operationType, audits.size());
-        return ResponseEntity.ok(audits);
-    }
+//    private static final Logger logger = LoggerFactory.getLogger(AuditController.class);
+//
+//    private final AuditService auditService;
+//
+//    public AuditController(AuditService auditService) {
+//        this.auditService = auditService;
+//    }
+//
+//    /**
+//     * Получение аудита по ID.
+//     *
+//     * @param id ID аудита.
+//     * @return Ответ с данными аудита.
+//     */
+//    @GetMapping("/{id}")
+//    public ResponseEntity<AuditDTO> findById(@PathVariable("id") Long id) {
+//        logger.info("Получен запрос на получение аудита ID: {}", id);
+//        AuditDTO auditDTO = auditService.findById(id);
+//        logger.info("Возвращены данные о аудите : {}", auditDTO);
+//        return new ResponseEntity<>(auditDTO, HttpStatus.OK);
+//    }
+//
+//    /**
+//     * Получение всех аудитов.
+//     *
+//     * @return Список всех аудитов.
+//     */
+//    @GetMapping
+//    public ResponseEntity<List<AuditDTO>> getAll() {
+//        logger.info("Получен запрос на получение всех аудитов.");
+//        List<AuditDTO> audits = auditService.findAll();
+//        if (audits.isEmpty()) {
+//            logger.info("Список аудитов пуст.");
+//            return ResponseEntity.noContent().build();
+//        }
+//        logger.info("Возвращен список аудитов, количество записей: {}", audits.size());
+//        return ResponseEntity.ok(audits);
+//    }
+//
+//    /**
+//     * Создание нового аудита.
+//     *
+//     * @param auditDTO Данные для создания аудита.
+//     * @return Созданный аудит.
+//     */
+//    @PostMapping
+//    public ResponseEntity<AuditDTO> create(@Valid @RequestBody AuditDTO auditDTO) {
+//        logger.info("Получен запрос на создание аудита: {}", auditDTO);
+//        try {
+//            AuditDTO createdAudit = auditService.create(auditDTO);
+//            logger.info("Аудит успешно создан: {}", createdAudit);
+//            return ResponseEntity.status(HttpStatus.CREATED).body(createdAudit);
+//        } catch (Exception e) {
+//            logger.error("Ошибка при создании аудита.", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
+//
+//    /**
+//     * Получение аудитов по типу сущности.
+//     *
+//     * @param entityType Тип сущности.
+//     * @return Список аудитов по типу сущности.
+//     */
+//    @GetMapping("/entity-type/{entityType}")
+//    public ResponseEntity<List<AuditDTO>> findByEntityType(@PathVariable("entityType") String entityType) {
+//        logger.info("Получен запрос на поиск аудитов по типу сущности: {}", entityType);
+//
+//        List<AuditDTO> audits = auditService.findByEntityType(entityType);
+//        if (audits.isEmpty()) {
+//            logger.info("Аудиты с типом сущности '{}' не найдены.", entityType);
+//            return ResponseEntity.noContent().build();
+//        }
+//
+//        logger.info("Найдены аудиты по типу сущности '{}', количество: {}", entityType, audits.size());
+//        return ResponseEntity.ok(audits);
+//    }
+//
+//    /**
+//     * Получение аудитов по типу операции.
+//     *
+//     * @param operationType Тип операции.
+//     * @return Список аудитов по типу операции.
+//     */
+//    @GetMapping("/operation-type/{operationType}")
+//    public ResponseEntity<List<AuditDTO>> findByOperationType(@PathVariable("operationType") String operationType) {
+//        logger.info("Получен запрос на поиск аудитов по типу операции: {}", operationType);
+//
+//        List<AuditDTO> audits = auditService.findByOperationType(operationType);
+//        if (audits.isEmpty()) {
+//            logger.info("Аудиты с типом операции '{}' не найдены.", operationType);
+//            return ResponseEntity.noContent().build();
+//        }
+//
+//        logger.info("Найдены аудиты по типу операции '{}', количество: {}", operationType, audits.size());
+//        return ResponseEntity.ok(audits);
+//    }
 
 }

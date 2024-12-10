@@ -6,12 +6,14 @@ import com.bank.antifraud.mapper.SuspiciousPhoneTransfersMapper;
 import com.bank.antifraud.repository.SuspiciousPhoneTransfersRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Transactional(readOnly = true)
 @Service
 public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTransfersService {
 
