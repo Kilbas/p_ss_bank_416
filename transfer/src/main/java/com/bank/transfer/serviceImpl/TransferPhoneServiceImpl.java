@@ -27,21 +27,16 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
 
     @Override
     public void deletePhoneTransfer(long id) {
-        PhoneTransfer phoneTransfer = transferPhoneRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
+        PhoneTransfer phoneTransfer = findPhoneTransferOrThrowException(id);
 
         transferPhoneRepository.delete(phoneTransfer);
     }
 
     @Override
     public PhoneTransfer updatePhoneTransfer(PhoneTransfer phoneTransfer, long id) {
-        PhoneTransfer existingTransfer = transferPhoneRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
+        PhoneTransfer existingTransfer = findPhoneTransferOrThrowException(id);
 
-        existingTransfer.setAmount(phoneTransfer.getAmount());
-        existingTransfer.setNumber(phoneTransfer.getNumber());
-        existingTransfer.setPurpose(phoneTransfer.getPurpose());
-        existingTransfer.setAccountDetailsId(phoneTransfer.getAccountDetailsId());
+        copyFieldsFromUpdatedEntity(existingTransfer, phoneTransfer);
 
         transferPhoneRepository.save(existingTransfer);
 
@@ -57,14 +52,25 @@ public class TransferPhoneServiceImpl implements TransferPhoneService {
     @Override
     @Transactional(readOnly = true)
     public PhoneTransfer getPhoneTransferById(long phoneTransferId) {
-        return transferPhoneRepository.findById(phoneTransferId)
-                .orElseThrow(() -> logAndThrowEntityNotFoundException(phoneTransferId)
-        );
+        return findPhoneTransferOrThrowException(phoneTransferId);
+    }
+
+    private PhoneTransfer findPhoneTransferOrThrowException(long id) {
+        return transferPhoneRepository.findById(id)
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
     }
 
     private EntityNotFoundException logAndThrowEntityNotFoundException(long id) {
         log.error("Не найден PhoneTransfer с указанным id {}", id);
 
         return new EntityNotFoundException("Не найден PhoneTransfer с id" + id);
+    }
+
+    private void copyFieldsFromUpdatedEntity(PhoneTransfer existingTransfer,
+                                             PhoneTransfer updatedTransfer) {
+        existingTransfer.setAmount(updatedTransfer.getAmount());
+        existingTransfer.setNumber(updatedTransfer.getNumber());
+        existingTransfer.setPurpose(updatedTransfer.getPurpose());
+        existingTransfer.setAccountDetailsId(updatedTransfer.getAccountDetailsId());
     }
 }

@@ -27,21 +27,16 @@ public class TransferCardServiceImpl implements TransferCardService {
 
     @Override
     public void deleteCardTransfer(long id) {
-        CardTransfer cardTransfer = transferCardRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
+        CardTransfer cardTransfer = findCardTransferOrThrowException(id);
 
         transferCardRepository.delete(cardTransfer);
     }
 
     @Override
     public CardTransfer updateCardTransfer(CardTransfer cardTransfer, long id) {
-        CardTransfer existingTransfer = transferCardRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
+        CardTransfer existingTransfer = findCardTransferOrThrowException(id);
 
-        existingTransfer.setAmount(cardTransfer.getAmount());
-        existingTransfer.setNumber(cardTransfer.getNumber());
-        existingTransfer.setPurpose(cardTransfer.getPurpose());
-        existingTransfer.setAccountDetailsId(cardTransfer.getAccountDetailsId());
+        copyFieldsFromUpdatedEntity(existingTransfer, cardTransfer);
 
         transferCardRepository.save(existingTransfer);
 
@@ -57,13 +52,25 @@ public class TransferCardServiceImpl implements TransferCardService {
     @Override
     @Transactional(readOnly = true)
     public CardTransfer getCardTransferById(long cardTransferId) {
-        return transferCardRepository.findById(cardTransferId)
-                .orElseThrow(() -> logAndThrowEntityNotFoundException(cardTransferId));
+        return findCardTransferOrThrowException(cardTransferId);
+    }
+
+    private CardTransfer findCardTransferOrThrowException(long id) {
+        return transferCardRepository.findById(id)
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
     }
 
     private EntityNotFoundException logAndThrowEntityNotFoundException(long id) {
         log.error("Не найден CardTransfer с указанным id {}", id);
 
         return new EntityNotFoundException("Не найден CardTransfer с id" + id);
+    }
+
+    private void copyFieldsFromUpdatedEntity(CardTransfer existingTransfer,
+                                             CardTransfer updatedTransfer) {
+        existingTransfer.setAmount(updatedTransfer.getAmount());
+        existingTransfer.setNumber(updatedTransfer.getNumber());
+        existingTransfer.setPurpose(updatedTransfer.getPurpose());
+        existingTransfer.setAccountDetailsId(updatedTransfer.getAccountDetailsId());
     }
 }

@@ -22,6 +22,7 @@ public class AuditServiceImpl implements AuditService {
         Audit audit = auditRepository.findByEntityTypeAndEntityId(entityType, entityId);
 
         if (audit == null) {
+            log.error("не найден аудит с типом сущности {} и айди сущности {}", entityType, entityId);
             throw new EntityNotFoundException(
                     String.format("не найден аудит с типом сущности %s и айди сущности %s", entityType, entityId)
             );

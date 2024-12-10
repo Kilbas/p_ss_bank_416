@@ -22,26 +22,21 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     public AccountTransfer addAccountTransfer(AccountTransfer accountTransfer) {
         transferAccountRepository.save(accountTransfer);
 
-        return  accountTransfer;
+        return accountTransfer;
     }
 
     @Override
     public void deleteAccountTransfer(long id) {
-        AccountTransfer accountTransfer = transferAccountRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
+        AccountTransfer accountTransfer = findAccountTransferOrThrowException(id);
 
         transferAccountRepository.delete(accountTransfer);
     }
 
     @Override
-    public AccountTransfer updateAccountTransfer(AccountTransfer accountTransfer, long id) {
-        AccountTransfer existingTransfer = transferAccountRepository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
+    public AccountTransfer updateAccountTransfer(AccountTransfer updatedAccountTransfer, long id) {
+        AccountTransfer existingTransfer = findAccountTransferOrThrowException(id);
 
-        existingTransfer.setAmount(accountTransfer.getAmount());
-        existingTransfer.setNumber(accountTransfer.getNumber());
-        existingTransfer.setPurpose(accountTransfer.getPurpose());
-        existingTransfer.setAccountDetailsId(accountTransfer.getAccountDetailsId());
+        copyFieldsFromUpdatedEntity(existingTransfer, updatedAccountTransfer);
 
         transferAccountRepository.save(existingTransfer);
         return existingTransfer;
@@ -56,13 +51,25 @@ public class TransferAccountServiceImpl implements TransferAccountService {
     @Override
     @Transactional(readOnly = true)
     public AccountTransfer getAccountTransferById(long accountTransferId) {
-        return transferAccountRepository.findById(accountTransferId).
-                orElseThrow(() -> logAndThrowEntityNotFoundException(accountTransferId));
+        return findAccountTransferOrThrowException(accountTransferId);
+    }
+
+    private AccountTransfer findAccountTransferOrThrowException(long id) {
+        return transferAccountRepository.findById(id)
+                .orElseThrow(() -> logAndThrowEntityNotFoundException(id));
     }
 
     private EntityNotFoundException logAndThrowEntityNotFoundException(long id) {
         log.error("Не найден AccountTransfer с указанным id {}", id);
 
         return new EntityNotFoundException("Не найден AccountTransfer с id" + id);
+    }
+
+    private void copyFieldsFromUpdatedEntity(AccountTransfer existingTransfer,
+                                                        AccountTransfer updatedTransfer) {
+        existingTransfer.setAmount(updatedTransfer.getAmount());
+        existingTransfer.setNumber(updatedTransfer.getNumber());
+        existingTransfer.setPurpose(updatedTransfer.getPurpose());
+        existingTransfer.setAccountDetailsId(updatedTransfer.getAccountDetailsId());
     }
 }
