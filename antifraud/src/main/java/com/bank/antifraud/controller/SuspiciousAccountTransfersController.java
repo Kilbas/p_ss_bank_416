@@ -46,8 +46,9 @@ private static final Logger logger = LoggerFactory.getLogger(SuspiciousAccountTr
     public ResponseEntity<SuspiciousAccountTransfersDTO> findById(@PathVariable("id") long id) {
         logger.info("Получен запрос на получение подозрительного перевода по ID: {}", id);
         SuspiciousAccountTransfersDTO transfer = service.findById(id);
-        logger.info("Возвращены данные о подозрительном переводе: {}", transfer);
+
         return ResponseEntity.ok(transfer);
+
     }
 
     /**
@@ -71,9 +72,8 @@ private static final Logger logger = LoggerFactory.getLogger(SuspiciousAccountTr
     @PostMapping
     public ResponseEntity<SuspiciousAccountTransfersDTO> create(
             @Valid @RequestBody SuspiciousAccountTransfersDTO suspiciousAccountTransfersDTO) {
-        logger.info("Получен запрос на создание подозрительного перевода: {}", suspiciousAccountTransfersDTO);
+        logger.info("Создание нового запроса");
         SuspiciousAccountTransfersDTO createdTransfer = service.create(suspiciousAccountTransfersDTO);
-        logger.info("Подозрительный перевод успешно создан: {}", createdTransfer);
         return ResponseEntity.ok(createdTransfer);
     }
 
