@@ -85,7 +85,7 @@ public class AuditAspect {
         String id = String.valueOf(joinPoint.getArgs()[0]);
         Audit auditFromDB = auditService.findByEntityTypeAndEntityId(entityType.getValue(), id);
 
-        if (auditFromDB != null && StringUtils.hasText(auditUpdate.getNewEntityJson())) {
+        if (StringUtils.hasText(auditUpdate.getNewEntityJson())) {
             auditUpdate.setEntityType(auditFromDB.getEntityType());
             auditUpdate.setCreatedBy(auditFromDB.getCreatedBy());
             auditUpdate.setModifiedBy(login);
@@ -114,7 +114,7 @@ public class AuditAspect {
             return OperationTypeEnum.UPDATE;
         } else {
             log.error("Неизвестный тип опперации при попытке записать в Audit");
-            throw new UnsupportedOperationException("Не удалось определить тип опперации");
+            throw new UnsupportedOperationException("Не удалось определить тип опперации над сущностью");
         }
     }
 }
