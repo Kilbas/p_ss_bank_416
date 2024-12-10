@@ -76,7 +76,6 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
 
     @Override
     public List<SuspiciousCardTransferDTO> findBlockedTransfers() {
-        log.info("Запрос на получение всех заблокированных переводов");
         return repository.findAll().stream()
                 .filter(SuspiciousCardTransfer::getIsBlocked)
                 .map(mapper::toDTO)

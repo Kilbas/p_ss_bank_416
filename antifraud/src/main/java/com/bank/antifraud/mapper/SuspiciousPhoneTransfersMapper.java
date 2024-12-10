@@ -5,6 +5,7 @@ import com.bank.antifraud.dto.SuspiciousPhoneTransferDTO;
 import com.bank.antifraud.entity.SuspiciousCardTransfer;
 import com.bank.antifraud.entity.SuspiciousPhoneTransfers;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
@@ -14,7 +15,8 @@ public interface SuspiciousPhoneTransfersMapper {
 
     SuspiciousPhoneTransfers toEntity(SuspiciousPhoneTransferDTO suspiciousPhoneTransferDTO);
 
-    void toDtoUpdate(SuspiciousPhoneTransferDTO dto, @MappingTarget SuspiciousPhoneTransfers suspiciousPhoneTransfers);
+    @Mapping(target = "id", ignore = true) // Игнорируем обновление поля id
+    void updateFromDto(SuspiciousPhoneTransferDTO dto, @MappingTarget SuspiciousPhoneTransfers suspiciousPhoneTransfers);
 
 
 

@@ -16,6 +16,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SuspiciousCardTransferDTO {
+
     private Long id; // ID может быть null при создании новой записи
 
     @NotNull(message = "Phone cardTransferId ID cannot be null")

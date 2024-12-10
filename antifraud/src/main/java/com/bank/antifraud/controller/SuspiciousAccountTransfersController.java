@@ -22,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/suspicious-account-transfers")
 public class SuspiciousAccountTransfersController {
+    Logger logger = LoggerFactory.getLogger(SuspiciousAccountTransfersController.class);
 
     private final SuspiciousAccountTransfersService service;
 
@@ -55,6 +56,7 @@ public class SuspiciousAccountTransfersController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 

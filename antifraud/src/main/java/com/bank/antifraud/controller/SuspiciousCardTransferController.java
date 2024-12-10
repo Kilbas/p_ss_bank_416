@@ -16,7 +16,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/suspicious-card-transfer")
+@RequestMapping("/suspicious-card-transfer")
 public class SuspiciousCardTransferController {
 
     private final SuspiciousCardTransferService service;
@@ -42,7 +42,8 @@ public class SuspiciousCardTransferController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SuspiciousCardTransferDTO> update(@PathVariable Long id, @Valid @RequestBody SuspiciousCardTransferDTO suspiciousCardTransferDTO) {
+    public ResponseEntity<SuspiciousCardTransferDTO> update(
+            @PathVariable Long id, @Valid @RequestBody SuspiciousCardTransferDTO suspiciousCardTransferDTO) {
         return ResponseEntity.ok(service.update(id, suspiciousCardTransferDTO));
     }
 

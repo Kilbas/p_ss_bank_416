@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,7 +51,7 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
     public void delete(Long id) {
         if (!repository.existsById(id)) {
             log.error("Запись с ID {} не найдена. Удаление невозможно.", id);
-            throw new IllegalArgumentException("Запись с ID " + id + " не найдена.");
+            throw new EntityNotFoundException("Запись с ID " + id + " не найдена.");
         }
         repository.deleteById(id);
     }
