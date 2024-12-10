@@ -1,9 +1,8 @@
 package com.bank.publicinfo.aspect;
 
-import com.bank.publicinfo.entity.Audit;
 import com.bank.publicinfo.dto.Auditable;
+import com.bank.publicinfo.entity.Audit;
 import com.bank.publicinfo.service.audit.AuditService;
-
 import com.bank.publicinfo.util.enums.EntityTypeEnum;
 import com.bank.publicinfo.util.enums.OperationTypeEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;

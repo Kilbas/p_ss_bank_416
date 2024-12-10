@@ -1,6 +1,5 @@
 package com.bank.publicinfo.service.atm;
 
-
 import com.bank.publicinfo.aspect.AuditAnnotation;
 import com.bank.publicinfo.dto.AtmDTO;
 import com.bank.publicinfo.entity.Atm;
@@ -14,11 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Slf4j
+@Transactional
 @Service
 public class AtmServiceImp implements AtmService {
 
@@ -48,7 +47,6 @@ public class AtmServiceImp implements AtmService {
     }
 
     @Override
-    @Transactional
     public void deleteAtm(Long id) {
         Atm atm = findAtmById(id);
         removeAtmFromBranch(atm);
@@ -57,7 +55,6 @@ public class AtmServiceImp implements AtmService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public AtmDTO addAtm(AtmDTO atmDTO) {
         Atm atm = mapper.map(atmDTO);
         setBranchForAtm(atm, atmDTO.getBranch());
@@ -68,7 +65,6 @@ public class AtmServiceImp implements AtmService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public AtmDTO updateAtm(Long id, AtmDTO atmDTO) {
         Atm atm = findAtmById(id);
         mapper.updateAtmFromDto(atmDTO, atm);

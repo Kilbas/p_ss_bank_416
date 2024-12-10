@@ -1,6 +1,5 @@
 package com.bank.publicinfo.controller;
 
-
 import com.bank.publicinfo.dto.LicenseDTO;
 import com.bank.publicinfo.service.license.LicenseService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -17,6 +17,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Slf4j
+@Transactional
 @Service
 public class LicenseServiceImp implements LicenseService {
 
@@ -47,7 +48,6 @@ public class LicenseServiceImp implements LicenseService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public void deleteLicense(Long id) {
         License license = findLicenseById(id);
         BankDetails bankDetails = license.getBankDetailsLicense();
@@ -57,7 +57,6 @@ public class LicenseServiceImp implements LicenseService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public LicenseDTO addLicense(LicenseDTO licenseCreateDTO) {
         License license = mapper.map(licenseCreateDTO);
         license.setBankDetailsLicense(findBankDetailsById(licenseCreateDTO.getBankDetailsLicense().getId()));
@@ -67,7 +66,6 @@ public class LicenseServiceImp implements LicenseService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public LicenseDTO updateLicense(Long id, LicenseDTO licenseCreateDTO) {
         License license = findLicenseById(id);
         license.setBankDetailsLicense(findBankDetailsById(licenseCreateDTO.getBankDetailsLicense().getId()));

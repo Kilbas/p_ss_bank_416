@@ -1,6 +1,5 @@
 package com.bank.publicinfo.service.license;
 
-
 import com.bank.publicinfo.dto.LicenseDTO;
 import org.springframework.data.domain.Pageable;
 

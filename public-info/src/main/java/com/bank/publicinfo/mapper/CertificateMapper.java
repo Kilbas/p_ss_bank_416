@@ -1,6 +1,5 @@
 package com.bank.publicinfo.mapper;
 
-
 import com.bank.publicinfo.dto.CertificateDTO;
 import com.bank.publicinfo.entity.Certificate;
 import org.mapstruct.Mapper;

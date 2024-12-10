@@ -5,7 +5,7 @@ import com.bank.publicinfo.repository.AuditRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
+@Transactional
 @Service
 public class AuditServiceImp implements AuditService {
 
@@ -22,7 +22,6 @@ public class AuditServiceImp implements AuditService {
     }
 
     @Override
-    @Transactional
     public void addAudit(Audit audit) {
         auditRepository.save(audit);
     }

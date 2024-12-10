@@ -17,6 +17,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Slf4j
+@Transactional
 @Service
 public class CertificateServiceImp implements CertificateService {
 
@@ -45,7 +46,6 @@ public class CertificateServiceImp implements CertificateService {
     }
 
     @Override
-    @Transactional
     public  void deleteCertificate(Long id) {
         Certificate certificate = findCertificateById(id);
         BankDetails bankDetails = certificate.getBankDetailsCertificate();
@@ -55,7 +55,6 @@ public class CertificateServiceImp implements CertificateService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public CertificateDTO addCertificate(CertificateDTO certificateCreateDTO) {
         Certificate certificate = mapper.map(certificateCreateDTO);
         certificate.setBankDetailsCertificate(findBankDetailsById(certificateCreateDTO.getBankDetailsCertificate().getId()));
@@ -65,7 +64,6 @@ public class CertificateServiceImp implements CertificateService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public CertificateDTO updateCertificate(Long id, CertificateDTO certificateCreateDTO) {
         Certificate certificate = findCertificateById(id);
         certificate.setBankDetailsCertificate(findBankDetailsById(certificateCreateDTO.getBankDetailsCertificate().getId()));

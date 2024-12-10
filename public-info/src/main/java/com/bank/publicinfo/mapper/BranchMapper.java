@@ -1,6 +1,5 @@
 package com.bank.publicinfo.mapper;
 
-
 import com.bank.publicinfo.dto.BranchDTO;
 import com.bank.publicinfo.entity.Branch;
 import org.mapstruct.Mapper;

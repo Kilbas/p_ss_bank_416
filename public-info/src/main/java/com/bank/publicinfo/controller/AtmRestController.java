@@ -1,6 +1,5 @@
 package com.bank.publicinfo.controller;
 
-
 import com.bank.publicinfo.dto.AtmDTO;
 import com.bank.publicinfo.service.atm.AtmService;
 import io.swagger.v3.oas.annotations.Operation;

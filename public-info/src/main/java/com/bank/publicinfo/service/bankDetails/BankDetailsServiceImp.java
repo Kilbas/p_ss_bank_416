@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Transactional
 @Service
 public class BankDetailsServiceImp implements BankDetailsService {
 
@@ -51,15 +52,12 @@ public class BankDetailsServiceImp implements BankDetailsService {
     }
 
     @Override
-    @Transactional
-    @AuditAnnotation
     public void deleteBankDetail(Long id) {
         bankDetailsRepository.deleteById(id);
     }
 
     @Override
     @AuditAnnotation
-    @Transactional
     public BankDetailsDTO addBankDetail(BankDetailsDTO bankDetailsCreateDTO) {
         BankDetails bankDetails = mapper.map(bankDetailsCreateDTO);
         return saveLicensesAndCertificates(bankDetailsCreateDTO, bankDetails);
@@ -67,7 +65,6 @@ public class BankDetailsServiceImp implements BankDetailsService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public BankDetailsDTO updateBankDetail(Long id, BankDetailsDTO bankDetailsUpdateDTO) {
         BankDetails bankDetails = findBankDetailsById(id);
         mapper.updateBankDetailsFromDto(bankDetailsUpdateDTO, bankDetails);

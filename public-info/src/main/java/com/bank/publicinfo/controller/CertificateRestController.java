@@ -1,6 +1,5 @@
 package com.bank.publicinfo.controller;
 
-
 import com.bank.publicinfo.dto.CertificateDTO;
 import com.bank.publicinfo.service.certificate.CertificateService;
 import io.swagger.v3.oas.annotations.Operation;

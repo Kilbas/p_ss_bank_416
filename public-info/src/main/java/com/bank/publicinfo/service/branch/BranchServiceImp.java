@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 @Slf4j
+@Transactional
 @Service
 public class BranchServiceImp implements BranchService {
 
@@ -48,7 +49,6 @@ public class BranchServiceImp implements BranchService {
     }
 
     @Override
-    @Transactional
     public void deleteBranch(Long id) {
         Branch branch = findBranchById(id);
         removeBranchFromAtm(branch);
@@ -57,7 +57,6 @@ public class BranchServiceImp implements BranchService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public BranchDTO addBranch(BranchDTO branchDTO) {
         Branch branch = mapper.map(branchDTO);
         setBranchAtms(branchDTO, branch);
@@ -66,7 +65,6 @@ public class BranchServiceImp implements BranchService {
 
     @Override
     @AuditAnnotation
-    @Transactional
     public BranchDTO updateBranch(Long id, BranchDTO updateBranch) {
         Branch branch = findBranchById(id);
         mapper.updateBranchFromDto(updateBranch, branch);
