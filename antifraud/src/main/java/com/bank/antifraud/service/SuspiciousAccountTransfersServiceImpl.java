@@ -28,20 +28,8 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
 
     @Override
     public SuspiciousAccountTransfersDTO create(SuspiciousAccountTransfersDTO transferDTO) {
-
-        // Проверка обязательных полей
-        if (transferDTO.isSuspicious() && (transferDTO.getSuspiciousReason() == null || transferDTO.getSuspiciousReason().isEmpty())) {
-            log.error("Причина подозрительности должна быть указана, если перевод помечен как подозрительный.");
-            throw new IllegalArgumentException("Причина подозрительности должна быть указана, если перевод помечен как подозрительный.");
-        }
-
-        if (transferDTO.isBlocked() && (transferDTO.getBlockedReason() == null || transferDTO.getBlockedReason().isEmpty())) {
-            log.error("Причина блокировки должна быть указана, если перевод помечен как заблокированный.");
-            throw new IllegalArgumentException("Причина блокировки должна быть указана, если перевод помечен как заблокированный.");
-        }
         SuspiciousAccountTransfers entity = mapper.toEntity(transferDTO);
         entity = repository.save(entity);
-        log.info("Сущность сохранена в базе данных с ID: {}", entity.getId());
         return mapper.toDTO(entity);
     }
 
@@ -52,7 +40,7 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
                     log.error("Запись с ID {} не найдена.", id);
                     return new IllegalArgumentException("Запись с ID " + id + " не найдена.");
                 });
-        mapper.toDtoUpdate(transferDTO, existing);
+        mapper.updateFromDto(transferDTO, existing);
         SuspiciousAccountTransfers updatedEntity = repository.save(existing);
         return mapper.toDTO(updatedEntity);
     }
@@ -80,10 +68,8 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
 
     @Override
     public List<SuspiciousAccountTransfersDTO> findAll() {
-
-        List<SuspiciousAccountTransfersDTO> transfers = repository.findAll().stream()
+        return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
-        return transfers;
     }
 }

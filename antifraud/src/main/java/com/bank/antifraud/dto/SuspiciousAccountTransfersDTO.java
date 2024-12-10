@@ -29,7 +29,6 @@ public class SuspiciousAccountTransfersDTO {
    @NotNull(message = "Suspicious status cannot be null")
     private boolean isSuspicious;
 
-    //@NotBlank(message = "Blocked reason cannot be blank")
     @Size(max = 255, message = "Blocked reason must not exceed 255 characters")
     private String blockedReason;
 
