@@ -41,4 +41,3 @@ public interface BankDetailsMapper {
             nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateBankDetailsFromDto(BankDetailsDTO dto, @MappingTarget BankDetails bankDetails);
 }
-

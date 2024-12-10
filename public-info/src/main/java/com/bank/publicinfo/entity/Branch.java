@@ -64,5 +64,4 @@ public class Branch {
     @Fetch(FetchMode.JOIN)
     @OneToMany(mappedBy = "branch", fetch = FetchType.LAZY)
     private Set<Atm> atms;
-
 }

@@ -7,7 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/branch")
-@Tag(name = "Public-info Branch Controller", description = "--------")
+@Tag(name = "Отделения банка", description = "операции с отделениями банка")
 
 public class BranchRestController {
 
@@ -40,11 +41,8 @@ public class BranchRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping()
-    public ResponseEntity<List<BranchDTO>> getAllBranch() {
-        List<BranchDTO> allBranchDTO = branchService.getAllBranches();
-        return !allBranchDTO.isEmpty()
-                ? ResponseEntity.status(HttpStatus.OK).body(allBranchDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<List<BranchDTO>> getAllBranch(@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(branchService.getAllBranches(pageable));
     }
 
     @Operation(summary = "Получить информацию об отделении банка по Id",
@@ -56,10 +54,7 @@ public class BranchRestController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<BranchDTO> getBranch(@PathVariable("id") Long id) {
-        BranchDTO branchDTO = branchService.getBranch(id);
-        return branchDTO != null
-                ? ResponseEntity.status(HttpStatus.OK).body(branchDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.ok(branchService.getBranch(id));
     }
 
     @Operation(summary = "Удалить информацию об отделении банка",
@@ -72,7 +67,7 @@ public class BranchRestController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteBranch(@PathVariable("id") Long id) {
         branchService.deleteBranch(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Сохранить информацию об отделении банка",
@@ -85,8 +80,7 @@ public class BranchRestController {
     })
     @PostMapping("/create")
     public ResponseEntity<BranchDTO> createBranch(@RequestBody @Valid BranchDTO branchCreateDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(branchService.addBranch(branchCreateDTO));
+        return ResponseEntity.ok(branchService.addBranch(branchCreateDTO));
     }
 
     @Operation(summary = "Обновить информацию об отделении банка",
@@ -101,7 +95,6 @@ public class BranchRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<BranchDTO> updateBranch(@RequestBody BranchDTO branchCreateDTO,
                                             @PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(branchService.updateBranch(id, branchCreateDTO));
+        return ResponseEntity.ok(branchService.updateBranch(id, branchCreateDTO));
     }
 }

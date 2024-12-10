@@ -1,12 +1,13 @@
 package com.bank.publicinfo.service.branch;
 
 import com.bank.publicinfo.dto.BranchDTO;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface BranchService {
 
-    List<BranchDTO> getAllBranches();
+    List<BranchDTO> getAllBranches(Pageable pageable);
 
     BranchDTO getBranch(Long id);
 
@@ -14,5 +15,5 @@ public interface BranchService {
 
     BranchDTO updateBranch(Long id, BranchDTO updateBranch);
 
-    BranchDTO deleteBranch(Long id);
+    void deleteBranch(Long id);
 }

@@ -8,9 +8,7 @@ import lombok.Getter;
 public enum OperationTypeEnum {
 
     CREATE("Создание"),
-    UPDATE("Обновление"),
-    DELETE("Удаление"),
-    UNKNOWN("Неизвестная");
+    UPDATE("Обновление");
 
     private final String value;
 }

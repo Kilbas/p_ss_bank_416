@@ -8,6 +8,8 @@ import com.bank.publicinfo.mapper.LicenseMapper;
 import com.bank.publicinfo.repository.BankDetailsRepository;
 import com.bank.publicinfo.repository.LicenseRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,44 +33,35 @@ public class LicenseServiceImp implements LicenseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<LicenseDTO> getAllLicenses() {
-        log.info("Запрос на получение всех лицензий");
-        List<License> all = licenseRepository.findAll();
-        log.info("Найдено {} лицензий", all.size());
-        return mapper.map(all);
+    public List<LicenseDTO> getAllLicenses(Pageable pageable) {
+        Page<License> all = licenseRepository.findAll(pageable);
+        return mapper.map(all.getContent());
     }
 
     @Override
     @Transactional(readOnly = true)
     public LicenseDTO getLicense(Long id) {
-        log.info("Запрос на получение лицензии с id {}", id);
         License license = findLicenseById(id);
-        log.info("Получена лицензия с id {}", id);
         return mapper.map(license);
     }
 
     @Override
     @AuditAnnotation
     @Transactional
-    public LicenseDTO deleteLicense(Long id) {
-        log.info("Запрос на удаление лицензии с id {}", id);
+    public void deleteLicense(Long id) {
         License license = findLicenseById(id);
         BankDetails bankDetails = license.getBankDetailsLicense();
         bankDetails.getLicenses().remove(license);
         licenseRepository.deleteById(id);
-        log.info("Лицензия с id {} успешно удалена", id);
-        return mapper.map(license);
     }
 
     @Override
     @AuditAnnotation
     @Transactional
     public LicenseDTO addLicense(LicenseDTO licenseCreateDTO) {
-        log.info("Запрос на добавление новой лицензии");
         License license = mapper.map(licenseCreateDTO);
         license.setBankDetailsLicense(findBankDetailsById(licenseCreateDTO.getBankDetailsLicense().getId()));
         License save = licenseRepository.save(license);
-        log.info("Лицензия добавлена");
         return mapper.map(save);
     }
 
@@ -76,12 +69,10 @@ public class LicenseServiceImp implements LicenseService {
     @AuditAnnotation
     @Transactional
     public LicenseDTO updateLicense(Long id, LicenseDTO licenseCreateDTO) {
-        log.info("Запрос на обновление лицензии с id {}", id);
         License license = findLicenseById(id);
         license.setBankDetailsLicense(findBankDetailsById(licenseCreateDTO.getBankDetailsLicense().getId()));
         mapper.updateLicenseFromDto(licenseCreateDTO, license);
         License save = licenseRepository.save(license);
-        log.info("Лицензия обновлена с id {}", id);
         return mapper.map(save);
     }
 
@@ -100,5 +91,4 @@ public class LicenseServiceImp implements LicenseService {
                     return new EntityNotFoundException("Реквизиты банка не найдены с id" + id);
                 });
     }
-
 }

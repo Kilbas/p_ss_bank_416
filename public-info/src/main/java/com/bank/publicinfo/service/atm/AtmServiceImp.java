@@ -9,6 +9,8 @@ import com.bank.publicinfo.mapper.AtmMapper;
 import com.bank.publicinfo.repository.AtmRepository;
 import com.bank.publicinfo.repository.BranchRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,45 +34,35 @@ public class AtmServiceImp implements AtmService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AtmDTO> getAllAtms() {
-        log.info("Запрос на получение всех банкоматов");
-        List<Atm> all = atmRepository.findAll();
-        log.info("Получено {} реквизита(ов) банка", all.size());
-        return mapper.map(all);
+    public List<AtmDTO> getAllAtms(Pageable pageable) {
+        Page<Atm> all = atmRepository.findAll(pageable);
+        return mapper.map(all.getContent());
     }
 
     @Override
     @Transactional(readOnly = true)
     public AtmDTO getAtm(Long id) {
-        log.info("Запрос на получение банкомата с id: {}", id);
         Atm atmById = findAtmById(id);
-        log.info("Получение банкомат с id: {}", id);
         return mapper.map(atmById);
 
     }
 
     @Override
-    @AuditAnnotation
     @Transactional
-    public AtmDTO deleteAtm(Long id) {
-        log.info("Удаление банкомата с ID: {}", id);
+    public void deleteAtm(Long id) {
         Atm atm = findAtmById(id);
         removeAtmFromBranch(atm);
         atmRepository.deleteById(id);
-        log.info("Банкомат с id: {} был успешно удалён", id);
-        return mapper.map(atm);
     }
 
     @Override
     @AuditAnnotation
     @Transactional
     public AtmDTO addAtm(AtmDTO atmDTO) {
-        log.info("Добавление нового банкомата");
         Atm atm = mapper.map(atmDTO);
         setBranchForAtm(atm, atmDTO.getBranch());
         handleAllHours(atm);
         Atm save = atmRepository.save(atm);
-        log.info("Банкомат успешно добавлен с id: {}", save.getId());
         return mapper.map(save);
     }
 
@@ -78,7 +70,6 @@ public class AtmServiceImp implements AtmService {
     @AuditAnnotation
     @Transactional
     public AtmDTO updateAtm(Long id, AtmDTO atmDTO) {
-        log.info("Обновление банкомата с id: {}", id);
         Atm atm = findAtmById(id);
         mapper.updateAtmFromDto(atmDTO, atm);
         setBranchForAtm(atm, atmDTO.getBranch());
@@ -88,10 +79,8 @@ public class AtmServiceImp implements AtmService {
             atm.setBranch(null);
         }
         Atm save = atmRepository.save(atm);
-        log.info("Банкомат c id {} был успешно обновлен в БД", id);
         return mapper.map(save);
     }
-
 
     private Atm findAtmById(Long id) {
         return atmRepository.findById(id)
@@ -116,7 +105,6 @@ public class AtmServiceImp implements AtmService {
         if (Boolean.TRUE.equals(atm.getAllHours())) {
             atm.setStartOfWork(null);
             atm.setEndOfWork(null);
-            log.info("Банкомат с id: {} работает круглосуточно", atm.getId());
         }
     }
 
@@ -124,8 +112,6 @@ public class AtmServiceImp implements AtmService {
         Branch branch = atm.getBranch();
         if (branch != null) {
             branch.getAtms().remove(atm);
-            log.info("Банкомат с id: {} удален из отделения с id: {}", atm.getId(), branch.getId());
         }
     }
 }
-

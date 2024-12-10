@@ -7,7 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/license")
-@Tag(name = "Public-info License Controller", description = "--------")
+@Tag(name = "Лицензии", description = "операции с лицензиями")
 public class LicenseRestController {
 
     private final LicenseService licenseService;
@@ -39,11 +40,8 @@ public class LicenseRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping()
-    public ResponseEntity<List<LicenseDTO>> getAllLicense() {
-        List<LicenseDTO> allLicenseDTO = licenseService.getAllLicenses();
-        return !allLicenseDTO.isEmpty()
-                ? ResponseEntity.status(HttpStatus.OK).body(allLicenseDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<List<LicenseDTO>> getAllLicense(@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(licenseService.getAllLicenses(pageable));
     }
 
     @Operation(summary = "Получить лицензию по Id", description = "Возвращает лицензию по Id")
@@ -54,10 +52,7 @@ public class LicenseRestController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<LicenseDTO> getLicense(@PathVariable("id") Long id) {
-        LicenseDTO licenseDTO = licenseService.getLicense(id);
-        return licenseDTO != null
-                ? ResponseEntity.status(HttpStatus.OK).body(licenseDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.ok(licenseService.getLicense(id));
     }
 
     @Operation(summary = "Удалить лицензию",
@@ -70,7 +65,7 @@ public class LicenseRestController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteLicense(@PathVariable("id") Long id) {
         licenseService.deleteLicense(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Сохранить лицензию",
@@ -82,8 +77,7 @@ public class LicenseRestController {
     })
     @PostMapping("/create")
     public ResponseEntity<LicenseDTO> createLicense(@RequestBody @Valid LicenseDTO licenseCreateDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(licenseService.addLicense(licenseCreateDTO));
+        return ResponseEntity.ok(licenseService.addLicense(licenseCreateDTO));
     }
 
     @Operation(summary = "Обновить лицензию",
@@ -97,8 +91,6 @@ public class LicenseRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<LicenseDTO> updateLicense(@RequestBody LicenseDTO licenseCreateDTO,
                                                     @PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(licenseService.updateLicense(id, licenseCreateDTO));
+        return ResponseEntity.ok(licenseService.updateLicense(id, licenseCreateDTO));
     }
-
 }

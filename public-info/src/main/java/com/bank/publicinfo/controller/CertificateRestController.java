@@ -7,7 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,11 +24,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/certificate")
-@Tag(name = "Public-info Certificate Controller", description = "--------")
+@Tag(name = "Сертификаты", description = "операции с сертификатами")
 public class CertificateRestController {
 
     private final CertificateService certificateService;
-
 
     public CertificateRestController(CertificateService certificateService) {
         this.certificateService = certificateService;
@@ -41,11 +41,8 @@ public class CertificateRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping()
-    public ResponseEntity<List<CertificateDTO>> getAllCertificate() {
-        List<CertificateDTO> allCertificateDTO = certificateService.getAllCertificates();
-        return !allCertificateDTO.isEmpty()
-                ? ResponseEntity.status(HttpStatus.OK).body(allCertificateDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<List<CertificateDTO>> getAllCertificate(@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(certificateService.getAllCertificates(pageable));
     }
 
     @Operation(summary = "Получить сертификат по Id", description = "Возвращает сертификат по Id")
@@ -56,10 +53,7 @@ public class CertificateRestController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<CertificateDTO> getCertificate(@PathVariable("id") Long id) {
-        CertificateDTO certificateDTO = certificateService.getCertificate(id);
-        return certificateDTO != null
-                ? ResponseEntity.status(HttpStatus.OK).body(certificateDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.ok(certificateService.getCertificate(id));
     }
 
     @Operation(summary = "Удалить сертификат",
@@ -72,7 +66,7 @@ public class CertificateRestController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteCertificate(@PathVariable("id") Long id) {
         certificateService.deleteCertificate(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Сохранить сертификат",
@@ -84,8 +78,7 @@ public class CertificateRestController {
     })
     @PostMapping("/create")
     public ResponseEntity<CertificateDTO> createCertificate(@RequestBody @Valid CertificateDTO certificateCreateDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(certificateService.addCertificate(certificateCreateDTO));
+        return ResponseEntity.ok(certificateService.addCertificate(certificateCreateDTO));
     }
 
     @Operation(summary = "Обновить сертификат",
@@ -99,8 +92,6 @@ public class CertificateRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<CertificateDTO> updateCertificate(@RequestBody CertificateDTO certificateCreateDTO,
                                                             @PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(certificateService.updateCertificate(id, certificateCreateDTO));
+        return ResponseEntity.ok(certificateService.updateCertificate(id, certificateCreateDTO));
     }
-
 }

@@ -8,6 +8,8 @@ import com.bank.publicinfo.mapper.CertificateMapper;
 import com.bank.publicinfo.repository.BankDetailsRepository;
 import com.bank.publicinfo.repository.CertificateRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,44 +32,34 @@ public class CertificateServiceImp implements CertificateService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CertificateDTO> getAllCertificates() {
-        log.info("Запрос на получение всех сертификатов");
-        List<Certificate> all = certificateRepository.findAll();
-        log.info("Найдено {} сертификатов", all.size());
-        return mapper.map(all);
+    public List<CertificateDTO> getAllCertificates(Pageable pageable) {
+        Page<Certificate> all = certificateRepository.findAll(pageable);
+        return mapper.map(all.getContent());
     }
 
     @Override
     @Transactional(readOnly = true)
     public CertificateDTO getCertificate(Long id) {
-        log.info("Запрос на получение сертификата с id {}", id);
         Certificate certificate = findCertificateById(id);
-        log.info("Получен сертификат с id {}", id);
         return mapper.map(certificate);
     }
 
     @Override
-    @AuditAnnotation
     @Transactional
-    public  CertificateDTO deleteCertificate(Long id) {
-        log.info("Запрос на удаление сертификата с id {}", id);
+    public  void deleteCertificate(Long id) {
         Certificate certificate = findCertificateById(id);
         BankDetails bankDetails = certificate.getBankDetailsCertificate();
         bankDetails.getCertificates().remove(certificate);
         certificateRepository.deleteById(id);
-        log.info("Сертификат с id {} успешно удален", id);
-        return mapper.map(certificate);
     }
 
     @Override
     @AuditAnnotation
     @Transactional
     public CertificateDTO addCertificate(CertificateDTO certificateCreateDTO) {
-        log.info("Запрос на добавление нового сертификата");
         Certificate certificate = mapper.map(certificateCreateDTO);
         certificate.setBankDetailsCertificate(findBankDetailsById(certificateCreateDTO.getBankDetailsCertificate().getId()));
         Certificate save = certificateRepository.save(certificate);
-        log.info("Сертификат добавлен");
         return mapper.map(save);
     }
 
@@ -75,12 +67,10 @@ public class CertificateServiceImp implements CertificateService {
     @AuditAnnotation
     @Transactional
     public CertificateDTO updateCertificate(Long id, CertificateDTO certificateCreateDTO) {
-        log.info("Запрос на обновление сертификата с id {}", id);
         Certificate certificate = findCertificateById(id);
         certificate.setBankDetailsCertificate(findBankDetailsById(certificateCreateDTO.getBankDetailsCertificate().getId()));
         mapper.updateCertificateFromDto(certificateCreateDTO, certificate);
         Certificate save = certificateRepository.save(certificate);
-        log.info("Сертификат обновлен с id {}", id);
         return mapper.map(save);
     }
 

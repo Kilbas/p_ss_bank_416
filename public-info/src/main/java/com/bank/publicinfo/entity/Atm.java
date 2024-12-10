@@ -55,5 +55,4 @@ public class Atm {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "branch_id", referencedColumnName = "id")
     private Branch branch;
-
 }

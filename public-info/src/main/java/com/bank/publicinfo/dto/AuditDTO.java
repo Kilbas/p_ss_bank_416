@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Data
 public class AuditDTO {
 
-
     private Long id;
 
     @NotNull(message = "Вы не указали entityType")

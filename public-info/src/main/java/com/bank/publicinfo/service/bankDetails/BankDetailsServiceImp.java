@@ -8,6 +8,8 @@ import com.bank.publicinfo.entity.License;
 import com.bank.publicinfo.mapper.BankDetailsMapper;
 import com.bank.publicinfo.repository.BankDetailsRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -21,11 +23,8 @@ import java.util.stream.Collectors;
 @Service
 public class BankDetailsServiceImp implements BankDetailsService {
 
-
     private final BankDetailsMapper mapper;
     private final BankDetailsRepository bankDetailsRepository;
-
-
 
     public BankDetailsServiceImp(BankDetailsMapper mapper, BankDetailsRepository bankDetailsRepository) {
         this.mapper = mapper;
@@ -34,11 +33,11 @@ public class BankDetailsServiceImp implements BankDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BankDetailsDTO> getAllBankDetails() {
+    public List<BankDetailsDTO> getAllBankDetails(Pageable pageable) {
         log.info("Запрос на получение всех реквизитов банка");
-        List<BankDetails> all = bankDetailsRepository.findAll();
-        log.info("Получено {} реквизита(ов) банка", all.size());
-        return mapper.map(all);
+        Page<BankDetails> all = bankDetailsRepository.findAll(pageable);
+        log.info("Получено  реквизита(ов) банка");
+        return mapper.map(all.getContent());
     }
 
     @Override
@@ -52,38 +51,27 @@ public class BankDetailsServiceImp implements BankDetailsService {
     }
 
     @Override
-    @AuditAnnotation
     @Transactional
-    public BankDetailsDTO deleteBankDetail(Long id) {
-        log.info("Удаление реквизита банка с ID: {}", id);
-        BankDetails byId = findBankDetailsById(id);
+    @AuditAnnotation
+    public void deleteBankDetail(Long id) {
         bankDetailsRepository.deleteById(id);
-        log.info("Реквизит банка с ID: {} успешно удалён", id);
-        return mapper.map(byId);
     }
-
 
     @Override
     @AuditAnnotation
     @Transactional
     public BankDetailsDTO addBankDetail(BankDetailsDTO bankDetailsCreateDTO) {
-        log.info("Добавление новых реквизитов банка");
         BankDetails bankDetails = mapper.map(bankDetailsCreateDTO);
-        BankDetailsDTO saved = saveLicensesAndCertificates(bankDetailsCreateDTO, bankDetails);
-        log.info("Успешно добавлены новые реквизиты банка");
-        return saved;
+        return saveLicensesAndCertificates(bankDetailsCreateDTO, bankDetails);
     }
 
     @Override
     @AuditAnnotation
     @Transactional
     public BankDetailsDTO updateBankDetail(Long id, BankDetailsDTO bankDetailsUpdateDTO) {
-        log.info("Обновление реквизитов банка с ID: {}", id);
         BankDetails bankDetails = findBankDetailsById(id);
         mapper.updateBankDetailsFromDto(bankDetailsUpdateDTO, bankDetails);
-        BankDetailsDTO saved = saveLicensesAndCertificates(bankDetailsUpdateDTO, bankDetails);
-        log.info("Успешно обновлены реквизиты банка с ID: {}", id);
-        return saved;
+        return saveLicensesAndCertificates(bankDetailsUpdateDTO, bankDetails);
     }
 
     private BankDetails findBankDetailsById(Long id) {
@@ -97,12 +85,10 @@ public class BankDetailsServiceImp implements BankDetailsService {
     private BankDetailsDTO saveLicensesAndCertificates(BankDetailsDTO dto, BankDetails bankDetails) {
         saveLicenses(dto.getLicenses(), bankDetails);
         saveCertificates(dto.getCertificates(), bankDetails);
-
         return mapper.map(bankDetailsRepository.save(bankDetails));
     }
 
     private void saveLicenses(Set<License> licenses, BankDetails bankDetails) {
-        log.info("Обновление лицензий для реквизитов банка ID: {}", bankDetails.getId());
         if (!CollectionUtils.isEmpty(licenses)) {
             bankDetails.setLicenses(licenses.stream()
                     .map(e -> {
@@ -116,7 +102,6 @@ public class BankDetailsServiceImp implements BankDetailsService {
     }
 
     private void saveCertificates(Set<Certificate> certificates, BankDetails bankDetails) {
-        log.info("Обновление сертификатов для реквизитов банка ID: {}", bankDetails.getId());
         if (!CollectionUtils.isEmpty(certificates)) {
             bankDetails.setCertificates(certificates.stream()
                     .map(e -> {
@@ -128,6 +113,4 @@ public class BankDetailsServiceImp implements BankDetailsService {
                     .collect(Collectors.toSet()));
         }
     }
-
 }
-

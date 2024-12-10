@@ -7,7 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/atm")
-@Tag(name = "Public-info Atm Controller", description = "--------")
+@Tag(name = "Банкоматы", description = "действия с банкоматами")
 public class AtmRestController {
 
     private final AtmService atmService;
@@ -39,11 +40,8 @@ public class AtmRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping()
-    public ResponseEntity<List<AtmDTO>> getAllAtm() {
-        List<AtmDTO> allAtmDTO = atmService.getAllAtms();
-        return !allAtmDTO.isEmpty()
-                ? ResponseEntity.status(HttpStatus.OK).body(allAtmDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<List<AtmDTO>> getAllAtm(@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(atmService.getAllAtms(pageable));
     }
 
 
@@ -56,10 +54,7 @@ public class AtmRestController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<AtmDTO> getAtm(@PathVariable("id") Long id) {
-        AtmDTO atmDTO = atmService.getAtm(id);
-        return atmDTO != null
-                ? ResponseEntity.status(HttpStatus.OK).body(atmDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return  ResponseEntity.ok(atmService.getAtm(id));
     }
 
     @Operation(summary = "Удалить информацию о банкомате",
@@ -72,7 +67,7 @@ public class AtmRestController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteAtm(@PathVariable("id") Long id) {
         atmService.deleteAtm(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Сохранить информацию о банкомате",
@@ -84,8 +79,7 @@ public class AtmRestController {
     })
     @PostMapping("/create")
     public ResponseEntity<AtmDTO> createAtm(@RequestBody @Valid AtmDTO atmCreateDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(atmService.addAtm(atmCreateDTO));
+        return ResponseEntity.ok(atmService.addAtm(atmCreateDTO));
     }
 
     @Operation(summary = "Обновить информацию о банкомате",
@@ -99,7 +93,6 @@ public class AtmRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<AtmDTO> updateAtm(@RequestBody AtmDTO atmCreateDTO,
                                             @PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(atmService.updateAtm(id, atmCreateDTO));
+        return ResponseEntity.ok(atmService.updateAtm(id, atmCreateDTO));
     }
 }

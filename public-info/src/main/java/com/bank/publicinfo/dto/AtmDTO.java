@@ -10,7 +10,6 @@ import java.time.LocalTime;
 @Data
 public class AtmDTO implements Auditable {
 
-
     private Long id;
 
     @NotNull(message = "Вы не указали address")

@@ -68,7 +68,6 @@ public class BankDetails {
     @Column(name = "name", length = 80, nullable = false)
     private String name;
 
-
     @JsonIgnore
     @LazyCollection(LazyCollectionOption.EXTRA)
     @Fetch(FetchMode.JOIN)
@@ -80,5 +79,4 @@ public class BankDetails {
     @Fetch(FetchMode.JOIN)
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bankDetailsCertificate", fetch = FetchType.LAZY)
     private Set<Certificate> certificates;
-
 }

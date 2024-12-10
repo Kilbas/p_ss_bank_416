@@ -6,7 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/bankDetails")
-@Tag(name = "Public-info BankDetails Controller", description = "--------")
+@Tag(name = "Банковские реквизиты", description = "действия с банковскими реквизитами")
 public class BankDetailsRestController {
 
     private final BankDetailsService bankDetailsService;
@@ -38,11 +39,8 @@ public class BankDetailsRestController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping()
-    public ResponseEntity<List<BankDetailsDTO>> getAllBankDetails() {
-        List<BankDetailsDTO> allBankDetailsDTO = bankDetailsService.getAllBankDetails();
-        return !allBankDetailsDTO.isEmpty()
-                ? ResponseEntity.status(HttpStatus.OK).body(allBankDetailsDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<List<BankDetailsDTO>> getAllBankDetails(@PageableDefault Pageable pageable) {
+        return  ResponseEntity.ok(bankDetailsService.getAllBankDetails(pageable));
     }
 
     @Operation(summary = "Получить реквизиты банка по Id",
@@ -54,10 +52,7 @@ public class BankDetailsRestController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<BankDetailsDTO> getBankDetails(@PathVariable("id") Long id) {
-        BankDetailsDTO bankDetailsDTO = bankDetailsService.getBankDetails(id);
-        return bankDetailsDTO != null
-                ? ResponseEntity.status(HttpStatus.OK).body(bankDetailsDTO)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.ok(bankDetailsService.getBankDetails(id));
     }
 
     @Operation(summary = "Удалить реквизиты банка",
@@ -70,7 +65,7 @@ public class BankDetailsRestController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteBankDetails(@PathVariable("id") Long id) {
         bankDetailsService.deleteBankDetail(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Сохранить реквизиты банка",
@@ -83,9 +78,7 @@ public class BankDetailsRestController {
     })
     @PostMapping("/create")
     public ResponseEntity<BankDetailsDTO> createBankDetails(@Valid @RequestBody BankDetailsDTO bankDetailsCreateDTO) {
-        System.out.println();
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(bankDetailsService.addBankDetail(bankDetailsCreateDTO));
+        return ResponseEntity.ok(bankDetailsService.addBankDetail(bankDetailsCreateDTO));
     }
 
     @Operation(summary = "Обновить реквизиты банка",
@@ -100,8 +93,6 @@ public class BankDetailsRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<BankDetailsDTO> updateBankDetails(@RequestBody BankDetailsDTO bankDetailsDTO,
                                                             @PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(bankDetailsService.updateBankDetail(id, bankDetailsDTO));
+        return ResponseEntity.ok(bankDetailsService.updateBankDetail(id, bankDetailsDTO));
     }
-
 }

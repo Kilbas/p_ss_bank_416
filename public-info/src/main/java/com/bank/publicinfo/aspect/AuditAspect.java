@@ -19,12 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Класс для работы с аудитом(сохрание записи в БД).
- */
 
 @Slf4j
 @Aspect
@@ -32,11 +26,11 @@ import java.util.List;
 public class AuditAspect {
 
     private final String login = "Админ";
+    private final LocalDateTime timeNow = LocalDateTime.now();
     private static final String SAVE = "add";
     private static final String UPDATE = "update";
-    private static final String DELETE = "delete";
 
-    private final ObjectMapper mapper;                        //Объект для сериализации/десериализации JSON.
+    private final ObjectMapper mapper;
     private final AuditService auditService;
 
     {
@@ -44,9 +38,6 @@ public class AuditAspect {
         mapper.registerModule(new JavaTimeModule());
     }
 
-    /**
-     * @param auditService Сервис для работы с сущностями Audit.
-     */
     public AuditAspect(AuditService auditService) {
         this.auditService = auditService;
     }
@@ -55,109 +46,77 @@ public class AuditAspect {
     public void callAudit() {
     }
 
-    /**
-     * Обрабатывает обновление или удаление записи аудита.
-     *
-     * @param result    Сущность (DTO).
-     * @throws JsonProcessingException Если происходит ошибка сериализации JSON.
-     */
     @AfterReturning(pointcut = "callAudit()", returning = "result")
-    public void afterReturningAudit(JoinPoint jp, Auditable result) throws JsonProcessingException {
+    public void afterReturningAudit(JoinPoint jp, Auditable result) throws JsonProcessingException, UnsupportedOperationException {
 
         Audit newAudit = new Audit();
-        String signature = jp.getSignature().toString(); //Сигнатура метода, вызвавшего аудит.
-                                                         // Используется для определения типа операции и сущности.
+        String signature = jp.getSignature().toString();
         EntityTypeEnum entityType = getEntityType(signature);
         OperationTypeEnum operationType = getOperationType(signature);
         newAudit.setOperationType(operationType.getValue());
 
-        if (entityType == null) {
-            log.warn("Не удалось определить тип сущности из подписи: {}", signature);
-            return;
-        }
-
         switch (operationType) {
             case CREATE -> addAudit(result, newAudit, entityType);
-            case UPDATE, DELETE -> updateOrDeleteAudit(result, jp, newAudit, entityType);
+            case UPDATE -> updateOrDeleteAudit(result, jp, newAudit, entityType);
         }
     }
 
-    /**
-     * Обрабатывает запись аудита при добавлении сущности в БД.
-     *
-     * @param result    Добавляемая сущность (DTO).
-     * @throws JsonProcessingException Если происходит ошибка сериализации JSON.
-     */
     private void addAudit(Auditable result, Audit audit, EntityTypeEnum entityType) throws JsonProcessingException {
 
-        log.info("Попытка записать аудит в БД");
         audit.setCreatedBy(login);
-        audit.setCreatedAt(LocalDateTime.now());
+        audit.setCreatedAt(timeNow);
         audit.setEntityType(entityType.getValue());
+        log.warn("Может быть выброшено исключение при маппинге в столбец таблицы EntityJson");
         audit.setEntityJson(mapper.writeValueAsString(result));
 
         if (StringUtils.hasText(audit.getEntityType())) {
             auditService.addAudit(audit);
-            log.info("Запись аудита добавлена успешно");
         }
-
     }
 
-    /**
-     * Обрабатывает запись аудита при обновление или удаление сущности в БД.
-     *
-     * @param result    Обновляемая или удаляемая сущность (DTO).
-     * @throws JsonProcessingException Если происходит ошибка сериализации JSON.
-     */
     private void updateOrDeleteAudit(Auditable result, JoinPoint joinPoint, Audit auditUpdate,
                                      EntityTypeEnum entityType) throws JsonProcessingException {
 
-        log.info("Попытка записать аудит с обновленной информацией в БД");
-        List<Object> list = Arrays.stream(joinPoint.getArgs()).toList();
-        Long id = (Long) list.get(0);
         auditUpdate.setNewEntityJson(mapper.writeValueAsString(result));
+        log.warn("Может быть выброшено исключение при маппинге в столбец таблицы NewEntityJson");
 
-        Audit auditFromDB = auditService.findByEntityTypeAndEntityId
-                (entityType.getValue(), String.valueOf(id));
+        if (joinPoint.getArgs().length < 1 || !(joinPoint.getArgs()[0] instanceof Long)) {
+            throw new IllegalArgumentException("Ожидаемый первый аргумент должен быть типа Long");
+        }
+
+        String id = String.valueOf(joinPoint.getArgs()[0]);
+        Audit auditFromDB = auditService.findByEntityTypeAndEntityId(entityType.getValue(), id);
 
         if (auditFromDB != null && StringUtils.hasText(auditUpdate.getNewEntityJson())) {
             auditUpdate.setEntityType(auditFromDB.getEntityType());
             auditUpdate.setCreatedBy(auditFromDB.getCreatedBy());
             auditUpdate.setModifiedBy(login);
             auditUpdate.setCreatedAt(auditFromDB.getCreatedAt());
-            auditUpdate.setModifiedAt(LocalDateTime.now());
+            auditUpdate.setModifiedAt(timeNow);
             auditUpdate.setEntityJson(auditFromDB.getEntityJson());
 
             auditService.addAudit(auditUpdate);
-            log.info(" Запись аудита с обновленной информацией добавлена успешно");
         }
     }
 
-    /**
-     * Определяет тип Enum по сигнатуре метода.
-     *
-     * @param signature Сигнатура метода.
-     * @return Тип Enum или null, если тип не найден.
-     */
     private EntityTypeEnum getEntityType(String signature) {
         for (EntityTypeEnum type : EntityTypeEnum.values()) {
             if (signature.contains(type.getValue())) {
                 return type;
             }
         }
-        return null;
+        log.error("Не удалось определить тип сущности");
+        throw new UnsupportedOperationException("Не удалось определить тип сущности");
     }
 
-    /**
-     * Определяет тип операции по сигнатуре метода.
-     *
-     * @param signature Сигнатура метода.
-     * @return Тип операции.
-     */
     private OperationTypeEnum getOperationType(String signature) {
-        if (signature.contains(SAVE)) return OperationTypeEnum.CREATE;
-        if (signature.contains(UPDATE)) return OperationTypeEnum.UPDATE;
-        if (signature.contains(DELETE)) return OperationTypeEnum.DELETE;
-        return OperationTypeEnum.UNKNOWN;
+        if (signature.contains(SAVE)) {
+            return OperationTypeEnum.CREATE;
+        } else if (signature.contains(UPDATE)) {
+            return OperationTypeEnum.UPDATE;
+        } else {
+            log.error("Неизвестный тип опперации при попытке записать в Audit");
+            throw new UnsupportedOperationException("Не удалось определить тип опперации");
+        }
     }
 }
