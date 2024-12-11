@@ -2,15 +2,14 @@ package com.bank.account.aspect;
 
 import com.bank.account.entity.Audit;
 import com.bank.account.service.AuditService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -22,85 +21,75 @@ public class AuditAspect {
 
     private final AuditService auditService;
     private final ObjectMapper objectMapper;
+    private final String userName = "system";
+    private final String methodSave = "save";
+    private final String methodUpdate = "update";
 
     @Around("execution(* com.bank.account.service.*Service.save*(..)) || " +
-            "execution(* com.bank.account.service.*Service.update*(..)) || " +
-            "execution(* com.bank.account.service.*Service.delete*(..))")
+            "execution(* com.bank.account.service.*Service.update*(..))")
     public Object auditLog(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        final String userName = "system";
         Object result = joinPoint.proceed();
-        Long id;
         Audit audit = new Audit();
 
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        String entityType = method.getReturnType().getSimpleName();
-        String operationType = method.getName();
+        String entityType = joinPoint.getSignature().getDeclaringType().getSimpleName();
+        String operationType = joinPoint.getSignature().getName();
 
-        log.info("audit.setEntityType {}", entityType);
         audit.setEntityType(entityType);
-
-        log.info("audit.setOperationType {}", operationType);
         audit.setOperationType(operationType);
 
-        if (operationType.startsWith("save")) {
-
-            log.info("audit.setCreatedBy {}", userName);
-            audit.setCreatedBy(userName);
-
-            log.info("audit.setCreatedAt {}", Timestamp.valueOf(LocalDateTime.now()));
-            audit.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-
-            log.info("audit.setEntityJson {}", result);
-            audit.setEntityJson(objectMapper.writeValueAsString(result));
-
-        } else if (operationType.startsWith("update")) {
-
-            id = (Long) joinPoint.getArgs()[0];
-
-            log.info("audit.setModifiedAt {}", Timestamp.valueOf(LocalDateTime.now()));
-            audit.setModifiedAt(Timestamp.valueOf(LocalDateTime.now()));
-
-            log.info("audit.setModifiedBy {}", userName);
-            audit.setModifiedBy(userName);
-
-            log.info("audit.setNewEntityJson {}", result);
-            audit.setNewEntityJson(objectMapper.writeValueAsString(result));
-
-            updateAudit(id, entityType, audit);
-
-        } else if (operationType.startsWith("delete")) {
-
-            id = (Long) joinPoint.getArgs()[0];
-
-            log.info("audit.setModifiedAt {}", Timestamp.valueOf(LocalDateTime.now()));
-            audit.setModifiedAt(Timestamp.valueOf(LocalDateTime.now()));
-
-            log.info("audit.setModifiedBy {}", userName);
-            audit.setModifiedBy(userName);
-
-            log.info("audit.setNewEntityJson {}", "null");
-            audit.setNewEntityJson(null);
-
+        if (operationType.startsWith(methodSave)) {
+            setCreateAudit(audit, userName, result);
+        } else if (operationType.startsWith(methodUpdate)) {
+            Long id = extractIdFromArgs(joinPoint.getArgs());
+            setUpdateAudit(audit, userName, result);
             updateAudit(id, entityType, audit);
         }
 
-        auditService.newAudit(audit);
+        saveAudit(audit);
 
         return result;
     }
 
-    private void updateAudit(Long id, String entityType, Audit audit) {
+    private Long extractIdFromArgs(Object[] args) {
+        if (args.length > 0 && args[0] instanceof Long) {
+            return (Long) args[0];
+        } else {
+            log.error("Ожидаемый первый аргумент должен быть типа Long");
+            throw new IllegalArgumentException("Ожидаемый первый аргумент должен быть типа Long");
+        }
+    }
 
+    private void setCreateAudit(Audit audit, String userName, Object result) throws JsonProcessingException {
+        audit.setCreatedBy(userName);
+        audit.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        audit.setEntityJson(objectMapper.writeValueAsString(result));
+    }
+
+    private void setUpdateAudit(Audit audit, String userName, Object result) throws JsonProcessingException {
+        audit.setModifiedBy(userName);
+        audit.setModifiedAt(Timestamp.valueOf(LocalDateTime.now()));
+        audit.setNewEntityJson(objectMapper.writeValueAsString(result));
+    }
+
+    private void updateAudit(Long id, String entityType, Audit audit) {
         Audit oldAudit = auditService.findByEntityTypeAndEntityId(entityType, id);
 
-        log.info("audit.setCreatedAt {}", oldAudit.getCreatedAt());
+        if (oldAudit == null) {
+            log.error("Аудит для сущности {} с id {} не найден", entityType, id);
+            return;
+        }
+
         audit.setCreatedAt(oldAudit.getCreatedAt());
-
-        log.info("audit.setModifiedBy {}", oldAudit.getCreatedBy());
         audit.setCreatedBy(oldAudit.getCreatedBy());
-
-        log.info("audit.setEntityJson {}", oldAudit.getEntityJson());
         audit.setEntityJson(oldAudit.getEntityJson());
+    }
+
+    private void saveAudit(Audit audit) {
+        try {
+            auditService.newAudit(audit);
+        } catch (Exception ex) {
+            log.error("Ошибка при сохранении аудита", ex);
+        }
     }
 }
