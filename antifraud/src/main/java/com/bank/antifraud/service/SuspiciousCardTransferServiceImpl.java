@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Slf4j
 @Transactional(readOnly = true)
 @Service
@@ -27,14 +28,17 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
         this.mapper = mapper;
     }
 
+    private EntityNotFoundException logAndThrowEntityNotFound(Long id, String action) {
+        String errorMessage = String.format("Запись с ID %d не найдена. %s невозможно.", id, action);
+        log.error(errorMessage);
+        return new EntityNotFoundException(errorMessage);
+    }
+
     @Override
     public SuspiciousCardTransferDTO findById(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
-                .orElseThrow(() -> {
-                    log.error("Перевод с ID {} не найден", id);
-                    return new EntityNotFoundException("Перевод не найден с ID: " + id);
-                });
+                .orElseThrow(() -> logAndThrowEntityNotFound(id, "Поиск"));
     }
 
     @Override
@@ -45,19 +49,18 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
     }
 
     @Override
+    @Transactional
     public SuspiciousCardTransferDTO create(SuspiciousCardTransferDTO transferDTO) {
         SuspiciousCardTransfer entity = mapper.toEntity(transferDTO);
         entity = repository.save(entity);
         return mapper.toDTO(entity);
     }
 
+    @Override
+    @Transactional
     public SuspiciousCardTransferDTO update(Long id, SuspiciousCardTransferDTO transferDTO) {
-
         SuspiciousCardTransfer existing = repository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Перевод с ID {} не найден для обновления", id);
-                    return new IllegalArgumentException("Перевод не найден с ID: " + id);
-                });
+                .orElseThrow(() -> logAndThrowEntityNotFound(id, "Обновление"));
 
         mapper.updateFromDto(transferDTO, existing);
         repository.save(existing);
@@ -65,12 +68,11 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
     }
 
 
-
     @Override
+    @Transactional
     public void delete(Long id) {
         if (!repository.existsById(id)) {
-            log.error("Перевод с ID {} не найден для удаления", id);
-            throw new EntityNotFoundException("Перевод не найден с ID: " + id);
+            throw logAndThrowEntityNotFound(id, "Удаление");
         }
         repository.deleteById(id);
     }

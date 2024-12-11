@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface AuditService {
 
-    void newAudit(Audit audit);
+    void addAudit(Audit audit);
     Audit findByEntityTypeAndEntityId(String entityType, Long entityId);
 }

@@ -34,13 +34,11 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
         return new EntityNotFoundException(errorMessage);
     }
 
-
     @Override
     @Transactional
     public SuspiciousAccountTransfersDTO create(SuspiciousAccountTransfersDTO transferDTO) {
         SuspiciousAccountTransfers entity = mapper.toEntity(transferDTO);
         entity = repository.save(entity);
-        log.info("Создана новая запись с ID {}.", entity.getId());
         return mapper.toDTO(entity);
     }
 
@@ -48,24 +46,19 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
     @Transactional
     public SuspiciousAccountTransfersDTO update(Long id, SuspiciousAccountTransfersDTO transferDTO) {
         SuspiciousAccountTransfers existing = repository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Запись с ID {} не найдена. Обновление невозможно.", id);
-                    return new EntityNotFoundException(String.format("Запись с ID %d не найдена. Обновление невозможно.", id));
-                });
+                .orElseThrow(() -> logAndThrowEntityNotFound(id, "Обновление"));
         mapper.updateFromDto(transferDTO, existing);
-        SuspiciousAccountTransfers updatedEntity = repository.save(existing);
-        log.info("Запись с ID {} успешно обновлена.", id);
-        return mapper.toDTO(updatedEntity);
+         repository.save(existing);
+        return mapper.toDTO(existing);
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
         if (!repository.existsById(id)) {
-            logAndThrowEntityNotFound(id, "Удаление");
+            throw logAndThrowEntityNotFound(id, "Удаление");
         }
         repository.deleteById(id);
-        log.info("Запись с ID {} успешно удалена.", id);
     }
 
     @Override
@@ -77,10 +70,9 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
 
     @Override
     public List<SuspiciousAccountTransfersDTO> findAll() {
-        List<SuspiciousAccountTransfersDTO> result = repository.findAll().stream()
+        return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
-        log.info("Найдено {} записей.", result.size());
-        return result;
+
     }
 }

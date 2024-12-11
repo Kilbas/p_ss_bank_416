@@ -22,7 +22,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/suspicious-account-transfers")
 public class SuspiciousAccountTransfersController {
-    Logger logger = LoggerFactory.getLogger(SuspiciousAccountTransfersController.class);
 
     private final SuspiciousAccountTransfersService service;
 
