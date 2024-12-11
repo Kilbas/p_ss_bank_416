@@ -2,7 +2,7 @@
 server:
   port: 8091
   servlet:
-    context-path: /api/public-info
+    context-path: /api/v1/public-info
 management:
   server:
     port: 8190
@@ -32,5 +32,9 @@ spring:
     show-sql: true
 
 swagger:
+  title: Public-info API
+  version: 1.0
+  description: Операции с банковской публичной информацией
   server:
-    url: http://localhost:8085/api/account
+    description: Локальный сервер для разработки
+    url: http://localhost:8091/api/v1/public-info
