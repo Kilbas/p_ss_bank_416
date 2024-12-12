@@ -60,6 +60,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Transactional
     public AccountDetailsDTO updateAccountDetails(Long id, AccountDetailsDTO accountDetailsDTO) {
         validateArg(id, "Идентификатор не может быть null");
+
         AccountDetails accountDetails = accountDetailsMapper
                 .toEntity(this.getAccountDetailsById(id));
         accountDetailsMapper.toDtoUpdate(accountDetailsDTO, accountDetails);
@@ -78,6 +79,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Transactional
     public void deleteAccountDetails(Long id) {
         validateArg(id, "Идентификатор не может быть null");
+
         this.getAccountDetailsById(id);
         accountDetailsRepository.deleteById(id);
     }
@@ -130,7 +132,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      */
     @Override
     public AccountDetailsDTO getAccountDetailsByBankDetailsId(Long bankDetailsId) {
-        validateArg(bankDetailsId, "Технический идентификатор на риквизиты банка не может быть null");
+        validateArg(bankDetailsId, "Технический идентификатор на реквизиты банка не может быть null");
 
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.findByBankDetailsId(bankDetailsId)
@@ -149,12 +151,10 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      */
     @Override
     public Page<AccountDetailsDTO> getAllAccountDetails(int page, int size) {
-        log.info("Получение всех аккаунтов с пагинацией: страница {}, размер {}", page, size);
-
         Pageable pageable = PageRequest.of(page, size);
-        Page<AccountDetails> accountDetailsSlice = accountDetailsRepository.findAll(pageable);
-
-        return accountDetailsSlice.map(accountDetailsMapper::toDto);
+        return accountDetailsRepository
+                .findAll(pageable)
+                .map(accountDetailsMapper::toDto);
     }
 
     /**

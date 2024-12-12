@@ -21,9 +21,10 @@ public class AuditAspect {
 
     private final AuditService auditService;
     private final ObjectMapper objectMapper;
-    private final String userName = "system";
-    private final String methodSave = "save";
-    private final String methodUpdate = "update";
+    private final Timestamp timeStamp = Timestamp.valueOf(LocalDateTime.now());
+    private static final String userName = "system";
+    private static final String methodSave = "save";
+    private static final String methodUpdate = "update";
 
     @Around("execution(* com.bank.account.service.*Service.save*(..)) || " +
             "execution(* com.bank.account.service.*Service.update*(..))")
@@ -39,15 +40,14 @@ public class AuditAspect {
         audit.setOperationType(operationType);
 
         if (operationType.startsWith(methodSave)) {
-            setCreateAudit(audit, userName, result);
+            setCreateAudit(audit, result);
         } else if (operationType.startsWith(methodUpdate)) {
             Long id = extractIdFromArgs(joinPoint.getArgs());
-            setUpdateAudit(audit, userName, result);
+            setUpdateAudit(audit, result);
             updateAudit(id, entityType, audit);
         }
 
         saveAudit(audit);
-
         return result;
     }
 
@@ -60,25 +60,21 @@ public class AuditAspect {
         }
     }
 
-    private void setCreateAudit(Audit audit, String userName, Object result) throws JsonProcessingException {
+    private void setCreateAudit(Audit audit, Object result) throws JsonProcessingException {
         audit.setCreatedBy(userName);
-        audit.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        audit.setCreatedAt(timeStamp);
         audit.setEntityJson(objectMapper.writeValueAsString(result));
     }
 
-    private void setUpdateAudit(Audit audit, String userName, Object result) throws JsonProcessingException {
+    private void setUpdateAudit(Audit audit, Object result) throws JsonProcessingException {
         audit.setModifiedBy(userName);
-        audit.setModifiedAt(Timestamp.valueOf(LocalDateTime.now()));
+        audit.setModifiedAt(timeStamp);
         audit.setNewEntityJson(objectMapper.writeValueAsString(result));
     }
 
     private void updateAudit(Long id, String entityType, Audit audit) {
         Audit oldAudit = auditService.findByEntityTypeAndEntityId(entityType, id);
 
-        if (oldAudit == null) {
-            log.error("Аудит для сущности {} с id {} не найден", entityType, id);
-            return;
-        }
 
         audit.setCreatedAt(oldAudit.getCreatedAt());
         audit.setCreatedBy(oldAudit.getCreatedBy());
@@ -86,10 +82,6 @@ public class AuditAspect {
     }
 
     private void saveAudit(Audit audit) {
-        try {
-            auditService.newAudit(audit);
-        } catch (Exception ex) {
-            log.error("Ошибка при сохранении аудита", ex);
-        }
+        auditService.newAudit(audit);
     }
 }

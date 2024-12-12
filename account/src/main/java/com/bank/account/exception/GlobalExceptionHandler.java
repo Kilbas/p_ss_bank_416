@@ -19,7 +19,12 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
-        log.warn(message);
+        if (status.equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+            log.error(message);
+        } else {
+            log.warn(message);
+        }
+
         return ResponseEntity.status(status).body(new ErrorResponse(status.value(), message));
     }
 

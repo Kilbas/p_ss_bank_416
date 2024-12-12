@@ -8,8 +8,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -22,14 +20,12 @@ public class AuditServiceImpl implements AuditService {
     @Transactional
     public void newAudit(Audit audit) {
         if (audit == null) {
-            log.error("Передан null объект для сохранения в Audit");
             throw new IllegalArgumentException("Объект Audit не может быть null");
         }
 
         try {
             auditRepository.save(audit);
         } catch (DataAccessException e) {
-            log.error("Ошибка при сохранении аудита: {}", e.getMessage(), e);
             throw new RuntimeException("Ошибка при сохранении аудита", e);
         }
     }
@@ -37,19 +33,16 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public Audit findByEntityTypeAndEntityId(String entityType, Long entityId) {
         if (entityType == null || entityId == null) {
-            log.error("Переданы null значения: entityType={}, entityId={}", entityType, entityId);
-            throw new IllegalArgumentException("entityType и entityId не могут быть null");
+            throw new IllegalArgumentException("entityType и или entityId не могут быть null");
         }
 
         try {
             Audit audit = auditRepository.findByEntityTypeAndEntityId(entityType, entityId.toString());
             if (audit == null) {
-                log.warn("Аудит не найден для entityType={} и entityId={}", entityType, entityId);
-                throw new EntityNotFoundException("Аудит не найден для указанных entityType и entityId");
+                throw new RuntimeException(String.format("Аудит не найден для entityType=%s и entityId=%s", entityType, entityId));
             }
             return audit;
         } catch (DataAccessException e) {
-            log.error("Ошибка при поиске аудита: {}", e.getMessage(), e);
             throw new RuntimeException("Ошибка при поиске аудита", e);
         }
     }
