@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 public class AuditAspect {
 
     private final String login = "Админ";
-    private final LocalDateTime timeNow = LocalDateTime.now();
     private static final String SAVE = "add";
     private static final String UPDATE = "update";
 
@@ -62,7 +61,7 @@ public class AuditAspect {
     private void addAudit(Auditable result, Audit audit, EntityTypeEnum entityType) throws JsonProcessingException {
 
         audit.setCreatedBy(login);
-        audit.setCreatedAt(timeNow);
+        audit.setCreatedAt(LocalDateTime.now());
         audit.setEntityType(entityType.getValue());
         log.warn("Может быть выброшено исключение при маппинге в столбец таблицы EntityJson");
         audit.setEntityJson(mapper.writeValueAsString(result));
@@ -90,7 +89,7 @@ public class AuditAspect {
             auditUpdate.setCreatedBy(auditFromDB.getCreatedBy());
             auditUpdate.setModifiedBy(login);
             auditUpdate.setCreatedAt(auditFromDB.getCreatedAt());
-            auditUpdate.setModifiedAt(timeNow);
+            auditUpdate.setModifiedAt(LocalDateTime.now());
             auditUpdate.setEntityJson(auditFromDB.getEntityJson());
 
             auditService.addAudit(auditUpdate);
