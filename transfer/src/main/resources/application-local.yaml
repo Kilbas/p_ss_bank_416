@@ -14,8 +14,8 @@ management:
         include: '*'
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: postgres
     password: password
   liquibase:
     default-schema: transfer
@@ -24,3 +24,10 @@ spring:
     drop-first: false
   application:
     name: transfer-app
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: create
