@@ -21,10 +21,9 @@ public class AuditAspect {
 
     private final AuditService auditService;
     private final ObjectMapper objectMapper;
-    private final Timestamp timeStamp = Timestamp.valueOf(LocalDateTime.now());
-    private static final String userName = "system";
-    private static final String methodSave = "save";
-    private static final String methodUpdate = "update";
+    private static final String USER_NAME = "system";
+    private static final String METHOD_SAVE  = "save";
+    private static final String METHOD_UPDATE = "update";
 
     @Around("execution(* com.bank.account.service.*Service.save*(..)) || " +
             "execution(* com.bank.account.service.*Service.update*(..))")
@@ -39,9 +38,9 @@ public class AuditAspect {
         audit.setEntityType(entityType);
         audit.setOperationType(operationType);
 
-        if (operationType.startsWith(methodSave)) {
+        if (operationType.startsWith(METHOD_SAVE)) {
             setCreateAudit(audit, result);
-        } else if (operationType.startsWith(methodUpdate)) {
+        } else if (operationType.startsWith(METHOD_UPDATE)) {
             Long id = extractIdFromArgs(joinPoint.getArgs());
             setUpdateAudit(audit, result);
             updateAudit(id, entityType, audit);
@@ -61,14 +60,14 @@ public class AuditAspect {
     }
 
     private void setCreateAudit(Audit audit, Object result) throws JsonProcessingException {
-        audit.setCreatedBy(userName);
-        audit.setCreatedAt(timeStamp);
+        audit.setCreatedBy(USER_NAME);
+        audit.setCreatedAt(getTimestamp());
         audit.setEntityJson(objectMapper.writeValueAsString(result));
     }
 
     private void setUpdateAudit(Audit audit, Object result) throws JsonProcessingException {
-        audit.setModifiedBy(userName);
-        audit.setModifiedAt(timeStamp);
+        audit.setModifiedBy(USER_NAME);
+        audit.setModifiedAt(getTimestamp());
         audit.setNewEntityJson(objectMapper.writeValueAsString(result));
     }
 
@@ -83,5 +82,9 @@ public class AuditAspect {
 
     private void saveAudit(Audit audit) {
         auditService.newAudit(audit);
+    }
+
+    private Timestamp getTimestamp (){
+        return Timestamp.valueOf(LocalDateTime.now());
     }
 }
