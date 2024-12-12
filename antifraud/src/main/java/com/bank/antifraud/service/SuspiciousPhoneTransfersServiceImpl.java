@@ -26,14 +26,17 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
         this.mapper = mapper;
     }
 
+    private EntityNotFoundException logAndThrowEntityNotFound(Long id, String action) {
+        String errorMessage = String.format("Запись с ID %d не найдена. %s невозможно.", id, action);
+        log.error(errorMessage);
+        return new EntityNotFoundException(errorMessage);
+    }
+
     @Override
     public SuspiciousPhoneTransferDTO findById(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
-                .orElseThrow(() -> {
-                    log.error("Подозрительный перевод с ID {} не найден.", id);
-                    return new IllegalArgumentException("Перевод с ID " + id + " не найден.");
-                });
+                .orElseThrow(() -> logAndThrowEntityNotFound(id,"Поиск "));
     }
 
     @Override
@@ -53,11 +56,8 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
     @Override
     public SuspiciousPhoneTransferDTO update(Long id, SuspiciousPhoneTransferDTO transferDTO) {
         SuspiciousPhoneTransfers existing = repository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Подозрительный перевод с ID {} не найден.", id);
-                    return new IllegalArgumentException("Перевод с ID " + id + " не найден.");
-                });
-        mapper.updateFromDto(transferDTO, existing);
+                .orElseThrow(()-> logAndThrowEntityNotFound(id,"Обновление "));
+                mapper.updateFromDto(transferDTO, existing);
         repository.save(existing);
         return mapper.toDTO(existing);
     }
@@ -65,8 +65,7 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
     @Override
     public void delete(Long id) {
         if (!repository.existsById(id)) {
-            log.error("Подозрительный перевод с ID {} не найден. Удаление невозможно.", id);
-            throw new EntityNotFoundException("Перевод с ID " + id + " не найден.");
+            throw logAndThrowEntityNotFound(id, "Удаление");
         }
         repository.deleteById(id);
     }

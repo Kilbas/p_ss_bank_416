@@ -14,8 +14,6 @@ import java.util.List;
 @RequestMapping("/suspicious-phone-transfers")
 public class SuspiciousPhoneTransfersController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SuspiciousPhoneTransfersController.class);
-
     private final SuspiciousPhoneTransfersService service;
 
     public SuspiciousPhoneTransfersController(SuspiciousPhoneTransfersService service) {
@@ -43,7 +41,7 @@ public class SuspiciousPhoneTransfersController {
             @Valid @PathVariable Long id, @RequestBody SuspiciousPhoneTransferDTO suspiciousPhoneTransferDTO) {
         return ResponseEntity.ok(service.update(id,suspiciousPhoneTransferDTO));
     }
-
+//ПРОВЕРИТЬ ЗЕЧЕМ ТУТ МТЕОД ПРИНИМАЕТ ОБЕКТ
     @DeleteMapping("/{id}")
     public ResponseEntity<SuspiciousPhoneTransferDTO> delete(@PathVariable Long id) {
         service.delete(id);
@@ -54,7 +52,6 @@ public class SuspiciousPhoneTransfersController {
     public ResponseEntity<List<SuspiciousPhoneTransferDTO>> findByReason(@PathVariable String reason) {
         List<SuspiciousPhoneTransferDTO> transfers = service.findTransfersByReason(reason);
         if (transfers.isEmpty()) {
-            logger.info("Переводы с причиной '{}' не найдены.", reason);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(transfers);
