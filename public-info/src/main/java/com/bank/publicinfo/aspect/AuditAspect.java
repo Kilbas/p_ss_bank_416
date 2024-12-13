@@ -2,12 +2,12 @@ package com.bank.publicinfo.aspect;
 
 import com.bank.publicinfo.dto.Auditable;
 import com.bank.publicinfo.entity.Audit;
-import com.bank.publicinfo.service.audit.AuditService;
+import com.bank.publicinfo.service.interfaceEntity.AuditService;
 import com.bank.publicinfo.util.enums.EntityTypeEnum;
 import com.bank.publicinfo.util.enums.OperationTypeEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -17,27 +17,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 @Aspect
 @Component
 public class AuditAspect {
 
-    private final String login = "Админ";
-    private static final String SAVE = "add";
-    private static final String UPDATE = "update";
+    private String errorMessage;
+    private final String login = "ADMIN";
+    private static final String OPERATION_SAVE = "add";
+    private static final String OPERATION_UPDATE = "update";
 
     private final ObjectMapper mapper;
     private final AuditService auditService;
-
-    {
-        mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-    }
-
-    public AuditAspect(AuditService auditService) {
-        this.auditService = auditService;
-    }
 
     @Pointcut("@annotation(AuditAnnotation)")
     public void callAudit() {
@@ -45,16 +39,22 @@ public class AuditAspect {
 
     @AfterReturning(pointcut = "callAudit()", returning = "result")
     public void afterReturningAudit(JoinPoint jp, Auditable result) throws JsonProcessingException, UnsupportedOperationException {
+        if (jp == null || result == null) {
+            errorMessage = "Передаваемые параметры JoinPoint и или Auditable не могут быть null";
+            log.error(errorMessage);
+            throw new NullPointerException(errorMessage);
+        }
 
         Audit newAudit = new Audit();
-        String signature = jp.getSignature().toString();
+        String signature = jp.getSignature().getName();
         EntityTypeEnum entityType = getEntityType(signature);
         OperationTypeEnum operationType = getOperationType(signature);
+
         newAudit.setOperationType(operationType.getValue());
 
         switch (operationType) {
             case CREATE -> addAudit(result, newAudit, entityType);
-            case UPDATE -> updateOrDeleteAudit(result, jp, newAudit, entityType);
+            case UPDATE -> updateAudit(result, newAudit, findAuditBD(jp, entityType));
         }
     }
 
@@ -71,18 +71,10 @@ public class AuditAspect {
         }
     }
 
-    private void updateOrDeleteAudit(Auditable result, JoinPoint joinPoint, Audit auditUpdate,
-                                     EntityTypeEnum entityType) throws JsonProcessingException {
+    private void updateAudit(Auditable result, Audit auditUpdate, Audit auditFromDB) throws JsonProcessingException {
 
         auditUpdate.setNewEntityJson(mapper.writeValueAsString(result));
         log.warn("Может быть выброшено исключение при маппинге в столбец таблицы NewEntityJson");
-
-        if (joinPoint.getArgs().length < 1 || !(joinPoint.getArgs()[0] instanceof Long)) {
-            throw new IllegalArgumentException("Ожидаемый первый аргумент должен быть типа Long");
-        }
-
-        String id = String.valueOf(joinPoint.getArgs()[0]);
-        Audit auditFromDB = auditService.findByEntityTypeAndEntityId(entityType.getValue(), id);
 
         if (StringUtils.hasText(auditUpdate.getNewEntityJson())) {
             auditUpdate.setEntityType(auditFromDB.getEntityType());
@@ -96,24 +88,43 @@ public class AuditAspect {
         }
     }
 
+    private Audit findAuditBD(JoinPoint joinPoint, EntityTypeEnum entityType) {
+        if (joinPoint.getArgs().length < 1 || !(joinPoint.getArgs()[0] instanceof Long)) {
+            errorMessage = "Ожидаемый первый аргумент должен быть типа Long";
+            log.error(errorMessage);
+            throw new IllegalArgumentException(errorMessage);
+        }
+
+        String id = String.valueOf(joinPoint.getArgs()[0]);
+        return auditService.findByEntityTypeAndEntityId(entityType.getValue(), id);
+    }
+
     private EntityTypeEnum getEntityType(String signature) {
         for (EntityTypeEnum type : EntityTypeEnum.values()) {
             if (signature.contains(type.getValue())) {
                 return type;
             }
         }
-        log.error("Не удалось определить тип сущности");
-        throw new UnsupportedOperationException("Не удалось определить тип сущности");
+        errorMessage = String.format("Не удалось определить тип сущности при попытке записать в Audit: %s", signature);
+        log.error(errorMessage);
+        throw new UnsupportedOperationException(errorMessage);
     }
 
     private OperationTypeEnum getOperationType(String signature) {
-        if (signature.contains(SAVE)) {
-            return OperationTypeEnum.CREATE;
-        } else if (signature.contains(UPDATE)) {
-            return OperationTypeEnum.UPDATE;
-        } else {
-            log.error("Неизвестный тип опперации при попытке записать в Audit");
-            throw new UnsupportedOperationException("Не удалось определить тип опперации над сущностью");
-        }
+        Map<String, OperationTypeEnum> operationMap = Map.of(
+                OPERATION_SAVE, OperationTypeEnum.CREATE,
+                OPERATION_UPDATE, OperationTypeEnum.UPDATE
+        );
+
+        return operationMap.entrySet().stream()
+                .filter(entry -> signature.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElseThrow(() -> {
+                    errorMessage = String.format(
+                            "Не удалось определить тип операции над сущностью при попытке записать в Audit: %s", signature);
+                    log.error(errorMessage);
+                    return new UnsupportedOperationException(errorMessage);
+                });
     }
 }

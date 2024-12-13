@@ -1,4 +1,4 @@
-package com.bank.publicinfo.service.atm;
+package com.bank.publicinfo.service.impl;
 
 import com.bank.publicinfo.aspect.AuditAnnotation;
 import com.bank.publicinfo.dto.AtmDTO;
@@ -7,6 +7,8 @@ import com.bank.publicinfo.entity.Branch;
 import com.bank.publicinfo.mapper.AtmMapper;
 import com.bank.publicinfo.repository.AtmRepository;
 import com.bank.publicinfo.repository.BranchRepository;
+import com.bank.publicinfo.service.interfaceEntity.AtmService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,19 +19,15 @@ import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @Transactional
 @Service
 public class AtmServiceImp implements AtmService {
 
+    private String errorMessage;
     private final AtmRepository atmRepository;
     private final AtmMapper mapper;
     private final BranchRepository branchRepository;
-
-    public AtmServiceImp(AtmRepository atmRepository, AtmMapper mapper, BranchRepository branchRepository) {
-        this.atmRepository = atmRepository;
-        this.mapper = mapper;
-        this.branchRepository = branchRepository;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -81,8 +79,9 @@ public class AtmServiceImp implements AtmService {
     private Atm findAtmById(Long id) {
         return atmRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.error("Банкомат с указанным id не найден в БД {}", id);
-                    return new EntityNotFoundException("Банкомат с указанным id не найден в БД" + id);
+                    errorMessage = String.format("Банкомат с указанным id не найден в БД %s", id);
+                    log.error(errorMessage);
+                    return new EntityNotFoundException(errorMessage);
                 });
     }
 
@@ -90,8 +89,11 @@ public class AtmServiceImp implements AtmService {
         if (branch != null) {
             Branch foundBranch = branchRepository.findById(branch.getId())
                     .orElseThrow(() -> {
-                        log.error("Не удалось связать отделение бака и банкомат в БД ");
-                       return new EntityNotFoundException("Отделение банка по id не найдено в БД" + branch.getId());
+                        errorMessage = String.format(
+                                "Не удалось связать банкомат и отделение бака так как отделение с id = %s не найдено в БД",
+                                branch.getId());
+                        log.error(errorMessage);
+                        return new EntityNotFoundException(errorMessage);
                     });
             atm.setBranch(foundBranch);
         }

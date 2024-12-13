@@ -1,4 +1,4 @@
-package com.bank.publicinfo.service.bankDetails;
+package com.bank.publicinfo.service.interfaceEntity;
 
 import com.bank.publicinfo.dto.BankDetailsDTO;
 import org.springframework.data.domain.Pageable;
@@ -11,9 +11,9 @@ public interface BankDetailsService {
 
     BankDetailsDTO getBankDetails(Long id);
 
-    BankDetailsDTO addBankDetail(BankDetailsDTO bankDetails);
+    BankDetailsDTO addBankDetails(BankDetailsDTO bankDetails);
 
-    BankDetailsDTO updateBankDetail(Long id, BankDetailsDTO bankDetails);
+    BankDetailsDTO updateBankDetails(Long id, BankDetailsDTO bankDetails);
 
     void deleteBankDetail(Long id);
 }

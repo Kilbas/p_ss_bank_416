@@ -1,11 +1,12 @@
 package com.bank.publicinfo.controller;
 
 import com.bank.publicinfo.dto.CertificateDTO;
-import com.bank.publicinfo.service.certificate.CertificateService;
+import com.bank.publicinfo.service.interfaceEntity.CertificateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -21,17 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/certificate")
+@RequestMapping("/certificate")
 @Tag(name = "Сертификаты", description = "операции с сертификатами")
 public class CertificateRestController {
 
     private final CertificateService certificateService;
-
-    public CertificateRestController(CertificateService certificateService) {
-        this.certificateService = certificateService;
-
-    }
 
     @Operation(summary = "Получить все сертификаты",
             description = "Возвращает список  всех сертификатов")

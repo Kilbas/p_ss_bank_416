@@ -1,11 +1,12 @@
 package com.bank.publicinfo.controller;
 
 import com.bank.publicinfo.dto.BankDetailsDTO;
-import com.bank.publicinfo.service.bankDetails.BankDetailsService;
+import com.bank.publicinfo.service.interfaceEntity.BankDetailsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/bankDetails")
+@RequestMapping("/bankDetails")
 @Tag(name = "Банковские реквизиты", description = "действия с банковскими реквизитами")
 public class BankDetailsRestController {
 
     private final BankDetailsService bankDetailsService;
-
-    public BankDetailsRestController(BankDetailsService bankDetailsService) {
-        this.bankDetailsService = bankDetailsService;
-    }
 
     @Operation(summary = "Получить реквизиты всех доступных банков",
             description = "Возвращает список реквизитов всех доступных банков")
@@ -78,7 +76,7 @@ public class BankDetailsRestController {
     })
     @PostMapping("/create")
     public ResponseEntity<BankDetailsDTO> createBankDetails(@Valid @RequestBody BankDetailsDTO bankDetailsCreateDTO) {
-        return ResponseEntity.ok(bankDetailsService.addBankDetail(bankDetailsCreateDTO));
+        return ResponseEntity.ok(bankDetailsService.addBankDetails(bankDetailsCreateDTO));
     }
 
     @Operation(summary = "Обновить реквизиты банка",
@@ -93,6 +91,6 @@ public class BankDetailsRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<BankDetailsDTO> updateBankDetails(@RequestBody BankDetailsDTO bankDetailsDTO,
                                                             @PathVariable Long id) {
-        return ResponseEntity.ok(bankDetailsService.updateBankDetail(id, bankDetailsDTO));
+        return ResponseEntity.ok(bankDetailsService.updateBankDetails(id, bankDetailsDTO));
     }
 }

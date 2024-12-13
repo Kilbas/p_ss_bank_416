@@ -1,4 +1,4 @@
-package com.bank.publicinfo.service.certificate;
+package com.bank.publicinfo.service.impl;
 
 import com.bank.publicinfo.aspect.AuditAnnotation;
 import com.bank.publicinfo.dto.CertificateDTO;
@@ -7,6 +7,8 @@ import com.bank.publicinfo.entity.Certificate;
 import com.bank.publicinfo.mapper.CertificateMapper;
 import com.bank.publicinfo.repository.BankDetailsRepository;
 import com.bank.publicinfo.repository.CertificateRepository;
+import com.bank.publicinfo.service.interfaceEntity.CertificateService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,21 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
+@RequiredArgsConstructor
 @Transactional
 @Service
 public class CertificateServiceImp implements CertificateService {
 
+    private String errorMessage;
     private final CertificateRepository certificateRepository;
     private final BankDetailsRepository bankDetailsRepository;
     private final CertificateMapper mapper;
-
-    public CertificateServiceImp(CertificateRepository certificateRepository, BankDetailsRepository bankDetailsRepository, CertificateMapper mapper) {
-        this.certificateRepository = certificateRepository;
-        this.bankDetailsRepository = bankDetailsRepository;
-        this.mapper = mapper;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -58,8 +58,7 @@ public class CertificateServiceImp implements CertificateService {
     public CertificateDTO addCertificate(CertificateDTO certificateCreateDTO) {
         Certificate certificate = mapper.map(certificateCreateDTO);
         certificate.setBankDetailsCertificate(findBankDetailsById(certificateCreateDTO.getBankDetailsCertificate().getId()));
-        Certificate save = certificateRepository.save(certificate);
-        return mapper.map(save);
+        return mapper.map(certificateRepository.save(certificate));
     }
 
     @Override
@@ -68,23 +67,23 @@ public class CertificateServiceImp implements CertificateService {
         Certificate certificate = findCertificateById(id);
         certificate.setBankDetailsCertificate(findBankDetailsById(certificateCreateDTO.getBankDetailsCertificate().getId()));
         mapper.updateCertificateFromDto(certificateCreateDTO, certificate);
-        Certificate save = certificateRepository.save(certificate);
-        return mapper.map(save);
+        return mapper.map(certificateRepository.save(certificate));
+    }
+
+    private <T> T findEntityById(Long id, Function<Long, Optional<T>> findFunction, String entityName) {
+        return findFunction.apply(id)
+                .orElseThrow(() -> {
+                    errorMessage = String.format("%s не найден с id %s", entityName, id);
+                    log.error(errorMessage);
+                    return new EntityNotFoundException(errorMessage);
+                });
     }
 
     private Certificate findCertificateById(Long id) {
-        return certificateRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Сертификат не найден с id {}", id);
-                    return new EntityNotFoundException("Сертификаты не найдена с id" + id);
-                });
+        return findEntityById(id, certificateRepository::findById, "Сертификат");
     }
 
     private BankDetails findBankDetailsById(Long id) {
-        return bankDetailsRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Реквизиты банка не найдены с id {}", id);
-                    return new EntityNotFoundException("Реквизиты банка не найдены с id" + id);
-                });
+        return findEntityById(id, bankDetailsRepository::findById, "Реквизиты банка");
     }
 }

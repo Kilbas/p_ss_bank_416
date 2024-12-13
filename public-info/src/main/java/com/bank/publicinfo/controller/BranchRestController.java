@@ -1,11 +1,12 @@
 package com.bank.publicinfo.controller;
 
 import com.bank.publicinfo.dto.BranchDTO;
-import com.bank.publicinfo.service.branch.BranchService;
+import com.bank.publicinfo.service.interfaceEntity.BranchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -21,17 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/branch")
+@RequestMapping("/branch")
 @Tag(name = "Отделения банка", description = "операции с отделениями банка")
 
 public class BranchRestController {
 
     private final BranchService branchService;
-
-    public BranchRestController(BranchService branchService) {
-        this.branchService = branchService;
-    }
 
     @Operation(summary = "Получить информацию обо всех доступных отделений банков",
             description = "Возвращает список информации обо всех доступных отделений банков")

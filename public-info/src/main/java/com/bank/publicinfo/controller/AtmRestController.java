@@ -1,11 +1,12 @@
 package com.bank.publicinfo.controller;
 
 import com.bank.publicinfo.dto.AtmDTO;
-import com.bank.publicinfo.service.atm.AtmService;
+import com.bank.publicinfo.service.interfaceEntity.AtmService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/atm")
+@RequestMapping("/atm")
 @Tag(name = "Банкоматы", description = "действия с банкоматами")
 public class AtmRestController {
 
     private final AtmService atmService;
-
-    public AtmRestController(AtmService atmService) {
-        this.atmService = atmService;
-    }
 
     @Operation(summary = "Получить информацию о доступных банкоматах",
             description = "Возвращает список  информации о доступных банкоматах")

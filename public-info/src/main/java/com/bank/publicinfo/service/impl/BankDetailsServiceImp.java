@@ -1,4 +1,4 @@
-package com.bank.publicinfo.service.bankDetails;
+package com.bank.publicinfo.service.impl;
 
 import com.bank.publicinfo.aspect.AuditAnnotation;
 import com.bank.publicinfo.dto.BankDetailsDTO;
@@ -7,6 +7,8 @@ import com.bank.publicinfo.entity.Certificate;
 import com.bank.publicinfo.entity.License;
 import com.bank.publicinfo.mapper.BankDetailsMapper;
 import com.bank.publicinfo.repository.BankDetailsRepository;
+import com.bank.publicinfo.service.interfaceEntity.BankDetailsService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,38 +19,32 @@ import org.springframework.util.CollectionUtils;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Transactional
 @Service
 public class BankDetailsServiceImp implements BankDetailsService {
 
+    private String errorMessage;
     private final BankDetailsMapper mapper;
     private final BankDetailsRepository bankDetailsRepository;
-
-    public BankDetailsServiceImp(BankDetailsMapper mapper, BankDetailsRepository bankDetailsRepository) {
-        this.mapper = mapper;
-        this.bankDetailsRepository = bankDetailsRepository;
-    }
 
     @Override
     @Transactional(readOnly = true)
     public List<BankDetailsDTO> getAllBankDetails(Pageable pageable) {
-        log.info("Запрос на получение всех реквизитов банка");
         Page<BankDetails> all = bankDetailsRepository.findAll(pageable);
-        log.info("Получено  реквизита(ов) банка");
         return mapper.map(all.getContent());
     }
 
     @Override
     @Transactional(readOnly = true)
     public BankDetailsDTO getBankDetails(Long id) {
-        log.info("Запрос на получение реквизитов банка с ID: {}", id);
         BankDetails bankDetails = findBankDetailsById(id);
-        BankDetailsDTO map = mapper.map(bankDetails);
-        log.info("Получены реквизиты банка: {}", bankDetails);
-        return map;
+        return mapper.map(bankDetails);
     }
 
     @Override
@@ -58,14 +54,14 @@ public class BankDetailsServiceImp implements BankDetailsService {
 
     @Override
     @AuditAnnotation
-    public BankDetailsDTO addBankDetail(BankDetailsDTO bankDetailsCreateDTO) {
+    public BankDetailsDTO addBankDetails(BankDetailsDTO bankDetailsCreateDTO) {
         BankDetails bankDetails = mapper.map(bankDetailsCreateDTO);
         return saveLicensesAndCertificates(bankDetailsCreateDTO, bankDetails);
     }
 
     @Override
     @AuditAnnotation
-    public BankDetailsDTO updateBankDetail(Long id, BankDetailsDTO bankDetailsUpdateDTO) {
+    public BankDetailsDTO updateBankDetails(Long id, BankDetailsDTO bankDetailsUpdateDTO) {
         BankDetails bankDetails = findBankDetailsById(id);
         mapper.updateBankDetailsFromDto(bankDetailsUpdateDTO, bankDetails);
         return saveLicensesAndCertificates(bankDetailsUpdateDTO, bankDetails);
@@ -74,8 +70,9 @@ public class BankDetailsServiceImp implements BankDetailsService {
     private BankDetails findBankDetailsById(Long id) {
         return bankDetailsRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.error("Реквизиты банка не найдены для ID: {}", id);
-                    return new EntityNotFoundException("Реквизиты банка не найдены");
+                    errorMessage = String.format("Реквизиты банка не найдены для ID: %s", id);
+                    log.error( errorMessage);
+                    return new EntityNotFoundException( errorMessage);
                 });
     }
 
@@ -85,29 +82,32 @@ public class BankDetailsServiceImp implements BankDetailsService {
         return mapper.map(bankDetailsRepository.save(bankDetails));
     }
 
-    private void saveLicenses(Set<License> licenses, BankDetails bankDetails) {
-        if (!CollectionUtils.isEmpty(licenses)) {
-            bankDetails.setLicenses(licenses.stream()
-                    .map(e -> {
-                        License license = new License();
-                        license.setPhoto(e.getPhoto());
-                        license.setBankDetailsLicense(bankDetails);
-                        return license;
-                    })
-                    .collect(Collectors.toSet()));
+    private <T, U> void saveEntities(Set<T> entities, BankDetails bankDetails,
+                                     Function<T, U> entityMapper,
+                                     BiConsumer<BankDetails, Set<U>> setter) {
+        if (!CollectionUtils.isEmpty(entities)) {
+            Set<U> mappedEntities = entities.stream()
+                    .map(entityMapper)
+                    .collect(Collectors.toSet());
+            setter.accept(bankDetails, mappedEntities);
         }
     }
 
+    private void saveLicenses(Set<License> licenses, BankDetails bankDetails) {
+        saveEntities(licenses, bankDetails, e -> {
+            License license = new License();
+            license.setPhoto(e.getPhoto());
+            license.setBankDetailsLicense(bankDetails);
+            return license;
+        }, BankDetails::setLicenses);
+    }
+
     private void saveCertificates(Set<Certificate> certificates, BankDetails bankDetails) {
-        if (!CollectionUtils.isEmpty(certificates)) {
-            bankDetails.setCertificates(certificates.stream()
-                    .map(e -> {
-                        Certificate certificate = new Certificate();
-                        certificate.setPhoto(e.getPhoto());
-                        certificate.setBankDetailsCertificate(bankDetails);
-                        return certificate;
-                    })
-                    .collect(Collectors.toSet()));
-        }
+        saveEntities(certificates, bankDetails, e -> {
+            Certificate certificate = new Certificate();
+            certificate.setPhoto(e.getPhoto());
+            certificate.setBankDetailsCertificate(bankDetails);
+            return certificate;
+        }, BankDetails::setCertificates);
     }
 }

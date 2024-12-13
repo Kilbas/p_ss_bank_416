@@ -1,4 +1,4 @@
-package com.bank.publicinfo.service.certificate;
+package com.bank.publicinfo.service.interfaceEntity;
 
 import com.bank.publicinfo.dto.CertificateDTO;
 import org.springframework.data.domain.Pageable;

@@ -1,4 +1,4 @@
-package com.bank.publicinfo.service.license;
+package com.bank.publicinfo.service.impl;
 
 import com.bank.publicinfo.aspect.AuditAnnotation;
 import com.bank.publicinfo.dto.LicenseDTO;
@@ -7,6 +7,8 @@ import com.bank.publicinfo.entity.License;
 import com.bank.publicinfo.mapper.LicenseMapper;
 import com.bank.publicinfo.repository.BankDetailsRepository;
 import com.bank.publicinfo.repository.LicenseRepository;
+import com.bank.publicinfo.service.interfaceEntity.LicenseService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,22 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
+@RequiredArgsConstructor
 @Transactional
 @Service
 public class LicenseServiceImp implements LicenseService {
 
+    private String errorMessage;
     private final LicenseRepository licenseRepository;
     private final BankDetailsRepository bankDetailsRepository;
     private final LicenseMapper mapper;
-
-    public LicenseServiceImp(LicenseRepository licenseRepository,
-                             BankDetailsRepository bankDetailsRepository, LicenseMapper mapper) {
-        this.licenseRepository = licenseRepository;
-        this.bankDetailsRepository = bankDetailsRepository;
-        this.mapper = mapper;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -60,8 +59,7 @@ public class LicenseServiceImp implements LicenseService {
     public LicenseDTO addLicense(LicenseDTO licenseCreateDTO) {
         License license = mapper.map(licenseCreateDTO);
         license.setBankDetailsLicense(findBankDetailsById(licenseCreateDTO.getBankDetailsLicense().getId()));
-        License save = licenseRepository.save(license);
-        return mapper.map(save);
+        return mapper.map(licenseRepository.save(license));
     }
 
     @Override
@@ -70,23 +68,23 @@ public class LicenseServiceImp implements LicenseService {
         License license = findLicenseById(id);
         license.setBankDetailsLicense(findBankDetailsById(licenseCreateDTO.getBankDetailsLicense().getId()));
         mapper.updateLicenseFromDto(licenseCreateDTO, license);
-        License save = licenseRepository.save(license);
-        return mapper.map(save);
+        return mapper.map(licenseRepository.save(license));
+    }
+
+    private <T> T findEntityById(Long id, Function<Long, Optional<T>> findFunction, String entityName) {
+        return findFunction.apply(id)
+                .orElseThrow(() -> {
+                    errorMessage = String.format("%s не найден с id %s", entityName, id);
+                    log.error(errorMessage);
+                    return new EntityNotFoundException(errorMessage);
+                });
     }
 
     private License findLicenseById(Long id) {
-        return licenseRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Лицензия не найдена с id {}", id);
-                    return new EntityNotFoundException("Лицензия не найдена с id" + id);
-                });
+        return findEntityById(id, licenseRepository::findById, "Лицензия");
     }
 
     private BankDetails findBankDetailsById(Long id) {
-        return bankDetailsRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Реквизиты банка не найдены с id {}", id);
-                    return new EntityNotFoundException("Реквизиты банка не найдены с id" + id);
-                });
+        return findEntityById(id, bankDetailsRepository::findById, "Реквизиты банка");
     }
 }

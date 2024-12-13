@@ -1,4 +1,4 @@
-package com.bank.publicinfo.service.atm;
+package com.bank.publicinfo.service.interfaceEntity;
 
 import com.bank.publicinfo.dto.AtmDTO;
 import org.springframework.data.domain.Pageable;

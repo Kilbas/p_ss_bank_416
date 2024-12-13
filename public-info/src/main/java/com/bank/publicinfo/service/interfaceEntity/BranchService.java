@@ -1,4 +1,4 @@
-package com.bank.publicinfo.service.branch;
+package com.bank.publicinfo.service.interfaceEntity;
 
 import com.bank.publicinfo.dto.BranchDTO;
 import org.springframework.data.domain.Pageable;

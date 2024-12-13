@@ -1,11 +1,12 @@
 package com.bank.publicinfo.controller;
 
 import com.bank.publicinfo.dto.LicenseDTO;
-import com.bank.publicinfo.service.license.LicenseService;
+import com.bank.publicinfo.service.interfaceEntity.LicenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/license")
+@RequestMapping("/license")
 @Tag(name = "Лицензии", description = "операции с лицензиями")
 public class LicenseRestController {
 
     private final LicenseService licenseService;
-
-    public LicenseRestController(LicenseService licenseService) {
-        this.licenseService = licenseService;
-    }
 
     @Operation(summary = "Получить все лицензии",
             description = "Возвращает список  всех лицензий")
