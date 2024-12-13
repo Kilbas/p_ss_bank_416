@@ -2,11 +2,13 @@ package com.bank.publicinfo.service.audit;
 
 import com.bank.publicinfo.entity.Audit;
 import com.bank.publicinfo.repository.AuditRepository;
+import com.bank.publicinfo.service.interfaceEntity.AuditService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+
 @Slf4j
 @Transactional
 @Service
