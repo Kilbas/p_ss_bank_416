@@ -15,6 +15,7 @@ public interface SuspiciousAccountTransfersMapper {
 
     SuspiciousAccountTransfers toEntity(SuspiciousAccountTransfersDTO suspiciousAccountTransfersDTO);
 
-    @Mapping(target = "id", ignore = true) // Игнорируем обновление поля id
+    @Mapping(target = "id", ignore = true)
+        // Игнорируем обновление поля id
     void updateFromDto(SuspiciousAccountTransfersDTO transferDTO, @MappingTarget SuspiciousAccountTransfers existing);
 }

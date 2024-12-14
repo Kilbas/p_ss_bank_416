@@ -1,6 +1,8 @@
 package com.bank.antifraud.service;
 
+import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.dto.SuspiciousPhoneTransferDTO;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -16,4 +18,8 @@ public interface SuspiciousPhoneTransfersService {
     void delete(Long id);
 
     List<SuspiciousPhoneTransferDTO> findTransfersByReason(String reason); // Поиск по причине
+
+    List<SuspiciousPhoneTransferDTO> findBlockedTransfers();// Получить заблокированные транзакции
+
+    List<SuspiciousPhoneTransferDTO> findSuspiciousTransfers(); // Получить подозрительные транзакции
 }

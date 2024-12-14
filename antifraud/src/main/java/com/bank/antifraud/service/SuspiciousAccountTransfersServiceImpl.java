@@ -1,6 +1,7 @@
 package com.bank.antifraud.service;
 
 import com.bank.antifraud.dto.SuspiciousAccountTransfersDTO;
+import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.entity.SuspiciousAccountTransfers;
 import com.bank.antifraud.mapper.SuspiciousAccountTransfersMapper;
 import com.bank.antifraud.repository.SuspiciousAccountTransfersRepository;
@@ -36,7 +37,7 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
 
     @Override
     @Transactional
-    public SuspiciousAccountTransfersDTO create(SuspiciousAccountTransfersDTO transferDTO) {
+    public SuspiciousAccountTransfersDTO createNewAccountTransfer(SuspiciousAccountTransfersDTO transferDTO) {
         SuspiciousAccountTransfers entity = mapper.toEntity(transferDTO);
         entity = repository.save(entity);
         return mapper.toDTO(entity);
@@ -44,7 +45,7 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
 
     @Override
     @Transactional
-    public SuspiciousAccountTransfersDTO update(Long id, SuspiciousAccountTransfersDTO transferDTO) {
+    public SuspiciousAccountTransfersDTO updateAccountTransfer(Long id, SuspiciousAccountTransfersDTO transferDTO) {
         SuspiciousAccountTransfers existing = repository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNotFound(id, "Обновление"));
         mapper.updateFromDto(transferDTO, existing);
@@ -54,7 +55,7 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void deleteAccountTransfer(Long id) {
         if (!repository.existsById(id)) {
             throw logAndThrowEntityNotFound(id, "Удаление");
         }
@@ -62,17 +63,38 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
     }
 
     @Override
-    public SuspiciousAccountTransfersDTO findById(Long id) {
+    public SuspiciousAccountTransfersDTO findByIdAccountTransfer(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
                 .orElseThrow(() -> logAndThrowEntityNotFound(id, "Поиск"));
     }
 
     @Override
-    public List<SuspiciousAccountTransfersDTO> findAll() {
+    public List<SuspiciousAccountTransfersDTO> findAllAccountTransfers() {
         return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
 
     }
+
+    @Override
+    public List<SuspiciousAccountTransfersDTO> findTransfersByReason(String reason) {
+        return repository.findBySuspiciousReasonContainingIgnoreCase(reason).stream()
+                .map(mapper::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SuspiciousAccountTransfersDTO> findBlockedTransfers() {
+        return repository.findAll().stream()
+                .filter(SuspiciousAccountTransfers::isBlocked)
+                .map(mapper::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SuspiciousAccountTransfersDTO> findSuspiciousTransfers() {
+        return repository.findAll().stream()
+                .filter(SuspiciousAccountTransfers::isSuspicious)
+                .map(mapper::toDTO).collect(Collectors.toList());
+    }
+
 }

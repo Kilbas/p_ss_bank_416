@@ -1,19 +1,26 @@
 package com.bank.antifraud.service;
 
 import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
+import com.bank.antifraud.dto.SuspiciousPhoneTransferDTO;
 
 import java.util.List;
 
 public interface SuspiciousCardTransferService {
-    SuspiciousCardTransferDTO findById(Long id);
+    SuspiciousCardTransferDTO findByIdCardTransfer(Long id);
 
-    List<SuspiciousCardTransferDTO> findAll();
+    List<SuspiciousCardTransferDTO> findAllCardTransfers();
 
-    SuspiciousCardTransferDTO create(SuspiciousCardTransferDTO transferDTO);
+    SuspiciousCardTransferDTO createNewCardTransfer(SuspiciousCardTransferDTO transferDTO);
 
-    SuspiciousCardTransferDTO update(Long id, SuspiciousCardTransferDTO transferDTO);
+    SuspiciousCardTransferDTO updateCardTransfer(Long id, SuspiciousCardTransferDTO transferDTO);
 
-    void delete(Long id);
+    void deleteCardTransfer(Long id);
 
-    List<SuspiciousCardTransferDTO> findBlockedTransfers(); // Получить заблокированные транзакции
+    List<SuspiciousCardTransferDTO> findTransfersByReason(String reason); // Поиск по причине
+
+    List<SuspiciousCardTransferDTO> findBlockedTransfers();// Получить заблокированные транзакции
+
+    List<SuspiciousCardTransferDTO> findSuspiciousTransfers(); // Получить подозрительные транзакции
 }
+
+

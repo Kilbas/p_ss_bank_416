@@ -1,7 +1,8 @@
 server:
   port: 8086
   servlet:
-    context-path: /api/anti-fraud
+    context-path: /api/V1/anti-fraud
+
 management:
   server:
     port: 8186
@@ -12,6 +13,7 @@ management:
     web:
       exposure:
         include: '*'
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5434/postgres
@@ -24,3 +26,15 @@ spring:
     drop-first: ${LIQUIBASE_DROP_FIRST:false}
   application:
     name: anti-fraud-app
+
+swagger:
+  server:
+    url: http://localhost:8086/api/V1/anti-fraud
+    description: "Локальный сервер для Анти-фрод API"
+  api:
+    title: "Анти-фрод API"
+    description: "API документация для анти-фрод системы в локальной среде"
+    version: "1.0.0"
+
+
+

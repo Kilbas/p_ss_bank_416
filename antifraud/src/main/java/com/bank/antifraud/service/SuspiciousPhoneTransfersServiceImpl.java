@@ -1,6 +1,8 @@
 package com.bank.antifraud.service;
 
+import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.dto.SuspiciousPhoneTransferDTO;
+import com.bank.antifraud.entity.SuspiciousCardTransfer;
 import com.bank.antifraud.entity.SuspiciousPhoneTransfers;
 import com.bank.antifraud.mapper.SuspiciousPhoneTransfersMapper;
 import com.bank.antifraud.repository.SuspiciousPhoneTransfersRepository;
@@ -73,6 +75,21 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
     @Override
     public List<SuspiciousPhoneTransferDTO> findTransfersByReason(String reason) {
         return repository.findBySuspiciousReasonContainingIgnoreCase(reason).stream()
+                .map(mapper::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SuspiciousPhoneTransferDTO> findBlockedTransfers() {
+        return repository.findAll().stream()
+                .filter(SuspiciousPhoneTransfers::isBlocked)
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    public List<SuspiciousPhoneTransferDTO> findSuspiciousTransfers() {
+        return repository.findAll().stream()
+                .filter(SuspiciousPhoneTransfers::isSuspicious)
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
     }

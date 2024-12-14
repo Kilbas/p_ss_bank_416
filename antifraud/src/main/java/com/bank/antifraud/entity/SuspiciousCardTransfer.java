@@ -47,14 +47,14 @@ public class SuspiciousCardTransfer {
      * true - перевод заблокирован, false - нет.
      */
     @Column(name = "is_blocked", nullable = false)
-    private Boolean isBlocked;
+    private boolean isBlocked;
 
     /**
      * Статус подозрительности перевода.
      * true - перевод является подозрительным, false - нет.
      */
     @Column(name = "is_suspicious", nullable = false)
-    private Boolean isSuspicious;
+    private boolean isSuspicious;
 
     /**
      * Причина блокировки перевода.

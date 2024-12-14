@@ -15,9 +15,9 @@ public interface SuspiciousPhoneTransfersMapper {
 
     SuspiciousPhoneTransfers toEntity(SuspiciousPhoneTransferDTO suspiciousPhoneTransferDTO);
 
-    @Mapping(target = "id", ignore = true) // Игнорируем обновление поля id
+    @Mapping(target = "id", ignore = true)
+        // Игнорируем обновление поля id
     void updateFromDto(SuspiciousPhoneTransferDTO dto, @MappingTarget SuspiciousPhoneTransfers suspiciousPhoneTransfers);
-
 
 
 }

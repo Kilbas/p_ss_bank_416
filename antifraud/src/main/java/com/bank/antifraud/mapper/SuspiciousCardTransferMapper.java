@@ -8,7 +8,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 
-
 @Mapper(componentModel = "spring")
 public interface SuspiciousCardTransferMapper {
 
@@ -16,7 +15,8 @@ public interface SuspiciousCardTransferMapper {
 
     SuspiciousCardTransfer toEntity(SuspiciousCardTransferDTO suspiciousCardTransferDTO);
 
-   @Mapping(target = "id", ignore = true) // Игнорируем обновление поля id
+    @Mapping(target = "id", ignore = true)
+        // Игнорируем обновление поля id
     void updateFromDto(SuspiciousCardTransferDTO transferDTO, @MappingTarget SuspiciousCardTransfer existing);
 
 }

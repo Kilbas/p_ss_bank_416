@@ -1,6 +1,7 @@
 package com.bank.antifraud.service;
 
 import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
+import com.bank.antifraud.dto.SuspiciousPhoneTransferDTO;
 import com.bank.antifraud.entity.SuspiciousCardTransfer;
 import com.bank.antifraud.mapper.SuspiciousCardTransferMapper;
 import com.bank.antifraud.repository.SuspiciousCardTransferRepository;
@@ -35,14 +36,14 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
     }
 
     @Override
-    public SuspiciousCardTransferDTO findById(Long id) {
+    public SuspiciousCardTransferDTO findByIdCardTransfer(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
                 .orElseThrow(() -> logAndThrowEntityNotFound(id, "Поиск"));
     }
 
     @Override
-    public List<SuspiciousCardTransferDTO> findAll() {
+    public List<SuspiciousCardTransferDTO> findAllCardTransfers() {
         return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
@@ -50,7 +51,7 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
 
     @Override
     @Transactional
-    public SuspiciousCardTransferDTO create(SuspiciousCardTransferDTO transferDTO) {
+    public SuspiciousCardTransferDTO createNewCardTransfer(SuspiciousCardTransferDTO transferDTO) {
         SuspiciousCardTransfer entity = mapper.toEntity(transferDTO);
         entity = repository.save(entity);
         return mapper.toDTO(entity);
@@ -58,7 +59,7 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
 
     @Override
     @Transactional
-    public SuspiciousCardTransferDTO update(Long id, SuspiciousCardTransferDTO transferDTO) {
+    public SuspiciousCardTransferDTO updateCardTransfer(Long id, SuspiciousCardTransferDTO transferDTO) {
         SuspiciousCardTransfer existing = repository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNotFound(id, "Обновление"));
 
@@ -70,7 +71,7 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void deleteCardTransfer(Long id) {
         if (!repository.existsById(id)) {
             throw logAndThrowEntityNotFound(id, "Удаление");
         }
@@ -78,10 +79,25 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
     }
 
     @Override
+    public List<SuspiciousCardTransferDTO> findTransfersByReason(String reason) {
+        return repository.findBySuspiciousReasonContainingIgnoreCase(reason).stream()
+                .map(mapper::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
     public List<SuspiciousCardTransferDTO> findBlockedTransfers() {
         return repository.findAll().stream()
-                .filter(SuspiciousCardTransfer::getIsBlocked)
+                .filter(SuspiciousCardTransfer::isBlocked)
                 .map(mapper::toDTO)
                 .toList();
     }
+
+    @Override
+    public List<SuspiciousCardTransferDTO> findSuspiciousTransfers() {
+        return repository.findAll().stream()
+                .filter(SuspiciousCardTransfer::isSuspicious)
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }
