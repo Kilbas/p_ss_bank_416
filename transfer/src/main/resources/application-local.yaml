@@ -31,3 +31,7 @@ spring:
       hibernate:
         hbm2ddl:
           auto: create
+eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka/
