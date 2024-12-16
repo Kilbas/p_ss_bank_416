@@ -26,6 +26,7 @@ spring:
     drop-first: false
   application:
     name: public-info-app
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -38,3 +39,15 @@ swagger:
   server:
     description: Локальный сервер для разработки
     url: http://localhost:8091/api/v1/public-info
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+        defaultZone: http://localhost:8761/eureka/
+    registry-fetch-interval-seconds: 30 # Интервал обновления
+    instance-info-replication-interval-seconds: 30 # Интервал репликации информации о экземпляре
+  instance:
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
