@@ -17,23 +17,22 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class SuspiciousCardTransferDTO {
 
-    private Long id; // ID может быть null при создании новой записи
+    private Long id;
 
-    @NotNull(message = "Phone cardTransferId ID cannot be null")
+    @NotNull(message = "Идентификатор перевода по карте не может быть пустым")
     private Long cardTransferId;
 
-    @NotNull(message = "Blocked status cannot be null")
+    @NotNull(message = "Статус блокировки не может быть пустым")
     private Boolean isBlocked;
 
-    @NotNull(message = "Suspicious status cannot be null")
+    @NotNull(message = "Статус подозрительности не может быть пустым")
     private Boolean isSuspicious;
 
-    @Size(max = 500, message = "Blocked reason must not exceed 500 characters")
+    @Size(max = 500, message = "Причина блокировки не должна превышать 500 символов")
     private String blockedReason;
 
-    @NotBlank(message = "Suspicious reason cannot be blank")
-    @Size(max = 500, message = "Suspicious reason must not exceed 500 characters")
+    @NotBlank(message = "Причина подозрительности не может быть пустой")
+    @Size(max = 500, message = "Причина подозрительности не должна превышать 500 символов")
     private String suspiciousReason;
-
 
 }

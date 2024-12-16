@@ -15,7 +15,7 @@ import java.util.List;
 
 @Tag(name = "Подозрительные переводы по счетам", description = "Операции, связанные с подозрительными переводами по счетам")
 @RestController
-@RequestMapping("/api/v1/suspicious-account-transfers")
+@RequestMapping("/suspicious-account-transfers")
 public class SuspiciousAccountTransfersController {
 
     private final SuspiciousAccountTransfersService service;
