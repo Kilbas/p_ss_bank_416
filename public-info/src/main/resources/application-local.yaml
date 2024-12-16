@@ -1,7 +1,8 @@
+
 server:
   port: 8091
   servlet:
-    context-path: /api/public-info
+    context-path: /api/v1/public-info
 management:
   server:
     port: 8190
@@ -14,8 +15,9 @@ management:
         include: '*'
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
+
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: postgres
     password: password
   liquibase:
     default-schema: public_bank_information
@@ -24,3 +26,15 @@ spring:
     drop-first: false
   application:
     name: public-info-app
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+swagger:
+  title: Public-info API
+  version: 1.0
+  description: Операции с банковской публичной информацией
+  server:
+    description: Локальный сервер для разработки
+    url: http://localhost:8091/api/v1/public-info
