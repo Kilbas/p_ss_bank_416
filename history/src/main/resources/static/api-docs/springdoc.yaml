@@ -1,0 +1,161 @@
+openapi: 3.0.3
+
+info:
+  title: History API
+  version: v1
+  description: API, отвечающая за хранение идентификаторов аудитов приложения
+
+servers:
+  - url: http://localhost:8088/api/v1/history
+    description: Основной сервер
+
+paths:
+  /:
+    get:
+      summary: Получение всех записей истории
+      description: Возвращает список всех историй
+      tags:
+        - HistoryDTO
+      responses:
+        '200':
+          description: Успешное выполнение с возвращением всего списка историй
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistoryDTO'
+        '500':
+          description: Внутренняя ошибка сервера
+
+    post:
+      summary: Опубликовать историю
+      description: Добавляет запись истории в таблицу
+      tags:
+        - HistoryDTO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistoryDTO'
+      responses:
+        '201':
+          description: Запись успешно создана
+        '400':
+          description: Неверный ввод данных
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /{id}:
+    get:
+      summary: Вернуть запись истори по id
+      description: Возвращает запись из таблицы по указанному в пути id
+      tags:
+        - HistoryDTO
+      parameters:
+        - name: id
+          in: path
+          required: true
+          decription: Уникальный идентификатор
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешное выполнение с возвращением записи с указанным id
+        '404':
+          description: По указанному id запись не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
+    patch:
+      summary: Редактирование записи
+      description: Редактирует запись по указанному id
+      tags:
+        - HistoryDTO
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Уникальный идентификатор
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistoryDTO'
+      responses:
+        '200':
+          description: Запись успешно обновлена
+        '400':
+          description: Неверный ввод данных
+        '404':
+          description: Запись с указанным id не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
+    delete:
+      summary: Удаление записи
+      description: Удаляет запись истории по указанному id
+      tags:
+        - HistoryDTO
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Уникальный идентификатор
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Запись успешно удалена
+        '404':
+          description: Запись с указанным id не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
+components:
+  schemas:
+    HistoryDTO:
+      type: object
+      properties:
+
+        id:
+          type: integer
+          format: int64
+          example: 1
+
+        transferAuditId:
+          type: integer
+          format: int64
+          example: 111
+
+        profileAuditId:
+          type: integer
+          format: int64
+          example: 222
+
+        accountAuditId:
+          type: integer
+          format: int64
+          example: 333
+
+        antiFraudAuditId:
+          type: integer
+          format: int64
+          example: 444
+
+        publicBankInfoAuditId:
+          type: integer
+          format: int64
+          example: 555
+
+        authorizationAuditId:
+          type: integer
+          format: int64
+          example: 666

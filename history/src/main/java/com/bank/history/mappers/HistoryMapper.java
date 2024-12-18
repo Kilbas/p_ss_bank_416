@@ -24,7 +24,4 @@ public interface HistoryMapper {
 
     List<HistoryDTO> listToDTO(List<History> historyList);
 
-    @Mapping(target = "id", ignore = true)
-    List<History> listToEntity(List<HistoryDTO> historyDTOList);
-
 }

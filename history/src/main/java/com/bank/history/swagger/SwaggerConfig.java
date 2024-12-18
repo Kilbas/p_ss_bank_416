@@ -10,6 +10,7 @@ import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
+
     @Bean
     public OpenAPI apiAccountDetails() {
         return new OpenAPI().servers(List.of(new Server()

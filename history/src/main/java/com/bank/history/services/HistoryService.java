@@ -1,6 +1,7 @@
 package com.bank.history.services;
 
 import com.bank.history.dto.HistoryDTO;
+import com.bank.history.models.History;
 
 import java.util.List;
 
@@ -14,5 +15,5 @@ public interface HistoryService {
 
     void deleteById(Long id);
 
-    void save(HistoryDTO historyDTO);
+    History save(HistoryDTO historyDTO);
 }
