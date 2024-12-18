@@ -12,9 +12,5 @@ import java.util.List;
 @Repository
 public interface AuditRepository extends JpaRepository<Audit, Long> {
 
-    @Query(value = "SELECT * FROM account.audit " +
-            "WHERE entity_type = :entityType " +
-            "AND CAST(entity_json AS jsonb) ->> 'id' = :entityId " +
-            "LIMIT 1", nativeQuery = true)
-    Audit findByEntityTypeAndEntityId(@Param("entityType") String entityType, @Param("entityId") String entityId);
+
 }

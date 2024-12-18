@@ -23,7 +23,7 @@ spring:
     default-schema: anti_fraud
     change-log: db/changelog/db.changelog-master.yaml
     enabled: ${LIQUIBASE_ENABLED:true}
-    drop-first: ${LIQUIBASE_DROP_FIRST:false}
+    drop-first: ${LIQUIBASE_DROP_FIRST:true}
   application:
     name: anti-fraud-app
 

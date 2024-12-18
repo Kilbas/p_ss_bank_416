@@ -1,7 +1,6 @@
 package com.bank.antifraud.mapper;
 
 
-import com.bank.antifraud.entity.Audit;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

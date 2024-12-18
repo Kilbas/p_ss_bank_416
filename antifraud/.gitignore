@@ -1,0 +1,55 @@
+      # Сборка и временные файлы
+      target/
+      build/
+      out/
+      *.class
+      *.jar
+      *.war
+      *.ear
+      *.log
+
+      # Конфигурация Maven и Gradle
+      .mvn/
+      .gradle/
+      !gradle-wrapper.jar
+      gradle-wrapper.jar
+      build/
+      !gradle.properties
+
+      # IntelliJ IDEA
+      .idea/
+      *.iml
+      *.ipr
+      *.iws
+
+      # Eclipse
+      .project
+      .classpath
+      .settings/
+
+      # VSCode
+      .vscode/
+
+      # Логи и отчеты
+      *.log
+      hs_err_pid*
+      .log/
+      checkstyle-cachefile
+      checkstyle-result.xml
+      checkstyle-checker.xml
+
+      # Системные файлы
+      .DS_Store
+      Thumbs.db
+
+      # Файлы с конфиденциальной информацией
+      application-local.yaml
+      application.properties
+      *.key
+      *.pem
+
+      # Локальные файлы
+      *.tmp
+      *.swp
+      *.bak
+      *.sublime-workspace
