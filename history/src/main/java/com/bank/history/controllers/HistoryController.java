@@ -35,12 +35,8 @@ public class HistoryController {
         this.historyService = historyService;
     }
 
-    @Operation(summary = "Сохранение записи истории",
-            description = "Добавляет новую запись в таблицу history", parameters = @Parameter)
     @PostMapping
-    public ResponseEntity<HttpStatus> saveHistory(@io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "DTO для хранения записи истории", required = true,
-            content = @Content(schema = @Schema(implementation = HistoryDTO.class))) @Valid @RequestBody HistoryDTO historyDTO) {
+    public ResponseEntity<HttpStatus> saveHistory(@Valid @RequestBody HistoryDTO historyDTO) {
         log.info("saveHistory: метод вызван в контроллере");
         historyService.save(historyDTO);
         return ResponseEntity.ok(HttpStatus.CREATED);
