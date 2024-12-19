@@ -53,6 +53,7 @@ public class TransferAccountServiceTest {
 
         assertNotNull(savedTransfer);
         assertEquals(accountTransfer.getId(), savedTransfer.getId());
+        assertEquals(accountTransfer, savedTransfer);
         verify(transferAccountRepository, times(1)).save(accountTransfer);
     }
 

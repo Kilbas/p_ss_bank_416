@@ -54,6 +54,7 @@ public class TransferPhoneServiceTest {
 
         assertNotNull(savedTransfer);
         assertEquals(phoneTransfer.getId(), savedTransfer.getId());
+        assertEquals(phoneTransfer, savedTransfer);
         verify(transferPhoneRepository, times(1)).save(phoneTransfer);
     }
 

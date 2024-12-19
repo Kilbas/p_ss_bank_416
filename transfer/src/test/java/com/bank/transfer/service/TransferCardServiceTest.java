@@ -55,6 +55,7 @@ public class TransferCardServiceTest {
 
         assertNotNull(savedTransfer);
         assertEquals(cardTransfer.getId(), savedTransfer.getId());
+        assertEquals(cardTransfer, savedTransfer);
         verify(transferCardRepository, times(1)).save(cardTransfer);
     }
 
