@@ -139,6 +139,7 @@ public class TransferAccountServiceTest {
 
         assertNotNull(result);
         assertEquals(accountTransfer.getId(), result.getId());
+        assertEquals(accountTransfer, result);
         verify(transferAccountRepository, times(1)).findById(accountTransfer.getId());
     }
 

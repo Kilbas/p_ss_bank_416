@@ -67,6 +67,8 @@ public class TransferPhoneRestControllerTest {
                 .andExpect(jsonPath("$[0].amount").value(100.00))
                 .andExpect(jsonPath("$[0].purpose").value("Purpose"))
                 .andExpect(jsonPath("$[0].accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
     }
 
     @Test
@@ -81,6 +83,8 @@ public class TransferPhoneRestControllerTest {
                 .andExpect(jsonPath("$.amount").value(100.00))
                 .andExpect(jsonPath("$.purpose").value("Purpose"))
                 .andExpect(jsonPath("$.accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
     }
 
     @Test
@@ -94,7 +98,23 @@ public class TransferPhoneRestControllerTest {
                         .content(objectMapper.writeValueAsString(phoneTransferDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number").value(1))
-                .andExpect(jsonPath("$.amount").value(100.00));
+                .andExpect(jsonPath("$.amount").value(100.00))
+                .andExpect(jsonPath("$.purpose").value("Purpose"))
+                .andExpect(jsonPath("$.accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+    }
+
+    @Test
+    void createPhoneTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
+        PhoneTransferDTO invalidDto = new PhoneTransferDTO(-2, new BigDecimal("0.00"), null, -5);
+
+        mockMvc.perform(post("/v1/phone")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
     }
 
     @Test
@@ -109,6 +129,20 @@ public class TransferPhoneRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number").value(1))
                 .andExpect(jsonPath("$.amount").value(100.00));
+
+        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+    }
+
+    @Test
+    void updatePhoneTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
+        PhoneTransferDTO invalidUpdatedDto = new PhoneTransferDTO(-2, new BigDecimal("0.00"), null, -5);
+
+        mockMvc.perform(post("/v1/phone")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidUpdatedDto)))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
     }
 
     @Test
@@ -118,5 +152,7 @@ public class TransferPhoneRestControllerTest {
         mockMvc.perform(delete("/v1/phone/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
     }
 }

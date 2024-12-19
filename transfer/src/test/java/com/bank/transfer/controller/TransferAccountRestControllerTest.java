@@ -68,7 +68,10 @@ public class TransferAccountRestControllerTest {
                 .andExpect(jsonPath("$[0].amount").value(100.00))
                 .andExpect(jsonPath("$[0].purpose").value("Purpose"))
                 .andExpect(jsonPath("$[0].accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
     }
+
     @Test
     void getAccountTransfer_ShouldReturnTransferById() throws Exception {
         Mockito.when(transferAccountService.getAccountTransferById(1L)).thenReturn(accountTransfer);
@@ -81,6 +84,8 @@ public class TransferAccountRestControllerTest {
                 .andExpect(jsonPath("$.amount").value(100.00))
                 .andExpect(jsonPath("$.purpose").value("Purpose"))
                 .andExpect(jsonPath("$.accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
     }
 
     @Test
@@ -94,7 +99,23 @@ public class TransferAccountRestControllerTest {
                         .content(objectMapper.writeValueAsString(accountTransferDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number").value(1))
-                .andExpect(jsonPath("$.amount").value(100.00));
+                .andExpect(jsonPath("$.amount").value(100.00))
+                .andExpect(jsonPath("$.purpose").value("Purpose"))
+                .andExpect(jsonPath("$.accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
+    }
+
+    @Test
+    void createAccountTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
+        AccountTransferDTO invalidDto = new AccountTransferDTO(-2, new BigDecimal("0.00"), null, -5);
+
+        mockMvc.perform(post("/v1/account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
     }
 
     @Test
@@ -109,6 +130,20 @@ public class TransferAccountRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number").value(1))
                 .andExpect(jsonPath("$.amount").value(100.00));
+
+        Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
+    }
+
+    @Test
+    void updateAccountTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
+        AccountTransferDTO invalidUpdateDto = new AccountTransferDTO(-2, new BigDecimal("0.00"), null, -5);
+
+        mockMvc.perform(post("/v1/account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidUpdateDto)))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
     }
 
     @Test
@@ -118,5 +153,7 @@ public class TransferAccountRestControllerTest {
         mockMvc.perform(delete("/v1/account/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
     }
 }

@@ -67,6 +67,8 @@ public class TransferCardRestControllerTest {
                 .andExpect(jsonPath("$[0].amount").value(100.00))
                 .andExpect(jsonPath("$[0].purpose").value("Purpose"))
                 .andExpect(jsonPath("$[0].accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
     }
 
     @Test
@@ -81,6 +83,8 @@ public class TransferCardRestControllerTest {
                 .andExpect(jsonPath("$.amount").value(100.00))
                 .andExpect(jsonPath("$.purpose").value("Purpose"))
                 .andExpect(jsonPath("$.accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
     }
 
     @Test
@@ -94,7 +98,23 @@ public class TransferCardRestControllerTest {
                         .content(objectMapper.writeValueAsString(cardTransferDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number").value(1))
-                .andExpect(jsonPath("$.amount").value(100.00));
+                .andExpect(jsonPath("$.amount").value(100.00))
+                .andExpect(jsonPath("$.purpose").value("Purpose"))
+                .andExpect(jsonPath("$.accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
+    }
+
+    @Test
+    void createCardTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
+        CardTransferDTO invalidDto = new CardTransferDTO(-2, new BigDecimal("0.00"), null, -5);
+
+        mockMvc.perform(post("/v1/card")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
     }
 
     @Test
@@ -108,7 +128,23 @@ public class TransferCardRestControllerTest {
                         .content(objectMapper.writeValueAsString(cardTransferDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number").value(1))
-                .andExpect(jsonPath("$.amount").value(100.00));
+                .andExpect(jsonPath("$.amount").value(100.00))
+                .andExpect(jsonPath("$.purpose").value("Purpose"))
+                .andExpect(jsonPath("$.accountDetailsId").value(2));
+
+        Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
+    }
+
+    @Test
+    void updateCardTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
+        CardTransferDTO invalidUpdateDto = new CardTransferDTO(-2, new BigDecimal("0.00"), null, -5);
+
+        mockMvc.perform(post("/v1/card")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidUpdateDto)))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
     }
 
     @Test
@@ -118,5 +154,7 @@ public class TransferCardRestControllerTest {
         mockMvc.perform(delete("/v1/card/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
     }
 }
