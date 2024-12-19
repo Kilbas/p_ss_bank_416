@@ -4,11 +4,12 @@ import com.bank.history.models.Audit;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface AuditService {
 
-    void newAudit(Audit audit);
+    void newAudit(Optional<Audit> auditOptional);
 
     List<Audit> getAllAudits();
 

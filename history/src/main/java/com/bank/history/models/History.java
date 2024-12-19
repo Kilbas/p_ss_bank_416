@@ -1,8 +1,10 @@
 package com.bank.history.models;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,13 +12,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Objects;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "history", schema = "history")
+@EqualsAndHashCode
+@ToString
 
 public class History {
 
@@ -43,29 +46,4 @@ public class History {
     @Column(name = "authorization_audit_id")
     private Long authorizationAuditId;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        History history = (History) o;
-        return id.equals(history.id) && Objects.equals(transferAuditId, history.transferAuditId) && profileAuditId.equals(history.profileAuditId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, transferAuditId, profileAuditId);
-    }
-
-    @Override
-    public String toString() {
-        return "History{" +
-                "id=" + id +
-                ", transferAuditId=" + transferAuditId +
-                ", profileAuditId=" + profileAuditId +
-                ", accountAuditId=" + accountAuditId +
-                ", antiFraudAuditId=" + antiFraudAuditId +
-                ", publicBankInfoAuditId=" + publicBankInfoAuditId +
-                ", authorizationAuditId=" + authorizationAuditId +
-                '}';
-    }
 }

@@ -5,16 +5,18 @@ import com.bank.history.operations.Operation;
 import com.bank.history.services.AuditService;
 import com.bank.history.services.HistoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
+@RequiredArgsConstructor
 @Component
 @Aspect
 @Slf4j
@@ -27,13 +29,6 @@ public class AuditAspect {
     private final ObjectMapper objectMapper;
     private final HistoryService historyService;
 
-    @Autowired
-    public AuditAspect(AuditService auditService, HistoryService historyService) {
-        this.auditService = auditService;
-        this.historyService = historyService;
-        this.objectMapper = new ObjectMapper();
-    }
-
     @Around("execution(com.bank.history.models.History com.bank.history.services.HistoryService.save(com.bank.history.dto.HistoryDTO))")
     public void aroundHistoryServiceSaveAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
         log.info("aroundHistoryServiceSaveAdvice: Попытка добавить сущность History в базу данных");
@@ -45,7 +40,7 @@ public class AuditAspect {
         audit.setCreatedBy(CREATED_WHO);
         audit.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         audit.setNewEntityJson(objectMapper.writeValueAsString(result));
-        auditService.newAudit(audit);
+        auditService.newAudit(Optional.of(audit));
     }
 
     @Around("execution(void com.bank.history.services.HistoryService.update(com.bank.history.dto.HistoryDTO, Long))")
@@ -74,8 +69,8 @@ public class AuditAspect {
         oldAudit.setModifiedBy(audit.getModifiedBy());
         oldAudit.setEntityJson(oldAudit.getNewEntityJson());
         oldAudit.setNewEntityJson(objectMapper.writeValueAsString(historyService.findById(entityId)));
-        auditService.newAudit(oldAudit);
-        auditService.newAudit(audit);
+        auditService.newAudit(Optional.of(oldAudit));
+        auditService.newAudit(Optional.of(audit));
     }
 
 }

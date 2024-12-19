@@ -1,15 +1,18 @@
 package com.bank.history.dto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.Min;
-import java.util.Objects;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 
 public class HistoryDTO {
 
@@ -33,28 +36,4 @@ public class HistoryDTO {
     @Min(value = 1, message = "authorizationAuditId: значение не может быть меньше 1")
     private Long authorizationAuditId;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        HistoryDTO that = (HistoryDTO) o;
-        return transferAuditId.equals(that.transferAuditId) && profileAuditId.equals(that.profileAuditId) && accountAuditId.equals(that.accountAuditId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(transferAuditId, profileAuditId, accountAuditId);
-    }
-
-    @Override
-    public String toString() {
-        return "HistoryDTO{" +
-                "transferAuditId=" + transferAuditId +
-                ", profileAuditId=" + profileAuditId +
-                ", accountAuditId=" + accountAuditId +
-                ", antiFraudAuditId=" + antiFraudAuditId +
-                ", publicBankInfoAuditId=" + publicBankInfoAuditId +
-                ", authorizationAuditId=" + authorizationAuditId +
-                '}';
-    }
 }

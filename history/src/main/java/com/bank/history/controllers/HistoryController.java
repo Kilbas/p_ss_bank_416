@@ -4,8 +4,8 @@ import com.bank.history.dto.HistoryDTO;
 import com.bank.history.services.HistoryService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,17 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+@RequiredArgsConstructor
 @Slf4j
 @RestController
 @Tag(name = "History API", description = "API, отвечающая за хранение идентификаторов аудитов приложения")
 public class HistoryController {
 
     private final HistoryService historyService;
-
-    @Autowired
-    public HistoryController(HistoryService historyService) {
-        this.historyService = historyService;
-    }
 
     @PostMapping
     public ResponseEntity<HttpStatus> saveHistory(@Valid @RequestBody HistoryDTO historyDTO) {

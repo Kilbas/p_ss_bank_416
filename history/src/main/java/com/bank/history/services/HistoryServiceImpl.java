@@ -4,7 +4,7 @@ import com.bank.history.dto.HistoryDTO;
 import com.bank.history.mappers.HistoryMapper;
 import com.bank.history.models.History;
 import com.bank.history.repositories.HistoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,29 +16,20 @@ import javax.persistence.EntityNotFoundException;
  * <h3>Назначение класса:</h3>
  * Этот класс служит для реализации интерфейса {@link com.bank.history.services.HistoryService}.
  * Обеспечивает выполнение CRUD операций в базе данных.
- * Для выполнения операций используются экземпляры {@link com.bank.history.repositories.HistoryRepository} и {@link com.bank.history.mappers.HistoryMapper}.
+ * Для выполнения операций используются экземпляры {@link com.bank.history.repositories.HistoryRepository}
+ * и {@link com.bank.history.mappers.HistoryMapper}.
  * <br>
  *
  * @author Амир Турпуханов
  * @version v1
  */
 
+@RequiredArgsConstructor
 @Service
 public class HistoryServiceImpl implements HistoryService {
 
     private final HistoryRepository historyRepository;
     private final HistoryMapper historyMapper;
-
-    /**
-     * @param historyRepository используется для доступа к БД. Получаем из Spring Context.
-     * @param historyMapper     используется для конвертации entity в dto и обратно. Получаем из Spring Context.
-     */
-
-    @Autowired
-    public HistoryServiceImpl(HistoryRepository historyRepository, HistoryMapper historyMapper) {
-        this.historyRepository = historyRepository;
-        this.historyMapper = historyMapper;
-    }
 
     /**
      * <h3>findAll()</h3>
@@ -47,7 +38,7 @@ public class HistoryServiceImpl implements HistoryService {
      * @return List<HistoryDTO> - лист всех entity, конвертированных в DTO.
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Page<HistoryDTO> findAll(Pageable pageable) {
         return historyMapper.pageToDTO(historyRepository.findAll(pageable));
@@ -61,10 +52,14 @@ public class HistoryServiceImpl implements HistoryService {
      * @return экземпляр HistoryDTO, полученный после конвертации найденной записи.
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public HistoryDTO findById(Long id) {
-        return historyMapper.toDTO(historyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("History с id " + id + " не найдена")));
+        if (id == null) {
+            throw new IllegalArgumentException("в метод findById передан null!");
+        }
+        return historyMapper.toDTO(historyRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("History c id %d не найдена", id))));
     }
 
     /**
@@ -78,7 +73,11 @@ public class HistoryServiceImpl implements HistoryService {
     @Transactional
     @Override
     public void update(HistoryDTO historyDTO, Long id) {
-        History historyOld = historyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("History с id " + id + " не найдена"));
+        if (historyDTO == null || id == null) {
+            throw new IllegalArgumentException("В метод update передан null!");
+        }
+        History historyOld = historyRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("History c id %d не найдена", id)));
         historyMapper.toEntityUpdate(historyDTO, historyOld);
         historyRepository.save(historyOld);
     }
@@ -92,7 +91,11 @@ public class HistoryServiceImpl implements HistoryService {
 
     @Transactional
     public void deleteById(Long id) {
-        historyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("History с id " + id + " не найдена"));
+        if (id == null) {
+            throw new IllegalArgumentException("В метод deleteById передан null!");
+        }
+        historyRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("History c id %d не найдена", id)));
         historyRepository.deleteById(id);
     }
 
@@ -105,6 +108,9 @@ public class HistoryServiceImpl implements HistoryService {
 
     @Transactional
     public History save(HistoryDTO historyDTO) {
+        if (historyDTO == null) {
+            throw new IllegalArgumentException("В метод save передан null!");
+        }
         return historyRepository.save(historyMapper.toEntitySave(historyDTO));
     }
 }
