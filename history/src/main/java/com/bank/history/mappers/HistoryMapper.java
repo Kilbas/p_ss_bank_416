@@ -7,8 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface HistoryMapper {
@@ -22,6 +21,8 @@ public interface HistoryMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void toEntityUpdate(HistoryDTO historyDTO, @MappingTarget History history);
 
-    List<HistoryDTO> listToDTO(List<History> historyList);
+    default Page<HistoryDTO> pageToDTO(Page<History> historyList) {
+        return historyList.map(this::toDTO);
+    }
 
 }

@@ -5,11 +5,12 @@ import com.bank.history.mappers.HistoryMapper;
 import com.bank.history.models.History;
 import com.bank.history.repositories.HistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
 
 /**
  * <h3>Назначение класса:</h3>
@@ -48,8 +49,8 @@ public class HistoryServiceImpl implements HistoryService {
 
     @Transactional
     @Override
-    public List<HistoryDTO> findAll() {
-        return historyMapper.listToDTO(historyRepository.findAll());
+    public Page<HistoryDTO> findAll(Pageable pageable) {
+        return historyMapper.pageToDTO(historyRepository.findAll(pageable));
     }
 
     /**

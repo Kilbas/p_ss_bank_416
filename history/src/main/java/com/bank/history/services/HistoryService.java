@@ -2,12 +2,12 @@ package com.bank.history.services;
 
 import com.bank.history.dto.HistoryDTO;
 import com.bank.history.models.History;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface HistoryService {
 
-    List<HistoryDTO> findAll();
+    Page<HistoryDTO> findAll(Pageable pageable);
 
     HistoryDTO findById(Long id);
 

@@ -12,7 +12,7 @@ import javax.persistence.EntityNotFoundException;
 
 @Slf4j
 @RestControllerAdvice
-public class MyExceptionHandler {
+public class GlobalExceptionHandler {
 
     @SuppressWarnings("CallToPrintStackTrace")
     @ExceptionHandler(EntityNotFoundException.class)

@@ -16,15 +16,48 @@ paths:
       description: Возвращает список всех историй
       tags:
         - HistoryDTO
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+          description: номер страницы
+        - name: size
+          in: query
+          schema:
+            type: integer
+            format: int32
+          description: количество записей в странице
+
       responses:
         '200':
           description: Успешное выполнение с возвращением всего списка историй
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/HistoryDTO'
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HistoryDTO'
+                  totalElements:
+                    type: integer
+                    example: 100
+                  totalPages:
+                    type: integer
+                    example: 10
+                  number:
+                    type: integer
+                    description: Номер текущей страницы (начинается с 0)
+                    example: 0
+                  size:
+                    type: integer
+                    description: Размер страницы
+                    example: 10
+        '400':
+          description: Неверный ввод данных
         '500':
           description: Внутренняя ошибка сервера
 
@@ -49,7 +82,7 @@ paths:
 
   /{id}:
     get:
-      summary: Вернуть запись истори по id
+      summary: Вернуть запись истории по id
       description: Возвращает запись из таблицы по указанному в пути id
       tags:
         - HistoryDTO
@@ -57,7 +90,7 @@ paths:
         - name: id
           in: path
           required: true
-          decription: Уникальный идентификатор
+          description: Уникальный идентификатор
           schema:
             type: integer
             format: int64

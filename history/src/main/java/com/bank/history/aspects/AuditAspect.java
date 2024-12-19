@@ -78,25 +78,4 @@ public class AuditAspect {
         auditService.newAudit(audit);
     }
 
-    @Around("execution(void com.bank.history.services.HistoryService.deleteById(Long))")
-    public void aroundHistoryServiceDeleteAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
-        log.info("Попытка удалить сущность History");
-        joinPoint.proceed();
-        log.info("Сущность удалена");
-        long entityId = (long) joinPoint.getArgs()[0];
-        String entityIdAsString = String.valueOf(entityId);
-        Audit auditOfCreation = auditService.getAuditByEntityId(entityIdAsString);
-        Audit audit = new Audit();
-        audit.setOperation(Operation.DELETE);
-        audit.setEntityType(ENTITY);
-        audit.setCreatedBy(auditOfCreation.getCreatedBy());
-        audit.setModifiedBy(MODIFIED_WHO);
-        audit.setCreatedAt(auditOfCreation.getCreatedAt());
-        audit.setModifiedAt(Timestamp.valueOf(LocalDateTime.now()));
-        audit.setNewEntityJson(auditOfCreation.getNewEntityJson());
-        auditOfCreation.setModifiedBy(audit.getModifiedBy());
-        auditService.newAudit(audit);
-        auditService.newAudit(auditOfCreation);
-    }
-
 }
