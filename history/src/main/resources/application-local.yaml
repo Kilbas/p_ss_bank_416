@@ -1,7 +1,8 @@
 server:
   port: 8088
   servlet:
-    context-path: /api/history
+    context-path: /api/v1/history
+
 management:
   server:
     port: 8188
@@ -12,11 +13,12 @@ management:
     web:
       exposure:
         include: '*'
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
-    password: password
+    url: jdbc:postgresql://localhost:5433/history
+    username: postgres
+    password: root
   liquibase:
     default-schema: history
     change-log: db/changelog/db.changelog-master.yaml
@@ -24,3 +26,24 @@ spring:
     drop-first: false
   application:
     name: history-app
+  jpa:
+    properties:
+      hibernate:
+        dialect: com.bank.history.config.PostgresCustom
+        hbm2ddl:
+          auto: update
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /api-docs/springdoc.yaml
+    disable-swagger-default-url: true

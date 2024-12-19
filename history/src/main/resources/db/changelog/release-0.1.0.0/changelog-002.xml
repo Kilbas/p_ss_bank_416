@@ -1,0 +1,33 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+    <changeSet author="Амир" id="20241209123000">
+        <createTable remarks="аудит" tableName="audit">
+            <column autoIncrement="true" name="id" remarks="идентификатор" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="audit_pkey"/>
+            </column>
+            <column name="operation" remarks="название операции" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_type" remarks="тип данных сущности" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" remarks="кем создана сущность" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" remarks="кем сущность обновлена" type="VARCHAR"/>
+            <column name="created_at" remarks="когда сущность создана" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" remarks="когда сущность обновлена" type="TIMESTAMP"/>
+            <column name="new_entity_json" remarks="новый json сущности" type="TEXT"/>
+            <column name="entity_json" remarks="json сущности" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
