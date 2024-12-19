@@ -5,18 +5,35 @@ import com.bank.antifraud.repository.AuditRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
+import java.util.Optional;
+
+@Service
 @Slf4j
 @RequiredArgsConstructor
-@Service
 public class AuditServiceImpl implements AuditService {
 
-    private final AuditRepository repository;
+    private final AuditRepository auditRepository;
 
+    @Transactional(readOnly = true)
     @Override
-    public void addAudit(Audit audit) {
-        repository.save(audit);
+    public Audit findByEntityTypeAndEntityId(String entityType, String entityId) {
+        Audit audit = auditRepository.findByEntityTypeAndEntityId(entityType, entityId);
+
+        if (audit == null) {
+            log.error("Не найден аудит с типом сущности {} и ID сущности {}", entityType, entityId);
+            throw new EntityNotFoundException(
+                    String.format("Не найден аудит с типом сущности %s и ID сущности %s", entityType, entityId)
+            );
+        }
+
+        return audit;
     }
 
-
+    @Override
+    public void createAudit(Audit audit) {
+        auditRepository.save(audit);
+    }
 }

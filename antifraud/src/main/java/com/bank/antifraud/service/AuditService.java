@@ -3,7 +3,9 @@ package com.bank.antifraud.service;
 
 import com.bank.antifraud.entity.Audit;
 
-public interface AuditService {
+import java.util.Optional;
 
-    void addAudit(Audit audit);
+public interface AuditService {
+    void createAudit(Audit audit);
+    public Audit findByEntityTypeAndEntityId(String entityType, String entityId);
 }

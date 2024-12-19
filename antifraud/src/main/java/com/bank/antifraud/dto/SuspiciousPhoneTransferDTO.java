@@ -18,6 +18,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SuspiciousPhoneTransferDTO {
+
     private Long id;
 
     @NotNull(message = "Идентификатор перевода по телефону не может быть пустым")

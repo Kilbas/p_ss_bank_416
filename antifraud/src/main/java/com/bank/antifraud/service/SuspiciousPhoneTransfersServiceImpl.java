@@ -45,14 +45,14 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
     }
-
+    @Transactional
     @Override
     public SuspiciousPhoneTransferDTO create(SuspiciousPhoneTransferDTO transferDTO) {
         SuspiciousPhoneTransfers entity = mapper.toEntity(transferDTO);
         entity = repository.save(entity);
         return mapper.toDTO(entity);
     }
-
+    @Transactional
     @Override
     public SuspiciousPhoneTransferDTO update(Long id, SuspiciousPhoneTransferDTO transferDTO) {
         SuspiciousPhoneTransfers existing = repository.findById(id)
@@ -61,7 +61,7 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
         repository.save(existing);
         return mapper.toDTO(existing);
     }
-
+    @Transactional
     @Override
     public void delete(Long id) {
         if (!repository.existsById(id)) {

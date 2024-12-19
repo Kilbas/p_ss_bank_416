@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface SuspiciousCardTransferRepository extends JpaRepository<SuspiciousCardTransfer, Long> {
     List<SuspiciousCardTransfer> findBySuspiciousReasonContainingIgnoreCase(String reason);
+
 }

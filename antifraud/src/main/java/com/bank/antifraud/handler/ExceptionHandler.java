@@ -72,4 +72,12 @@ public class ExceptionHandler {
         String errorMessage = "Внутренняя ошибка сервера. Пожалуйста, свяжитесь с поддержкой.";
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.warn("Illegal argument exception: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+
 }

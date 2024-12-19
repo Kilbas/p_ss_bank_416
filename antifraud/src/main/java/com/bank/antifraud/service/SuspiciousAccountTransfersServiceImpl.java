@@ -4,8 +4,8 @@ import com.bank.antifraud.dto.SuspiciousAccountTransfersDTO;
 import com.bank.antifraud.entity.SuspiciousAccountTransfers;
 import com.bank.antifraud.mapper.SuspiciousAccountTransfersMapper;
 import com.bank.antifraud.repository.SuspiciousAccountTransfersRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,18 +15,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 @Service
 public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountTransfersService {
 
     private final SuspiciousAccountTransfersRepository repository;
     private final SuspiciousAccountTransfersMapper mapper;
 
-    @Autowired
-    public SuspiciousAccountTransfersServiceImpl(SuspiciousAccountTransfersRepository repository,
-                                                 SuspiciousAccountTransfersMapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
-    }
+
 
     private EntityNotFoundException logAndThrowEntityNotFound(Long id, String action) {
         String errorMessage = String.format("Запись с ID %d не найдена. %s невозможно.", id, action);

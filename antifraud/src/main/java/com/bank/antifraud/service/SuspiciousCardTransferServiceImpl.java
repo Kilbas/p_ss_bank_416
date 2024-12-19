@@ -1,10 +1,14 @@
 package com.bank.antifraud.service;
 
+
+
 import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.entity.SuspiciousCardTransfer;
 import com.bank.antifraud.mapper.SuspiciousCardTransferMapper;
 import com.bank.antifraud.repository.SuspiciousCardTransferRepository;
+import com.bank.antifraud.service.SuspiciousCardTransferService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,16 +58,21 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
         return mapper.toDTO(entity);
     }
 
-    @Override
     @Transactional
     public SuspiciousCardTransferDTO updateCardTransfer(Long id, SuspiciousCardTransferDTO transferDTO) {
         SuspiciousCardTransfer existing = repository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNotFound(id, "Обновление"));
 
+        // Проверяем, что cardTransferId не изменяется
+        if (!existing.getCardTransferId().equals(transferDTO.getCardTransferId())) {
+            throw new IllegalArgumentException("Поле cardTransferId не может быть изменено.");
+        }
+
         mapper.updateFromDto(transferDTO, existing);
         repository.save(existing);
         return mapper.toDTO(existing);
     }
+
 
 
     @Override
