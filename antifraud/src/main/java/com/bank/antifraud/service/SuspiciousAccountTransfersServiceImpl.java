@@ -43,6 +43,10 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
     public SuspiciousAccountTransfersDTO updateAccountTransfer(Long id, SuspiciousAccountTransfersDTO transferDTO) {
         SuspiciousAccountTransfers existing = repository.findById(id)
                 .orElseThrow(() -> logAndThrowEntityNotFound(id, "Обновление"));
+
+        if(!existing.getAccountTransferId().equals(transferDTO.getAccountTransferId())){
+            throw new IllegalArgumentException("Поле accountTransferId не может быть изменено.");
+        }
         mapper.updateFromDto(transferDTO, existing);
          repository.save(existing);
         return mapper.toDTO(existing);

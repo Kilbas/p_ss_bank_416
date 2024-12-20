@@ -25,10 +25,10 @@ public class SuspiciousPhoneTransferDTO {
     private Long phoneTransferId;
 
     @NotNull(message = "Статус блокировки не может быть пустым")
-    private Boolean isBlocked;
+    private boolean isBlocked;
 
     @NotNull(message = "Статус подозрительности не может быть пустым")
-    private Boolean isSuspicious;
+    private boolean isSuspicious;
 
     @Size(max = 500, message = "Причина блокировки не должна превышать 500 символов")
     private String blockedReason;

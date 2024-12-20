@@ -31,7 +31,7 @@ public class SuspiciousAccountTransfers {
     private Long id;
 
     @Column(name = "account_transfer_id", nullable = false, unique = true)
-    private long accountTransferId;
+    private Long accountTransferId;
 
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked;

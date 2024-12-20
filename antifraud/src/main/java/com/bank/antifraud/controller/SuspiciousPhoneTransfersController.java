@@ -31,7 +31,7 @@ public class SuspiciousPhoneTransfersController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<SuspiciousPhoneTransferDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
+        return ResponseEntity.ok(service.findByIdPhoneTransfers(id));
     }
 
     @Operation(summary = "Получить все переводы", description = "Возвращает список всех подозрительных телефонных переводов")
@@ -42,7 +42,7 @@ public class SuspiciousPhoneTransfersController {
     })
     @GetMapping
     public ResponseEntity<List<SuspiciousPhoneTransferDTO>> findAll() {
-        List<SuspiciousPhoneTransferDTO> transfers = service.findAll();
+        List<SuspiciousPhoneTransferDTO> transfers = service.findAllPhoneTransfers();
         return transfers.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transfers);
     }
 
@@ -54,7 +54,7 @@ public class SuspiciousPhoneTransfersController {
     })
     @PostMapping
     public ResponseEntity<SuspiciousPhoneTransferDTO> create(@Valid @RequestBody SuspiciousPhoneTransferDTO dto) {
-        return ResponseEntity.ok(service.create(dto));
+        return ResponseEntity.ok(service.createNewPhoneTransfers(dto));
     }
 
     @Operation(summary = "Обновить перевод", description = "Обновляет существующий перевод по указанному ID")
@@ -66,7 +66,7 @@ public class SuspiciousPhoneTransfersController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<SuspiciousPhoneTransferDTO> update(@PathVariable Long id, @Valid @RequestBody SuspiciousPhoneTransferDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
+        return ResponseEntity.ok(service.updatePhoneTransfers(id, dto));
     }
 
     @Operation(summary = "Удалить перевод", description = "Удаляет подозрительный телефонный перевод по указанному ID")
@@ -77,7 +77,7 @@ public class SuspiciousPhoneTransfersController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+        service.deletePhoneTransfers(id);
         return ResponseEntity.noContent().build();
     }
 

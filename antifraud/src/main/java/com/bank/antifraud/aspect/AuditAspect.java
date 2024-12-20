@@ -24,7 +24,7 @@ public class AuditAspect {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Метод для обработки создания записи (POST)
-    @AfterReturning(value = "execution(* com.bank.antifraud.service.*.create*(..))", returning = "result")
+    @AfterReturning(value = "execution(* com.bank.antifraud.service.*.createNew*(..))", returning = "result")
     public void afterCreateTransfer(JoinPoint joinPoint, Object result) {
         if (result == null) {
             log.error("Метод create вернул null. Аудит не будет сохранён.");

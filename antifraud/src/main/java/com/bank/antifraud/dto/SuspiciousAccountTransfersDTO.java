@@ -21,7 +21,7 @@ public class SuspiciousAccountTransfersDTO {
     private Long id;
 
     @NotNull(message = "Идентификатор перевода не может быть пустым")
-    private long accountTransferId;
+    private Long accountTransferId;
 
     @NotNull(message = "Статус блокировки не может быть пустым")
     private boolean isBlocked;

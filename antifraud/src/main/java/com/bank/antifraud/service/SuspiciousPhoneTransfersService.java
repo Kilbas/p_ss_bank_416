@@ -1,21 +1,19 @@
 package com.bank.antifraud.service;
 
-import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.dto.SuspiciousPhoneTransferDTO;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface SuspiciousPhoneTransfersService {
-    SuspiciousPhoneTransferDTO findById(Long id);
+    SuspiciousPhoneTransferDTO findByIdPhoneTransfers(Long id);
 
-    List<SuspiciousPhoneTransferDTO> findAll();
+    List<SuspiciousPhoneTransferDTO> findAllPhoneTransfers();
 
-    SuspiciousPhoneTransferDTO create(SuspiciousPhoneTransferDTO dto);
+    SuspiciousPhoneTransferDTO createNewPhoneTransfers(SuspiciousPhoneTransferDTO dto);
 
-    SuspiciousPhoneTransferDTO update(Long id, SuspiciousPhoneTransferDTO dto);
+    SuspiciousPhoneTransferDTO updatePhoneTransfers(Long id, SuspiciousPhoneTransferDTO dto);
 
-    void delete(Long id);
+    void deletePhoneTransfers(Long id);
 
     List<SuspiciousPhoneTransferDTO> findTransfersByReason(String reason); // Поиск по причине
 

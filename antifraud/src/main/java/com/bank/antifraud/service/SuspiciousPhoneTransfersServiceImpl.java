@@ -33,37 +33,41 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
     }
 
     @Override
-    public SuspiciousPhoneTransferDTO findById(Long id) {
+    public SuspiciousPhoneTransferDTO findByIdPhoneTransfers(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
                 .orElseThrow(() -> logAndThrowEntityNotFound(id,"Поиск "));
     }
 
     @Override
-    public List<SuspiciousPhoneTransferDTO> findAll() {
+    public List<SuspiciousPhoneTransferDTO> findAllPhoneTransfers() {
         return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
     }
     @Transactional
     @Override
-    public SuspiciousPhoneTransferDTO create(SuspiciousPhoneTransferDTO transferDTO) {
+    public SuspiciousPhoneTransferDTO createNewPhoneTransfers(SuspiciousPhoneTransferDTO transferDTO) {
         SuspiciousPhoneTransfers entity = mapper.toEntity(transferDTO);
         entity = repository.save(entity);
         return mapper.toDTO(entity);
     }
     @Transactional
     @Override
-    public SuspiciousPhoneTransferDTO update(Long id, SuspiciousPhoneTransferDTO transferDTO) {
+    public SuspiciousPhoneTransferDTO updatePhoneTransfers(Long id, SuspiciousPhoneTransferDTO transferDTO) {
         SuspiciousPhoneTransfers existing = repository.findById(id)
                 .orElseThrow(()-> logAndThrowEntityNotFound(id,"Обновление "));
+
+        if (!existing.getPhoneTransferId().equals(transferDTO.getPhoneTransferId())){
+            throw new IllegalArgumentException("Поле phoneTransferId не может быть изменено.");
+        }
                 mapper.updateFromDto(transferDTO, existing);
         repository.save(existing);
         return mapper.toDTO(existing);
     }
     @Transactional
     @Override
-    public void delete(Long id) {
+    public void deletePhoneTransfers(Long id) {
         if (!repository.existsById(id)) {
             throw logAndThrowEntityNotFound(id, "Удаление");
         }
