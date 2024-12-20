@@ -26,17 +26,13 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
         this.mapper = mapper;
     }
 
-    private EntityNotFoundException logAndThrowEntityNotFound(Long id, String action) {
-        String errorMessage = String.format("Запись с ID %d не найдена. %s невозможно.", id, action);
-        log.error(errorMessage);
-        return new EntityNotFoundException(errorMessage);
-    }
 
     @Override
     public SuspiciousPhoneTransferDTO findByIdPhoneTransfers(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
-                .orElseThrow(() -> logAndThrowEntityNotFound(id,"Поиск "));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Запись с ID %d не найдена поиск невозможен", id)));
     }
 
     @Override
@@ -45,6 +41,7 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
     }
+
     @Transactional
     @Override
     public SuspiciousPhoneTransferDTO createNewPhoneTransfers(SuspiciousPhoneTransferDTO transferDTO) {
@@ -52,24 +49,28 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
         entity = repository.save(entity);
         return mapper.toDTO(entity);
     }
+
     @Transactional
     @Override
     public SuspiciousPhoneTransferDTO updatePhoneTransfers(Long id, SuspiciousPhoneTransferDTO transferDTO) {
         SuspiciousPhoneTransfers existing = repository.findById(id)
-                .orElseThrow(()-> logAndThrowEntityNotFound(id,"Обновление "));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Запись с ID %d не найдена. Обновление невозможно.", id)));
 
-        if (!existing.getPhoneTransferId().equals(transferDTO.getPhoneTransferId())){
+
+        if (!existing.getPhoneTransferId().equals(transferDTO.getPhoneTransferId())) {
             throw new IllegalArgumentException("Поле phoneTransferId не может быть изменено.");
         }
-                mapper.updateFromDto(transferDTO, existing);
+        mapper.updateFromDto(transferDTO, existing);
         repository.save(existing);
         return mapper.toDTO(existing);
     }
+
     @Transactional
     @Override
     public void deletePhoneTransfers(Long id) {
         if (!repository.existsById(id)) {
-            throw logAndThrowEntityNotFound(id, "Удаление");
+            throw new EntityNotFoundException(String.format("Запись с ID %d не найдена. Удаление невозможно.", id));
         }
         repository.deleteById(id);
     }

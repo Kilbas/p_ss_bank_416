@@ -1,7 +1,6 @@
 package com.bank.antifraud.service;
 
 
-
 import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.entity.SuspiciousCardTransfer;
 import com.bank.antifraud.mapper.SuspiciousCardTransferMapper;
@@ -30,17 +29,13 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
         this.mapper = mapper;
     }
 
-    private EntityNotFoundException logAndThrowEntityNotFound(Long id, String action) {
-        String errorMessage = String.format("Запись с ID %d не найдена. %s невозможно.", id, action);
-        log.error(errorMessage);
-        return new EntityNotFoundException(errorMessage);
-    }
 
     @Override
     public SuspiciousCardTransferDTO findByIdCardTransfer(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
-                .orElseThrow(() -> logAndThrowEntityNotFound(id, "Поиск"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Запись с ID %d не найдена поиск невозможен", id)));
     }
 
     @Override
@@ -61,7 +56,8 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
     @Transactional
     public SuspiciousCardTransferDTO updateCardTransfer(Long id, SuspiciousCardTransferDTO transferDTO) {
         SuspiciousCardTransfer existing = repository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNotFound(id, "Обновление"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Запись с ID %d не найдена. Обновление невозможно.", id)));
 
         // Проверяем, что cardTransferId не изменяется
         if (!existing.getCardTransferId().equals(transferDTO.getCardTransferId())) {
@@ -74,12 +70,11 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
     }
 
 
-
     @Override
     @Transactional
     public void deleteCardTransfer(Long id) {
         if (!repository.existsById(id)) {
-            throw logAndThrowEntityNotFound(id, "Удаление");
+            throw new EntityNotFoundException(String.format("Запись с ID %d не найдена. Удаление невозможно.", id));
         }
         repository.deleteById(id);
     }

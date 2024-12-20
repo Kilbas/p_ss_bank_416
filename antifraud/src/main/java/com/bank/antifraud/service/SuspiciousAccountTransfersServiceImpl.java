@@ -22,14 +22,6 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
     private final SuspiciousAccountTransfersRepository repository;
     private final SuspiciousAccountTransfersMapper mapper;
 
-
-
-    private EntityNotFoundException logAndThrowEntityNotFound(Long id, String action) {
-        String errorMessage = String.format("Запись с ID %d не найдена. %s невозможно.", id, action);
-        log.error(errorMessage);
-        return new EntityNotFoundException(errorMessage);
-    }
-
     @Override
     @Transactional
     public SuspiciousAccountTransfersDTO createNewAccountTransfer(SuspiciousAccountTransfersDTO transferDTO) {
@@ -42,13 +34,14 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
     @Transactional
     public SuspiciousAccountTransfersDTO updateAccountTransfer(Long id, SuspiciousAccountTransfersDTO transferDTO) {
         SuspiciousAccountTransfers existing = repository.findById(id)
-                .orElseThrow(() -> logAndThrowEntityNotFound(id, "Обновление"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Запись с ID %d не найдена, обновление  невозможен", id)));
 
-        if(!existing.getAccountTransferId().equals(transferDTO.getAccountTransferId())){
+        if (!existing.getAccountTransferId().equals(transferDTO.getAccountTransferId())) {
             throw new IllegalArgumentException("Поле accountTransferId не может быть изменено.");
         }
         mapper.updateFromDto(transferDTO, existing);
-         repository.save(existing);
+        repository.save(existing);
         return mapper.toDTO(existing);
     }
 
@@ -56,7 +49,7 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
     @Transactional
     public void deleteAccountTransfer(Long id) {
         if (!repository.existsById(id)) {
-            throw logAndThrowEntityNotFound(id, "Удаление");
+            throw new EntityNotFoundException(String.format("Запись с ID %d не найдена. Удаление невозможно.", id));
         }
         repository.deleteById(id);
     }
@@ -65,7 +58,8 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
     public SuspiciousAccountTransfersDTO findByIdAccountTransfer(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
-                .orElseThrow(() -> logAndThrowEntityNotFound(id, "Поиск"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Запись с ID %d не найдена поиск невозможен", id)));
     }
 
     @Override
