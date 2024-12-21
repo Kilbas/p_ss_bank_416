@@ -37,13 +37,13 @@ public class Audit {
     @Column(name = "entity_Type", length = 40, nullable = false)
     private String entityType;
 
-    @Column(name = "operation_type", length = 255, nullable = false)
+    @Column(name = "operation_type", nullable = false)
     private String operationType;
 
-    @Column(name = "created_by", length = 255, nullable = false)
+    @Column(name = "created_by", nullable = false)
     private String createdBy;
 
-    @Column(name = "modified_by", length = 255)
+    @Column(name = "modified_by")
     private String modifiedBy;
 
     @Column(name = "created_at", nullable = false)

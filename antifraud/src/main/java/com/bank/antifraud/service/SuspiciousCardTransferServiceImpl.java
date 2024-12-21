@@ -5,9 +5,7 @@ import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.entity.SuspiciousCardTransfer;
 import com.bank.antifraud.mapper.SuspiciousCardTransferMapper;
 import com.bank.antifraud.repository.SuspiciousCardTransferRepository;
-import com.bank.antifraud.service.SuspiciousCardTransferService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

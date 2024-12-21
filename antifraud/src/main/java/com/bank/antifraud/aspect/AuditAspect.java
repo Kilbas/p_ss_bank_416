@@ -25,7 +25,7 @@ public class AuditAspect {
 
     // Метод для обработки создания записи (POST)
     @AfterReturning(value = "execution(* com.bank.antifraud.service.*.createNew*(..))", returning = "result")
-    public void afterCreateTransfer(JoinPoint joinPoint, Object result) {
+    public void afterCreateTransfer(Object result) {
         if (result == null) {
             log.error("Метод create вернул null. Аудит не будет сохранён.");
             return;
@@ -44,12 +44,11 @@ public class AuditAspect {
         }
 
         Object[] args = joinPoint.getArgs();
-        if (args.length == 0 || !(args[0] instanceof Long)) {
+        if (args.length == 0 || !(args[0] instanceof Long id)) {
             log.error("Ошибка: ID не передан или имеет неверный тип.");
             return;
         }
 
-        Long id = (Long) args[0]; // Предполагаем, что ID передается первым аргументом
         String entityType = result.getClass().getSimpleName();
 
         Audit previousAudit = auditService.findByEntityTypeAndEntityId(entityType, id.toString());

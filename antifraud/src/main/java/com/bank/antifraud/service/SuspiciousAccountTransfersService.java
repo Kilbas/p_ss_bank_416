@@ -1,8 +1,6 @@
 package com.bank.antifraud.service;
 
 import com.bank.antifraud.dto.SuspiciousAccountTransfersDTO;
-import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
-import com.bank.antifraud.dto.SuspiciousPhoneTransferDTO;
 
 import java.util.List;
 

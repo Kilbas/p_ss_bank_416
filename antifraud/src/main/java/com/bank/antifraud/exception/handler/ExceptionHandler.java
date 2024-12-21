@@ -1,4 +1,4 @@
-package com.bank.antifraud.handler;
+package com.bank.antifraud.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,10 +31,12 @@ public class ExceptionHandler {
     // Обработчик для некорректного типа аргументов
     @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Object> handleTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        String requiredType = (ex.getRequiredType() != null) ? ex.getRequiredType().getSimpleName() : "неизвестный тип";
         String errorMessage = String.format("Некорректный тип параметра '%s'. Ожидался тип '%s', но получено '%s'.",
-                ex.getName(), ex.getRequiredType().getSimpleName(), ex.getValue());
+                ex.getName(), requiredType, ex.getValue());
         return buildResponse(HttpStatus.BAD_REQUEST, errorMessage);
     }
+
 
     // Обработчик для MethodArgumentNotValidException и HttpMessageNotReadableException
     @org.springframework.web.bind.annotation.ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})

@@ -19,6 +19,9 @@ spring:
     url: jdbc:postgresql://localhost:5434/postgres
     username: postgres
     password: password
+  jpa:
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     default-schema: anti_fraud
     change-log: db/changelog/db.changelog-master.yaml

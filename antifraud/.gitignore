@@ -8,13 +8,6 @@
       *.ear
       *.log
 
-      # Конфигурация Maven и Gradle
-      .mvn/
-      .gradle/
-      !gradle-wrapper.jar
-      gradle-wrapper.jar
-      build/
-      !gradle.properties
 
       # IntelliJ IDEA
       .idea/
@@ -22,16 +15,11 @@
       *.ipr
       *.iws
 
-      # Eclipse
-      .project
-      .classpath
-      .settings/
 
       # VSCode
       .vscode/
 
       # Логи и отчеты
-      *.log
       hs_err_pid*
       .log/
       checkstyle-cachefile
