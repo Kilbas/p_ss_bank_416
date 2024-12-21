@@ -45,7 +45,7 @@ public class TransferPhoneRestControllerTest {
     private PhoneTransfer phoneTransfer;
     private PhoneTransferDTO phoneTransferDTO;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {

@@ -46,7 +46,7 @@ public class TransferAccountRestControllerTest {
     private AccountTransfer accountTransfer;
     private AccountTransferDTO accountTransferDTO;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {

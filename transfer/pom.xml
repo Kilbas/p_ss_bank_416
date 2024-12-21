@@ -63,7 +63,6 @@
                     <includes>
                     </includes>
                     <excludes>
-                        <exclude>com/bank/transfer/aspect/**</exclude>
                         <exclude>com/bank/transfer/dto/**</exclude>
                         <exclude>com/bank/transfer/mapper/*</exclude>
                         <exclude>com/bank/transfer/repository/*</exclude>

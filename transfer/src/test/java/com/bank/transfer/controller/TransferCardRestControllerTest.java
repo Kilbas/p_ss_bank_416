@@ -45,7 +45,7 @@ public class TransferCardRestControllerTest {
     private CardTransfer cardTransfer;
     private CardTransferDTO cardTransferDTO;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
