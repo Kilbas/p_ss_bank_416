@@ -42,6 +42,8 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public AccountDetailsDTO saveAccountDetails(AccountDetailsDTO accountDetailsDTO) {
+        validateArgs("Объект accountDetailsDTO не может быть null", accountDetailsDTO);
+
         return accountDetailsMapper
                 .toDto(accountDetailsRepository
                         .save(accountDetailsMapper.toEntitySave(accountDetailsDTO)));
@@ -59,11 +61,12 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public AccountDetailsDTO updateAccountDetails(Long id, AccountDetailsDTO accountDetailsDTO) {
-        validateArg(id, "Идентификатор не может быть null");
+        validateArgs("Идентификатор не может быть null", id);
 
         AccountDetails accountDetails = accountDetailsMapper
                 .toEntity(this.getAccountDetailsById(id));
         accountDetailsMapper.toDtoUpdate(accountDetailsDTO, accountDetails);
+
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.save(accountDetails));
     }
@@ -78,7 +81,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public void deleteAccountDetails(Long id) {
-        validateArg(id, "Идентификатор не может быть null");
+        validateArgs("Идентификатор не может быть null", id);
 
         this.getAccountDetailsById(id);
         accountDetailsRepository.deleteById(id);
@@ -94,7 +97,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      */
     @Override
     public AccountDetailsDTO getAccountDetailsById(Long id) {
-        validateArg(id, "Идентификатор не может быть null");
+        validateArgs("Идентификатор не может быть null", id);
 
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.findById(id)
@@ -113,7 +116,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      */
     @Override
     public AccountDetailsDTO getAccountDetailsByAccountNumber(Long accountNumber) {
-        validateArg(accountNumber, "Номер счета не может быть null");
+        validateArgs("Номер счета не может быть null", accountNumber);
 
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.findByAccountNumber(accountNumber)
@@ -132,7 +135,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      */
     @Override
     public AccountDetailsDTO getAccountDetailsByBankDetailsId(Long bankDetailsId) {
-        validateArg(bankDetailsId, "Технический идентификатор на реквизиты банка не может быть null");
+        validateArgs("Технический идентификатор на реквизиты банка не может быть null", bankDetailsId);
 
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.findByBankDetailsId(bankDetailsId)
@@ -171,11 +174,14 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     /**
      * Проверяет, что указанный аргумент не равен null.
      *
-     * @param arg Аргумент, который нужно проверить.
-     * @param message Сообщение об ошибке, если аргумент равен null.
+     * @param args Аргументы, которые нужно проверить.
+     * @param message Сообщение об ошибке, если хотя бы один из аргументов равен null.
      * @throws IllegalArgumentException Если аргумент равен null.
      */
-    private void validateArg(Long arg, String message) {
-        Assert.notNull(arg, message);
+    @SafeVarargs
+    private <t> void validateArgs(String message, t... args) {
+        for (t arg : args) {
+            Assert.notNull(arg, message);
+        }
     }
 }

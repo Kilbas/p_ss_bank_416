@@ -83,7 +83,6 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "200", description = "Список информации об аккаунтах успешно получен"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
-
     @GetMapping("/all")
     public ResponseEntity<Page<AccountDetailsDTO>> getAllAccountDetails(
             @RequestParam(defaultValue = "0") int page,
