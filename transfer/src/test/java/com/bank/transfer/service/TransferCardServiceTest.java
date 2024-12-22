@@ -4,6 +4,8 @@ import com.bank.transfer.model.CardTransfer;
 import com.bank.transfer.repository.TransferCardRepository;
 import com.bank.transfer.serviceImpl.TransferCardServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -47,111 +49,137 @@ public class TransferCardServiceTest {
         cardTransfer.setId(1L);
     }
 
-    @Test
-    void addCardTransfer_ShouldSaveAndReturnCardTransfer() {
-        when(transferCardRepository.save(cardTransfer)).thenReturn(cardTransfer);
+    @Nested
+    @DisplayName("Тесты для метода addCardTransfer")
+    class AddCardTransferTests {
 
-        CardTransfer savedTransfer = transferCardService.addCardTransfer(cardTransfer);
+        @Test
+        @DisplayName("Успешное добавление CardTransfer в базу")
+        void shouldSaveAndReturnCardTransfer() {
+            when(transferCardRepository.save(cardTransfer)).thenReturn(cardTransfer);
 
-        assertNotNull(savedTransfer);
-        assertEquals(cardTransfer.getId(), savedTransfer.getId());
-        assertEquals(cardTransfer, savedTransfer);
-        verify(transferCardRepository, times(1)).save(cardTransfer);
+            CardTransfer savedTransfer = transferCardService.addCardTransfer(cardTransfer);
+
+            assertNotNull(savedTransfer);
+            assertEquals(cardTransfer, savedTransfer);
+            verify(transferCardRepository, times(1)).save(cardTransfer);
+        }
     }
 
-    @Test
-    void deleteCardTransfer_ShouldDeleteAccountTransfer_WhenExists() {
-        when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.of(cardTransfer));
+    @Nested
+    @DisplayName("Тесты для метода deleteCardTransfer")
+    class DeleteCardTransferTests {
 
-        transferCardService.deleteCardTransfer(cardTransfer.getId());
+        @Test
+        @DisplayName("Успешное удаление CardTransfer")
+        void shouldDeleteCardTransfer_WhenExists() {
+            when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.of(cardTransfer));
 
-        verify(transferCardRepository, times(1)).delete(cardTransfer);
+            transferCardService.deleteCardTransfer(cardTransfer.getId());
+
+            verify(transferCardRepository, times(1)).delete(cardTransfer);
+        }
+
+        @Test
+        @DisplayName("Выбрасывает EntityNotFoundException, если CardTransfer не найден")
+        void shouldThrowEntityNotFoundException_WhenNotExists() {
+            when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.empty());
+
+            Exception exception = assertThrows(EntityNotFoundException.class,
+                    () -> transferCardService.deleteCardTransfer(cardTransfer.getId()));
+
+            assertEquals("Не найден CardTransfer с id" + cardTransfer.getId(), exception.getMessage());
+            verify(transferCardRepository, never()).delete(any());
+        }
     }
 
-    @Test
-    void deleteCardTransfer_ShouldThrowEntityNotFoundException_WhenNotExists() {
-        when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.empty());
+    @Nested
+    @DisplayName("Тесты для метода updateCardTransfer")
+    class UpdateCardTransferTests {
 
-        Exception exception = assertThrows(EntityNotFoundException.class,
-                () -> transferCardService.deleteCardTransfer(cardTransfer.getId()));
+        @Test
+        @DisplayName("Успешное обновление CardTransfer")
+        void shouldUpdateAndReturnUpdatedCardTransfer() {
+            CardTransfer updatedCardTransfer = new CardTransfer(
+                    987654321L,
+                    BigDecimal.valueOf(2000.00),
+                    "Updated Purpose",
+                    2L
+            );
 
-        assertEquals("Не найден CardTransfer с id" + cardTransfer.getId(), exception.getMessage());
-        verify(transferCardRepository, never()).delete(any());
+            when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.of(cardTransfer));
+            when(transferCardRepository.save(cardTransfer)).thenReturn(updatedCardTransfer);
+
+            CardTransfer result = transferCardService.updateCardTransfer(updatedCardTransfer, cardTransfer.getId());
+
+            assertNotNull(result);
+            assertEquals(updatedCardTransfer.getPurpose(), result.getPurpose());
+            assertEquals(updatedCardTransfer.getAmount(), result.getAmount());
+            assertEquals(updatedCardTransfer.getAccountDetailsId(), result.getAccountDetailsId());
+            assertEquals(updatedCardTransfer.getNumber(), result.getNumber());
+            verify(transferCardRepository, times(1)).save(cardTransfer);
+        }
+
+        @Test
+        @DisplayName("Выбрасывает EntityNotFoundException, если CardTransfer не найден")
+        void shouldThrowEntityNotFoundException_WhenNotExists() {
+            CardTransfer updatedCardTransfer = new CardTransfer(
+                    987654321L,
+                    BigDecimal.valueOf(2000.00),
+                    "Updated Purpose",
+                    2L
+            );
+
+            when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.empty());
+
+            Exception exception = assertThrows(EntityNotFoundException.class,
+                    () -> transferCardService.updateCardTransfer(updatedCardTransfer, cardTransfer.getId()));
+
+            assertEquals("Не найден CardTransfer с id" + cardTransfer.getId(), exception.getMessage());
+            verify(transferCardRepository, never()).save(any());
+        }
     }
 
-    @Test
-    void updateCardTransfer_ShouldUpdateCardTransfer_WhenExists() {
-        CardTransfer updatedCardTransfer = new CardTransfer(
-                987654321L,
-                BigDecimal.valueOf(2000.00),
-                "Updated Purpose",
-                2L
-        );
+    @Nested
+    @DisplayName("Тесты для методов получения CardTransfer")
+    class GetCardTransferTests {
 
-        when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.of(cardTransfer));
-        when(transferCardRepository.save(cardTransfer)).thenReturn(updatedCardTransfer);
+        @Test
+        @DisplayName("Успешное получение всех CardTransfer")
+        void shouldReturnListOfCardTransfers() {
+            when(transferCardRepository.findAll()).thenReturn(List.of(cardTransfer));
 
-        CardTransfer result = transferCardService.updateCardTransfer(updatedCardTransfer, cardTransfer.getId());
+            List<CardTransfer> result = transferCardService.getAllCardTransfers();
 
-        assertNotNull(result);
-        assertEquals(updatedCardTransfer.getPurpose(), result.getPurpose());
-        assertEquals(updatedCardTransfer.getAmount(), result.getAmount());
-        assertEquals(updatedCardTransfer.getAccountDetailsId(), result.getAccountDetailsId());
-        assertEquals(updatedCardTransfer.getNumber(), result.getNumber());
-        verify(transferCardRepository, times(1)).save(cardTransfer);
-    }
+            assertNotNull(result);
+            assertEquals(1, result.size());
+            assertEquals(cardTransfer.getId(), result.get(0).getId());
+            verify(transferCardRepository, times(1)).findAll();
+        }
 
-    @Test
-    void updateCardTransfer_ShouldThrowEntityNotFoundException_WhenNotExists() {
-        CardTransfer updatedCardTransfer = new CardTransfer(
-                987654321L,
-                BigDecimal.valueOf(2000.00),
-                "Updated Purpose",
-                2L
-        );
+        @Test
+        @DisplayName("Успешное получение одного CardTransfer")
+        void shouldReturnCardTransfer_WhenExists() {
+            when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.of(cardTransfer));
 
-        when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.empty());
+            CardTransfer result = transferCardService.getCardTransferById(cardTransfer.getId());
 
-        Exception exception = assertThrows(EntityNotFoundException.class,
-                () -> transferCardService.updateCardTransfer(updatedCardTransfer, cardTransfer.getId()));
+            assertNotNull(result);
+            assertEquals(cardTransfer, result);
+            verify(transferCardRepository, times(1)).findById(cardTransfer.getId());
+        }
 
-        assertEquals("Не найден CardTransfer с id" + cardTransfer.getId(), exception.getMessage());
-        verify(transferCardRepository, never()).save(any());
-    }
+        @Test
+        @DisplayName("Выбрасывает EntityNotFoundException, если CardTransfer не найден")
+        void shouldThrowEntityNotFoundException_WhenNotExists() {
+            when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.empty());
 
-    @Test
-    void getAllCardTransfers_ShouldReturnListOfCardTransfers() {
-        when(transferCardRepository.findAll()).thenReturn(List.of(cardTransfer));
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                    transferCardService.getCardTransferById(cardTransfer.getId())
+            );
 
-        List<CardTransfer> result = transferCardService.getAllCardTransfers();
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(cardTransfer.getId(), result.get(0).getId());
-        verify(transferCardRepository, times(1)).findAll();
-    }
-
-    @Test
-    void getCardTransferById_ShouldReturnCardTransfer_WhenExists() {
-        when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.of(cardTransfer));
-
-        CardTransfer result = transferCardService.getCardTransferById(cardTransfer.getId());
-
-        assertNotNull(result);
-        assertEquals(cardTransfer.getId(), result.getId());
-        assertEquals(cardTransfer, result);
-        verify(transferCardRepository, times(1)).findById(cardTransfer.getId());
-    }
-
-    @Test
-    void getCardTransferById_ShouldThrowEntityNotFoundException_WhenNotExists() {
-        when(transferCardRepository.findById(cardTransfer.getId())).thenReturn(Optional.empty());
-
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                transferCardService.getCardTransferById(cardTransfer.getId())
-        );
-
-        assertEquals("Не найден CardTransfer с id" + cardTransfer.getId(), exception.getMessage());
-        verify(transferCardRepository, times(1)).findById(cardTransfer.getId());
+            assertEquals("Не найден CardTransfer с id" + cardTransfer.getId(), exception.getMessage());
+            verify(transferCardRepository, times(1)).findById(cardTransfer.getId());
+        }
     }
 }

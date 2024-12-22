@@ -4,6 +4,8 @@ import com.bank.transfer.model.PhoneTransfer;
 import com.bank.transfer.repository.TransferPhoneRepository;
 import com.bank.transfer.serviceImpl.TransferPhoneServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -46,111 +48,137 @@ public class TransferPhoneServiceTest {
         phoneTransfer.setId(1L);
     }
 
-    @Test
-    void addPhoneTransfer_ShouldSaveAndReturnPhoneTransfer() {
-        when(transferPhoneRepository.save(phoneTransfer)).thenReturn(phoneTransfer);
+    @Nested
+    @DisplayName("Тесты для метода addPhoneTransfer")
+    class AddPhoneTransferTests {
 
-        PhoneTransfer savedTransfer = transferPhoneService.addPhoneTransfer(phoneTransfer);
+        @Test
+        @DisplayName("Успешное добавление PhoneTransfer в базу")
+        void shouldSaveAndReturnPhoneTransfer() {
+            when(transferPhoneRepository.save(phoneTransfer)).thenReturn(phoneTransfer);
 
-        assertNotNull(savedTransfer);
-        assertEquals(phoneTransfer.getId(), savedTransfer.getId());
-        assertEquals(phoneTransfer, savedTransfer);
-        verify(transferPhoneRepository, times(1)).save(phoneTransfer);
+            PhoneTransfer savedTransfer = transferPhoneService.addPhoneTransfer(phoneTransfer);
+
+            assertNotNull(savedTransfer);
+            assertEquals(phoneTransfer, savedTransfer);
+            verify(transferPhoneRepository, times(1)).save(phoneTransfer);
+        }
     }
 
-    @Test
-    void deletePhoneTransfer_ShouldDeleteAccountTransfer_WhenExists() {
-        when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.of(phoneTransfer));
+    @Nested
+    @DisplayName("Тесты для метода deletePhoneTransfer")
+    class DeletePhoneTransferTests {
 
-        transferPhoneService.deletePhoneTransfer(phoneTransfer.getId());
+        @Test
+        @DisplayName("Успешное удаление PhoneTransfer")
+        void shouldDeletePhoneTransfer_WhenExists() {
+            when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.of(phoneTransfer));
 
-        verify(transferPhoneRepository, times(1)).delete(phoneTransfer);
+            transferPhoneService.deletePhoneTransfer(phoneTransfer.getId());
+
+            verify(transferPhoneRepository, times(1)).delete(phoneTransfer);
+        }
+
+        @Test
+        @DisplayName("Выбрасывает EntityNotFoundException, если PhoneTransfer не найден")
+        void shouldThrowEntityNotFoundException_WhenNotExists() {
+            when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.empty());
+
+            Exception exception = assertThrows(EntityNotFoundException.class,
+                    () -> transferPhoneService.deletePhoneTransfer(phoneTransfer.getId()));
+
+            assertEquals("Не найден PhoneTransfer с id" + phoneTransfer.getId(), exception.getMessage());
+            verify(transferPhoneRepository, never()).delete(any());
+        }
     }
 
-    @Test
-    void deletePhoneTransfer_ShouldThrowEntityNotFoundException_WhenNotExists() {
-        when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.empty());
+    @Nested
+    @DisplayName("Тесты для метода updatePhoneTransfer")
+    class UpdatePhoneTransferTests {
 
-        Exception exception = assertThrows(EntityNotFoundException.class,
-                () -> transferPhoneService.deletePhoneTransfer(phoneTransfer.getId()));
+        @Test
+        @DisplayName("Успешное обновление PhoneTransfer")
+        void shouldUpdateAndReturnUpdatedPhoneTransfer() {
+            PhoneTransfer updatedPhoneTransfer = new PhoneTransfer(
+                    987654321L,
+                    BigDecimal.valueOf(2000.00),
+                    "Updated Purpose",
+                    2L
+            );
 
-        assertEquals("Не найден PhoneTransfer с id" + phoneTransfer.getId(), exception.getMessage());
-        verify(transferPhoneRepository, never()).delete(any());
+            when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.of(phoneTransfer));
+            when(transferPhoneRepository.save(phoneTransfer)).thenReturn(updatedPhoneTransfer);
+
+            PhoneTransfer result = transferPhoneService.updatePhoneTransfer(updatedPhoneTransfer, phoneTransfer.getId());
+
+            assertNotNull(result);
+            assertEquals(updatedPhoneTransfer.getPurpose(), result.getPurpose());
+            assertEquals(updatedPhoneTransfer.getAmount(), result.getAmount());
+            assertEquals(updatedPhoneTransfer.getAccountDetailsId(), result.getAccountDetailsId());
+            assertEquals(updatedPhoneTransfer.getNumber(), result.getNumber());
+            verify(transferPhoneRepository, times(1)).save(phoneTransfer);
+        }
+
+        @Test
+        @DisplayName("Выбрасывает EntityNotFoundException, если PhoneTransfer не найден")
+        void shouldThrowEntityNotFoundException_WhenNotExists() {
+            PhoneTransfer updatedPhoneTransfer = new PhoneTransfer(
+                    987654321L,
+                    BigDecimal.valueOf(2000.00),
+                    "Updated Purpose",
+                    2L
+            );
+
+            when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.empty());
+
+            Exception exception = assertThrows(EntityNotFoundException.class,
+                    () -> transferPhoneService.updatePhoneTransfer(updatedPhoneTransfer, phoneTransfer.getId()));
+
+            assertEquals("Не найден PhoneTransfer с id" + phoneTransfer.getId(), exception.getMessage());
+            verify(transferPhoneRepository, never()).save(any());
+        }
     }
 
-    @Test
-    void updatePhoneTransfer_ShouldUpdatePhoneTransfer_WhenExists() {
-        PhoneTransfer updatedPhoneTransfer = new PhoneTransfer(
-                987654321L,
-                BigDecimal.valueOf(2000.00),
-                "Updated Purpose",
-                2L
-        );
+    @Nested
+    @DisplayName("Тесты для методов получения PhoneTransfer")
+    class GetPhoneTransferTests {
 
-        when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.of(phoneTransfer));
-        when(transferPhoneRepository.save(phoneTransfer)).thenReturn(updatedPhoneTransfer);
+        @Test
+        @DisplayName("Успешное получение всех PhoneTransfer")
+        void shouldReturnListOfPhoneTransfers() {
+            when(transferPhoneRepository.findAll()).thenReturn(List.of(phoneTransfer));
 
-        PhoneTransfer result = transferPhoneService.updatePhoneTransfer(updatedPhoneTransfer, phoneTransfer.getId());
+            List<PhoneTransfer> result = transferPhoneService.getAllPhoneTransfers();
 
-        assertNotNull(result);
-        assertEquals(updatedPhoneTransfer.getPurpose(), result.getPurpose());
-        assertEquals(updatedPhoneTransfer.getAmount(), result.getAmount());
-        assertEquals(updatedPhoneTransfer.getAccountDetailsId(), result.getAccountDetailsId());
-        assertEquals(updatedPhoneTransfer.getNumber(), result.getNumber());
-        verify(transferPhoneRepository, times(1)).save(phoneTransfer);
-    }
+            assertNotNull(result);
+            assertEquals(1, result.size());
+            assertEquals(phoneTransfer.getId(), result.get(0).getId());
+            verify(transferPhoneRepository, times(1)).findAll();
+        }
 
-    @Test
-    void updatePhoneTransfer_ShouldThrowEntityNotFoundException_WhenNotExists() {
-        PhoneTransfer updatedPhoneTransfer = new PhoneTransfer(
-                987654321L,
-                BigDecimal.valueOf(2000.00),
-                "Updated Purpose",
-                2L
-        );
+        @Test
+        @DisplayName("Успешное получение одного PhoneTransfer")
+        void shouldReturnPhoneTransfer_WhenExists() {
+            when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.of(phoneTransfer));
 
-        when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.empty());
+            PhoneTransfer result = transferPhoneService.getPhoneTransferById(phoneTransfer.getId());
 
-        Exception exception = assertThrows(EntityNotFoundException.class,
-                () -> transferPhoneService.updatePhoneTransfer(updatedPhoneTransfer, phoneTransfer.getId()));
+            assertNotNull(result);
+            assertEquals(phoneTransfer, result);
+            verify(transferPhoneRepository, times(1)).findById(phoneTransfer.getId());
+        }
 
-        assertEquals("Не найден PhoneTransfer с id" + phoneTransfer.getId(), exception.getMessage());
-        verify(transferPhoneRepository, never()).save(any());
-    }
+        @Test
+        @DisplayName("Выбрасывает EntityNotFoundException, если PhoneTransfer не найден")
+        void shouldThrowEntityNotFoundException_WhenNotExists() {
+            when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.empty());
 
-    @Test
-    void getAllPhoneTransfers_ShouldReturnListOfPhoneTransfers() {
-        when(transferPhoneRepository.findAll()).thenReturn(List.of(phoneTransfer));
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                    transferPhoneService.getPhoneTransferById(phoneTransfer.getId())
+            );
 
-        List<PhoneTransfer> result = transferPhoneService.getAllPhoneTransfers();
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(phoneTransfer.getId(), result.get(0).getId());
-        verify(transferPhoneRepository, times(1)).findAll();
-    }
-
-    @Test
-    void getPhoneTransferById_ShouldReturnPhoneTransfer_WhenExists() {
-        when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.of(phoneTransfer));
-
-        PhoneTransfer result = transferPhoneService.getPhoneTransferById(phoneTransfer.getId());
-
-        assertNotNull(result);
-        assertEquals(phoneTransfer.getId(), result.getId());
-        assertEquals(phoneTransfer, result);
-        verify(transferPhoneRepository, times(1)).findById(phoneTransfer.getId());
-    }
-
-    @Test
-    void getPhoneTransferById_ShouldThrowEntityNotFoundException_WhenNotExists() {
-        when(transferPhoneRepository.findById(phoneTransfer.getId())).thenReturn(Optional.empty());
-
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                transferPhoneService.getPhoneTransferById(phoneTransfer.getId())
-        );
-
-        assertEquals("Не найден PhoneTransfer с id" + phoneTransfer.getId(), exception.getMessage());
-        verify(transferPhoneRepository, times(1)).findById(phoneTransfer.getId());
+            assertEquals("Не найден PhoneTransfer с id" + phoneTransfer.getId(), exception.getMessage());
+            verify(transferPhoneRepository, times(1)).findById(phoneTransfer.getId());
+        }
     }
 }

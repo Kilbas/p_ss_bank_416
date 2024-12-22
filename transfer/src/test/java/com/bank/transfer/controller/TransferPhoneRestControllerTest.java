@@ -6,6 +6,8 @@ import com.bank.transfer.mapper.PhoneTransferMapper;
 import com.bank.transfer.serviceImpl.TransferPhoneServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -55,104 +57,131 @@ public class TransferPhoneRestControllerTest {
         phoneTransferDTO = new PhoneTransferDTO(1L, new BigDecimal("100.00"), "Purpose", 2L);
     }
 
-    @Test
-    void getPhoneTransfers_ShouldReturnListOfTransfers() throws Exception {
-        Mockito.when(transferPhoneService.getAllPhoneTransfers()).thenReturn(List.of(phoneTransfer));
-        Mockito.when(phoneTransferMapper.phoneTransferToDTO(phoneTransfer)).thenReturn(phoneTransferDTO);
+    @Nested
+    @DisplayName("Тесты получения PhoneTransfer (GET)")
+    class GetPhoneTransfer {
 
-        mockMvc.perform(get("/v1/phone")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].number").value(1))
-                .andExpect(jsonPath("$[0].amount").value(100.00))
-                .andExpect(jsonPath("$[0].purpose").value("Purpose"))
-                .andExpect(jsonPath("$[0].accountDetailsId").value(2));
+        @Test
+        @DisplayName("Успешное получение всех PhoneTransfer")
+        void getPhoneTransfers_ShouldReturnListOfTransfers() throws Exception {
+            Mockito.when(transferPhoneService.getAllPhoneTransfers()).thenReturn(List.of(phoneTransfer));
+            Mockito.when(phoneTransferMapper.phoneTransferToDTO(phoneTransfer)).thenReturn(phoneTransferDTO);
 
-        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+            mockMvc.perform(get("/v1/phone")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].number").value(1))
+                    .andExpect(jsonPath("$[0].amount").value(100.00))
+                    .andExpect(jsonPath("$[0].purpose").value("Purpose"))
+                    .andExpect(jsonPath("$[0].accountDetailsId").value(2));
+
+            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+        }
+
+        @Test
+        @DisplayName("Успешное получение PhoneTransfer по ID")
+        void getPhoneTransfer_ShouldReturnTransferById() throws Exception {
+            Mockito.when(transferPhoneService.getPhoneTransferById(1L)).thenReturn(phoneTransfer);
+            Mockito.when(phoneTransferMapper.phoneTransferToDTO(phoneTransfer)).thenReturn(phoneTransferDTO);
+
+            mockMvc.perform(get("/v1/phone/1")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.number").value(1))
+                    .andExpect(jsonPath("$.amount").value(100.00))
+                    .andExpect(jsonPath("$.purpose").value("Purpose"))
+                    .andExpect(jsonPath("$.accountDetailsId").value(2));
+
+            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+        }
     }
 
-    @Test
-    void getPhoneTransfer_ShouldReturnTransferById() throws Exception {
-        Mockito.when(transferPhoneService.getPhoneTransferById(1L)).thenReturn(phoneTransfer);
-        Mockito.when(phoneTransferMapper.phoneTransferToDTO(phoneTransfer)).thenReturn(phoneTransferDTO);
+    @Nested
+    @DisplayName("Тесты создания PhoneTransfer (POST)")
+    class CreatePhoneTransfer {
 
-        mockMvc.perform(get("/v1/phone/1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(1))
-                .andExpect(jsonPath("$.amount").value(100.00))
-                .andExpect(jsonPath("$.purpose").value("Purpose"))
-                .andExpect(jsonPath("$.accountDetailsId").value(2));
+        @Test
+        @DisplayName("Успешное добавление PhoneTransfer")
+        void createPhoneTransfer_ShouldReturnCreatedTransfer() throws Exception {
+            Mockito.when(phoneTransferMapper.dtoToPhoneTransfer(any())).thenReturn(phoneTransfer);
+            Mockito.when(transferPhoneService.addPhoneTransfer(any())).thenReturn(phoneTransfer);
+            Mockito.when(phoneTransferMapper.phoneTransferToDTO(any())).thenReturn(phoneTransferDTO);
 
-        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+            mockMvc.perform(post("/v1/phone")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(phoneTransferDTO)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.number").value(1))
+                    .andExpect(jsonPath("$.amount").value(100.00))
+                    .andExpect(jsonPath("$.purpose").value("Purpose"))
+                    .andExpect(jsonPath("$.accountDetailsId").value(2));
+
+            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+        }
+
+        @Test
+        @DisplayName("Попытка добавления PhoneTransfer с невалидными данными")
+        void createPhoneTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
+            PhoneTransferDTO invalidDto = new PhoneTransferDTO(-2, new BigDecimal("0.00"), null, -5);
+
+            mockMvc.perform(post("/v1/phone")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(invalidDto)))
+                    .andExpect(status().isBadRequest());
+
+            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+        }
     }
 
-    @Test
-    void createPhoneTransfer_ShouldReturnCreatedTransfer() throws Exception {
-        Mockito.when(phoneTransferMapper.dtoToPhoneTransfer(any())).thenReturn(phoneTransfer);
-        Mockito.when(transferPhoneService.addPhoneTransfer(any())).thenReturn(phoneTransfer);
-        Mockito.when(phoneTransferMapper.phoneTransferToDTO(any())).thenReturn(phoneTransferDTO);
+    @Nested
+    @DisplayName("Тесты обновления PhoneTransfer (PUT)")
+    class UpdatePhoneTransfer {
 
-        mockMvc.perform(post("/v1/phone")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(phoneTransferDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(1))
-                .andExpect(jsonPath("$.amount").value(100.00))
-                .andExpect(jsonPath("$.purpose").value("Purpose"))
-                .andExpect(jsonPath("$.accountDetailsId").value(2));
+        @Test
+        @DisplayName("Успешное обновление PhoneTransfer")
+        void updatePhoneTransfer_ShouldReturnUpdatedTransfer() throws Exception {
+            Mockito.when(phoneTransferMapper.dtoToPhoneTransfer(any())).thenReturn(phoneTransfer);
+            Mockito.when(transferPhoneService.updatePhoneTransfer(any(PhoneTransfer.class), anyLong())).thenReturn(phoneTransfer);
+            Mockito.when(phoneTransferMapper.phoneTransferToDTO(any())).thenReturn(phoneTransferDTO);
 
-        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+            mockMvc.perform(put("/v1/phone/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(phoneTransferDTO)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.number").value(1))
+                    .andExpect(jsonPath("$.amount").value(100.00));
+
+            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+        }
+
+        @Test
+        @DisplayName("Попытка обновления PhoneTransfer с невалидными данными")
+        void updatePhoneTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
+            PhoneTransferDTO invalidUpdatedDto = new PhoneTransferDTO(-2, new BigDecimal("0.00"), null, -5);
+
+            mockMvc.perform(post("/v1/phone")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(invalidUpdatedDto)))
+                    .andExpect(status().isBadRequest());
+
+            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+        }
     }
 
-    @Test
-    void createPhoneTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
-        PhoneTransferDTO invalidDto = new PhoneTransferDTO(-2, new BigDecimal("0.00"), null, -5);
+    @Nested
+    @DisplayName("Тесты удаления PhoneTransfer (DELETE)")
+    class DeletePhoneTransfer {
 
-        mockMvc.perform(post("/v1/phone")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidDto)))
-                .andExpect(status().isBadRequest());
+        @Test
+        @DisplayName("Успешное удаление AccountTransfer")
+        void deletePhoneTransfer_ShouldReturnNoContent() throws Exception {
+            doNothing().when(transferPhoneService).deletePhoneTransfer(1L);
 
-        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
-    }
+            mockMvc.perform(delete("/v1/phone/1")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNoContent());
 
-    @Test
-    void updatePhoneTransfer_ShouldReturnUpdatedTransfer() throws Exception {
-        Mockito.when(phoneTransferMapper.dtoToPhoneTransfer(any())).thenReturn(phoneTransfer);
-        Mockito.when(transferPhoneService.updatePhoneTransfer(any(PhoneTransfer.class), anyLong())).thenReturn(phoneTransfer);
-        Mockito.when(phoneTransferMapper.phoneTransferToDTO(any())).thenReturn(phoneTransferDTO);
-
-        mockMvc.perform(put("/v1/phone/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(phoneTransferDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(1))
-                .andExpect(jsonPath("$.amount").value(100.00));
-
-        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
-    }
-
-    @Test
-    void updatePhoneTransfer_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
-        PhoneTransferDTO invalidUpdatedDto = new PhoneTransferDTO(-2, new BigDecimal("0.00"), null, -5);
-
-        mockMvc.perform(post("/v1/phone")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidUpdatedDto)))
-                .andExpect(status().isBadRequest());
-
-        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
-    }
-
-    @Test
-    void deletePhoneTransfer_ShouldReturnNoContent() throws Exception {
-        doNothing().when(transferPhoneService).deletePhoneTransfer(1L);
-
-        mockMvc.perform(delete("/v1/phone/1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
-
-        Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
+        }
     }
 }

@@ -4,6 +4,8 @@ import com.bank.transfer.model.Audit;
 import com.bank.transfer.repository.AuditRepository;
 import com.bank.transfer.serviceImpl.AuditServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -49,6 +51,7 @@ public class TransferAuditServiceTest {
     }
 
     @Test
+    @DisplayName("addAudit Успешное добавление Audit")
     void addAudit_ShouldSaveAudit() {
         when(auditRepository.save(audit)).thenReturn(audit);
 
@@ -58,6 +61,7 @@ public class TransferAuditServiceTest {
     }
 
     @Test
+    @DisplayName("findByEntityTypeAndEntityId успешный Поиск Audit по EntityId и EntityType")
     void findByEntityTypeAndEntityId_ShouldReturnAudit_WhenAuditExists() {
         when(auditRepository.findByEntityTypeAndEntityId("entityType", "123")).thenReturn(audit);
 
@@ -70,6 +74,7 @@ public class TransferAuditServiceTest {
     }
 
     @Test
+    @DisplayName("findByEntityTypeAndEntityId поиск Audit по EntityId и EntityType выбрасывает EntityNotFoundException")
     void findByEntityTypeAndEntityId_ShouldThrowException_WhenAuditNotFound() {
         when(auditRepository.findByEntityTypeAndEntityId("type", "1234")).thenReturn(null);
 
