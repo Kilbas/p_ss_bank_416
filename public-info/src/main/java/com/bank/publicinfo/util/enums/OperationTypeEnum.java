@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum OperationTypeEnum {
 
     CREATE("Создание"),
-    UPDATE("Обновление");
+    UPDATE("Обновление"),
+    UNSUPPORTED_OPERATION("unsupportedOperation");
 
     private final String value;
 }
