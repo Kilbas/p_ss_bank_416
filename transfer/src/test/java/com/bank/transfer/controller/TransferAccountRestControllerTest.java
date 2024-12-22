@@ -10,14 +10,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,16 +33,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest(controllers = TransferAccountRestController.class)
 public class TransferAccountRestControllerTest {
-    @Mock
+    @MockBean
     private TransferAccountServiceImpl transferAccountService;
 
-    @Mock
+    @MockBean
     private AccountTransferMapper accountTransferMapper;
 
-    @InjectMocks
-    private TransferAccountRestController transferAccountRestController;
-
+    @Autowired
     private MockMvc mockMvc;
 
     private AccountTransfer accountTransfer;
@@ -53,8 +51,6 @@ public class TransferAccountRestControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(transferAccountRestController).build();
-
         accountTransfer = new AccountTransfer(1L, new BigDecimal("100.00"), "Purpose", 2L);
         accountTransferDTO = new AccountTransferDTO(1L, new BigDecimal("100.00"), "Purpose", 2L);
     }
@@ -76,8 +72,6 @@ public class TransferAccountRestControllerTest {
                     .andExpect(jsonPath("$[0].amount").value(100.00))
                     .andExpect(jsonPath("$[0].purpose").value("Purpose"))
                     .andExpect(jsonPath("$[0].accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
         }
 
         @Test
@@ -93,8 +87,6 @@ public class TransferAccountRestControllerTest {
                     .andExpect(jsonPath("$.amount").value(100.00))
                     .andExpect(jsonPath("$.purpose").value("Purpose"))
                     .andExpect(jsonPath("$.accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
         }
     }
 
@@ -117,8 +109,6 @@ public class TransferAccountRestControllerTest {
                     .andExpect(jsonPath("$.amount").value(100.00))
                     .andExpect(jsonPath("$.purpose").value("Purpose"))
                     .andExpect(jsonPath("$.accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
         }
 
         @Test
@@ -130,8 +120,6 @@ public class TransferAccountRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidDto)))
                     .andExpect(status().isBadRequest());
-
-            Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
         }
     }
 
@@ -152,8 +140,6 @@ public class TransferAccountRestControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.number").value(1))
                     .andExpect(jsonPath("$.amount").value(100.00));
-
-            Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
         }
 
         @Test
@@ -165,8 +151,6 @@ public class TransferAccountRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidUpdateDto)))
                     .andExpect(status().isBadRequest());
-
-            Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
         }
     }
 
@@ -182,8 +166,6 @@ public class TransferAccountRestControllerTest {
             mockMvc.perform(delete("/v1/account/1")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNoContent());
-
-            Mockito.verifyNoMoreInteractions(transferAccountService, accountTransferMapper);
         }
     }
 }

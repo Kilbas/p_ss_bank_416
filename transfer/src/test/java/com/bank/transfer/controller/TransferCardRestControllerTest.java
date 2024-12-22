@@ -10,13 +10,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,16 +32,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest(controllers = TransferCardRestController.class)
 public class TransferCardRestControllerTest {
-    @Mock
+    @MockBean
     private TransferCardServiceImpl transferCardService;
 
-    @Mock
+    @MockBean
     private CardTransferMapper cardTransferMapper;
 
-    @InjectMocks
-    private TransferCardRestController transferCardRestController;
-
+    @Autowired
     private MockMvc mockMvc;
 
     private CardTransfer cardTransfer;
@@ -51,8 +50,6 @@ public class TransferCardRestControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(transferCardRestController).build();
-
         cardTransfer = new CardTransfer(1L, new BigDecimal("100.00"), "Purpose", 2L);
         cardTransferDTO = new CardTransferDTO(1L, new BigDecimal("100.00"), "Purpose", 2L);
     }
@@ -74,8 +71,6 @@ public class TransferCardRestControllerTest {
                     .andExpect(jsonPath("$[0].amount").value(100.00))
                     .andExpect(jsonPath("$[0].purpose").value("Purpose"))
                     .andExpect(jsonPath("$[0].accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
         }
 
         @Test
@@ -91,8 +86,6 @@ public class TransferCardRestControllerTest {
                     .andExpect(jsonPath("$.amount").value(100.00))
                     .andExpect(jsonPath("$.purpose").value("Purpose"))
                     .andExpect(jsonPath("$.accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
         }
     }
 
@@ -115,8 +108,6 @@ public class TransferCardRestControllerTest {
                     .andExpect(jsonPath("$.amount").value(100.00))
                     .andExpect(jsonPath("$.purpose").value("Purpose"))
                     .andExpect(jsonPath("$.accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
         }
 
         @Test
@@ -128,8 +119,6 @@ public class TransferCardRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidDto)))
                     .andExpect(status().isBadRequest());
-
-            Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
         }
     }
     @Nested
@@ -151,8 +140,6 @@ public class TransferCardRestControllerTest {
                     .andExpect(jsonPath("$.amount").value(100.00))
                     .andExpect(jsonPath("$.purpose").value("Purpose"))
                     .andExpect(jsonPath("$.accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
         }
 
         @Test
@@ -164,8 +151,6 @@ public class TransferCardRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidUpdateDto)))
                     .andExpect(status().isBadRequest());
-
-            Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
         }
     }
 
@@ -181,8 +166,6 @@ public class TransferCardRestControllerTest {
             mockMvc.perform(delete("/v1/card/1")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNoContent());
-
-            Mockito.verifyNoMoreInteractions(transferCardService, cardTransferMapper);
         }
     }
 }

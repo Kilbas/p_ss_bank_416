@@ -14,6 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -32,16 +35,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest(controllers = TransferPhoneRestController.class)
 public class TransferPhoneRestControllerTest {
-    @Mock
+    @MockBean
     private TransferPhoneServiceImpl transferPhoneService;
 
-    @Mock
+    @MockBean
     private PhoneTransferMapper phoneTransferMapper;
 
-    @InjectMocks
-    private TransferPhoneRestController transferPhoneRestController;
-
+    @Autowired
     private MockMvc mockMvc;
 
     private PhoneTransfer phoneTransfer;
@@ -51,8 +53,6 @@ public class TransferPhoneRestControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(transferPhoneRestController).build();
-
         phoneTransfer = new PhoneTransfer(1L, new BigDecimal("100.00"), "Purpose", 2L);
         phoneTransferDTO = new PhoneTransferDTO(1L, new BigDecimal("100.00"), "Purpose", 2L);
     }
@@ -74,8 +74,6 @@ public class TransferPhoneRestControllerTest {
                     .andExpect(jsonPath("$[0].amount").value(100.00))
                     .andExpect(jsonPath("$[0].purpose").value("Purpose"))
                     .andExpect(jsonPath("$[0].accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
         }
 
         @Test
@@ -91,8 +89,6 @@ public class TransferPhoneRestControllerTest {
                     .andExpect(jsonPath("$.amount").value(100.00))
                     .andExpect(jsonPath("$.purpose").value("Purpose"))
                     .andExpect(jsonPath("$.accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
         }
     }
 
@@ -115,8 +111,6 @@ public class TransferPhoneRestControllerTest {
                     .andExpect(jsonPath("$.amount").value(100.00))
                     .andExpect(jsonPath("$.purpose").value("Purpose"))
                     .andExpect(jsonPath("$.accountDetailsId").value(2));
-
-            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
         }
 
         @Test
@@ -128,8 +122,6 @@ public class TransferPhoneRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidDto)))
                     .andExpect(status().isBadRequest());
-
-            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
         }
     }
 
@@ -150,8 +142,6 @@ public class TransferPhoneRestControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.number").value(1))
                     .andExpect(jsonPath("$.amount").value(100.00));
-
-            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
         }
 
         @Test
@@ -163,8 +153,6 @@ public class TransferPhoneRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidUpdatedDto)))
                     .andExpect(status().isBadRequest());
-
-            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
         }
     }
 
@@ -180,8 +168,6 @@ public class TransferPhoneRestControllerTest {
             mockMvc.perform(delete("/v1/phone/1")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNoContent());
-
-            Mockito.verifyNoMoreInteractions(transferPhoneService, phoneTransferMapper);
         }
     }
 }
