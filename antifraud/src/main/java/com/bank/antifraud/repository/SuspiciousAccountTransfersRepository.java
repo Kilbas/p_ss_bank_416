@@ -9,4 +9,8 @@ import java.util.List;
 @Repository
 public interface SuspiciousAccountTransfersRepository extends JpaRepository<SuspiciousAccountTransfers, Long> {
     List<SuspiciousAccountTransfers> findBySuspiciousReasonContainingIgnoreCase(String reason);
+
+    List<SuspiciousAccountTransfers> findByBlockedTrue();
+
+    List<SuspiciousAccountTransfers> findBySuspiciousTrue();
 }

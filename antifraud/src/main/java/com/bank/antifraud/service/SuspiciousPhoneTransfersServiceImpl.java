@@ -83,7 +83,7 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
 
     @Override
     public List<SuspiciousPhoneTransferDTO> findBlockedTransfers() {
-        return repository.findAll().stream()
+        return repository.findByBlockedTrue().stream()
                 .filter(SuspiciousPhoneTransfers::isBlocked)
                 .map(mapper::toDTO)
                 .toList();
@@ -91,7 +91,7 @@ public class SuspiciousPhoneTransfersServiceImpl implements SuspiciousPhoneTrans
 
     @Override
     public List<SuspiciousPhoneTransferDTO> findSuspiciousTransfers() {
-        return repository.findAll().stream()
+        return repository.findBySuspiciousTrue().stream()
                 .filter(SuspiciousPhoneTransfers::isSuspicious)
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());

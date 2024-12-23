@@ -85,15 +85,14 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
 
     @Override
     public List<SuspiciousCardTransferDTO> findBlockedTransfers() {
-        return repository.findAll().stream()
-                .filter(SuspiciousCardTransfer::isBlocked)
+        return repository.findByBlockedTrue().stream()
                 .map(mapper::toDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<SuspiciousCardTransferDTO> findSuspiciousTransfers() {
-        return repository.findAll().stream()
+        return repository.findBySuspiciousTrue().stream()
                 .filter(SuspiciousCardTransfer::isSuspicious)
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());

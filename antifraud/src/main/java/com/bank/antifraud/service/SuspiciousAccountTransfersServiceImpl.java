@@ -78,16 +78,16 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
 
     @Override
     public List<SuspiciousAccountTransfersDTO> findBlockedTransfers() {
-        return repository.findAll().stream()
-                .filter(SuspiciousAccountTransfers::isBlocked)
-                .map(mapper::toDTO).collect(Collectors.toList());
+        return repository.findByBlockedTrue().stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<SuspiciousAccountTransfersDTO> findSuspiciousTransfers() {
-        return repository.findAll().stream()
-                .filter(SuspiciousAccountTransfers::isSuspicious)
-                .map(mapper::toDTO).collect(Collectors.toList());
+        return repository.findBySuspiciousTrue().stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
     }
 
 }

@@ -10,4 +10,8 @@ import java.util.List;
 public interface SuspiciousPhoneTransfersRepository extends JpaRepository<SuspiciousPhoneTransfers, Long> {
 
     List<SuspiciousPhoneTransfers> findBySuspiciousReasonContainingIgnoreCase(String reason);
+
+    List<SuspiciousPhoneTransfers> findByBlockedTrue();
+
+    List<SuspiciousPhoneTransfers> findBySuspiciousTrue();
 }

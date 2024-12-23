@@ -23,6 +23,11 @@ public class AuditAspect {
     private final AuditService auditService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static final String OPERATION_CREATE = "CREATE";
+    private static final String OPERATION_UPDATE = "UPDATE";
+    private static final String SYSTEM_USER = "SYSTEM";
+    private static final String ADMIN_USER = "ADMIN";
+
     // Метод для обработки создания записи (POST)
     @AfterReturning(value = "execution(* com.bank.antifraud.service.*.createNew*(..))", returning = "result")
     public void afterCreateTransfer(Object result) {
@@ -32,7 +37,7 @@ public class AuditAspect {
         }
 
         log.info("Аудит: создание записи");
-        saveAudit(result, "CREATE");
+        saveAudit(result, OPERATION_CREATE);
     }
 
     // Метод для обработки обновления записи (PUT)
@@ -63,8 +68,8 @@ public class AuditAspect {
         Audit newAudit = new Audit();
         fromSavedAuditToNewAudit(previousAudit, newAudit);
 
-        newAudit.setOperationType("UPDATE");
-        newAudit.setModifiedBy("ADMIN");
+        newAudit.setOperationType(OPERATION_UPDATE);
+        newAudit.setModifiedBy(ADMIN_USER);
         newAudit.setModifiedAt(LocalDateTime.now());
         newAudit.setNewEntityJson(convertEntityToJson(result));
 
@@ -73,19 +78,21 @@ public class AuditAspect {
 
     // Вспомогательный метод для создания новой записи аудита
     private void saveAudit(Object entity, String operationType) {
-        try {
-            String entityJson = objectMapper.writeValueAsString(entity);
-            Audit audit = Audit.builder()
-                    .entityType(entity.getClass().getSimpleName())
-                    .operationType(operationType)
-                    .createdBy("SYSTEM") // Вы можете заменить на текущего пользователя
-                    .createdAt(LocalDateTime.now())
-                    .entityJson(entityJson)
-                    .build();
-            auditService.createAudit(audit);
-        } catch (JsonProcessingException e) {
-            log.error("Ошибка сериализации объекта для аудита: {}", e.getMessage());
+        String entityJson = convertEntityToJson(entity);
+        if (entityJson == null) {
+            log.error("Ошибка сериализации объекта для аудита. Аудит не будет сохранён.");
+            return;
         }
+
+        Audit audit = Audit.builder()
+                .entityType(entity.getClass().getSimpleName())
+                .operationType(operationType)
+                .createdBy(SYSTEM_USER)
+                .createdAt(LocalDateTime.now())
+                .entityJson(entityJson)
+                .build();
+
+        auditService.createAudit(audit);
     }
 
     // Вспомогательный метод для копирования данных из предыдущей записи аудита
