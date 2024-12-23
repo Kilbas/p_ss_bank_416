@@ -121,7 +121,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        buildErrorMessage("Информация по номеру счёта не найдена %s", accountNumber)
+                        buildErrorMessage("Информация по номеру счёта: %s, не найдена", accountNumber)
                 )));
     }
 
@@ -141,7 +141,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
                 .toDto(accountDetailsRepository.findByBankDetailsId(bankDetailsId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         buildErrorMessage("Информация по техническому идентификатору" +
-                                " на реквизиты банка не найдена %s", bankDetailsId)
+                                " на реквизиты банка: %s, не найдена", bankDetailsId)
                 )));
     }
 
@@ -167,7 +167,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      * @param value Значение, которое нужно подставить в сообщение.
      * @return Сформированное сообщение об ошибке.
      */
-    private String buildErrorMessage(String message, Object value) {
+    public String buildErrorMessage(String message, Object value) {
         return String.format(message, value);
     }
 
@@ -179,7 +179,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      * @throws IllegalArgumentException Если аргумент равен null.
      */
     @SafeVarargs
-    private <t> void validateArgs(String message, t... args) {
+    public final <t> void validateArgs(String message, t... args) {
         for (t arg : args) {
             Assert.notNull(arg, message);
         }

@@ -14,26 +14,41 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+@DisplayName("Тесты для класса AccountDetailsServiceImpl")
 @ExtendWith(MockitoExtension.class)
 class AccountDetailsServiceImplTest {
 
-    private static final AccountDetailsDTO updateAccountDetailsDTO = new AccountDetailsDTO();
-    private static final AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO(1L, 1L, 1L, 1L, money, false, 1L);
-    private static final AccountDetails accountDetailsEntity = new AccountDetails(0L, 1L, 1L, 1L, money, false, 1L);
-    private static final AccountDetails oldAccountDetailsEntity = new AccountDetails(1L, 1L, 1L, 1L, null, false, 1L);
+    private AccountDetailsDTO accountDetailsDTO;
+    private AccountDetailsDTO updateAccountDetailsDTO;
+    private AccountDetails accountDetails;
+
+    private final Long id = 1L;
+    private final String illegalArgumentExceptionMessage = "Идентификатор не может быть null";
+    private final String displayNameIllegalArgumentException = "Выбрасывает IllegalArgumentException, если id: null";
+    private final String displayNameEntityNotFoundException = "Выбрасывает EntityNotFoundException, если id: не найден";
+
+    private static final BigDecimal money = BigDecimal.valueOf(18000000.00);
 
     @Mock
     private AccountDetailsRepository accountDetailsRepository;
@@ -46,59 +61,69 @@ class AccountDetailsServiceImplTest {
 
     @BeforeEach
     void setUp() {
-
-        accountTransfer = new AccountTransfer(
-                123456789L,
-                BigDecimal.valueOf(1000.00),
-                "Test Purpose",
-                1L
-        );
-        accountTransfer.setId(1L);
+        accountDetailsDTO = createAccountDetailsDTO();
+        updateAccountDetailsDTO = new AccountDetailsDTO();
+        accountDetails = createAccountDetails();
     }
 
+    private AccountDetailsDTO createAccountDetailsDTO() {
+        return new AccountDetailsDTO(null, 1L, 1L, 1L, money, false, 1L);
+    }
+
+    private AccountDetails createAccountDetails() {
+        return new AccountDetails(1L, 1L, 1L, 1L, money, false, 1L);
+    }
+
+    private String stringFormatEntityNotFoundException (Long id) {
+        return String.format("Информация об аккаунте с идентификатором: %s, не найдена", id);
+    }
+
+    private void assertIllegalArgumentException(Runnable action, String expectedMessage) {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, action::run);
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    private void assertEntityNotFoundException(Runnable action, String expectedMessage) {
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, action::run);
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    private void verifyFindByIdCalledOnce(Long id) {
+        verify(accountDetailsRepository, times(1)).findById(id);
+    }
+
+    private void verifySaveCalledOnce() {
+        verify(accountDetailsRepository, times(1)).save(any(AccountDetails.class));
+    }
 
     @Nested
     @DisplayName("Тесты для метода saveAccountDetails")
     class saveAccountDetailsTest {
 
+        @DisplayName("Успешное сохранение AccountDetails")
         @Test
-        @DisplayName("saveAccountDetails успешное сохранение AccountDetails")
-        public void testSaveAccountDetailsPositive() {
-
-            when(accountDetailsRepository.save(any(AccountDetails.class))).thenReturn(accountDetailsEntity);
+        void testSaveAccountDetailsPositive() {
+            when(accountDetailsRepository.save(accountDetailsMapper.toEntitySave(accountDetailsDTO))).thenReturn(accountDetails);
 
             AccountDetailsDTO result = accountDetailsService.saveAccountDetails(accountDetailsDTO);
 
             assertAll(
                     () -> assertNotNull(result),
-                    () -> assertEquals(accountDetailsDTO.getAccountNumber(), result.getAccountNumber()),
-                    () -> assertEquals(accountDetailsDTO.getMoney(), result.getMoney()),
-                    () -> verify(accountDetailsRepository, times(1)).save(any(AccountDetails.class))
+                    () -> assertEquals(1L, result.getId()),
+                    () -> verifySaveCalledOnce()
             );
         }
 
-        @DisplayName("saveAccountDetails выбрасывает IllegalArgumentException, при accountDetailsDTO: null")
+        @DisplayName("Выбрасывает IllegalArgumentException, если accountDetailsDTO: null")
         @Test
-        public void testSaveAccountDetailsNegativeAccountDetailsDtoNull() {
+        void testSaveAccountDetailsNegativeAccountDetailsDtoNull() {
 
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> accountDetailsService.saveAccountDetails(null));
 
-            assertEquals("Объект accountDetailsDTO не может быть null", exception.getMessage());
-        }
-
-        @DisplayName("saveAccountDetails выбрасывает RuntimeException, если сохранение в репозитории завершается ошибкой")
-        @Test
-        public void testSaveAccountDetailsNegativeRepositorySaveError() {
-
-            when(accountDetailsRepository.save(accountDetailsEntity)).thenThrow(new RuntimeException("Ошибка сохранения"));
-
-            RuntimeException exception = assertThrows(RuntimeException.class,
-                    () -> accountDetailsService.saveAccountDetails(accountDetailsDTO));
-
             assertAll(
-                    () -> assertEquals("Ошибка сохранения", exception.getMessage()),
-                    () -> verify(accountDetailsRepository, times(1)).save(accountDetailsEntity)
+                    () -> assertEquals("Объект accountDetailsDTO не может быть null", exception.getMessage()),
+                    () -> verify(accountDetailsRepository, never()).save(any())
             );
         }
     }
@@ -107,55 +132,254 @@ class AccountDetailsServiceImplTest {
     @DisplayName("Тесты для метода updateAccountDetails")
     class updateAccountDetailsTest {
 
-        @DisplayName("updateAccountDetails успешное обновление AccountDetails")
+        @DisplayName("Успешное обновление AccountDetails")
         @Test
-        public void testUpdateAccountDetailsPositive() {
+        void testUpdateAccountDetailsPositive() {
+            updateAccountDetailsDTO.setMoney(BigDecimal.valueOf(28000000.00));
 
-            Long id = 1L;
-
-            updateAccountDetailsDTO.setMoney(money);
-
-            when(accountDetailsRepository.findById(id)).thenReturn(Optional.of(oldAccountDetailsEntity));
-
-            when(accountDetailsRepository.save(any(AccountDetails.class))).thenReturn(accountDetailsEntity);
+            when(accountDetailsRepository.findById(id)).thenReturn(Optional.of(accountDetails));
+            accountDetailsMapper.toDtoUpdate(updateAccountDetailsDTO, accountDetails);
+            when(accountDetailsRepository.save(accountDetails)).thenReturn(accountDetails);
 
             AccountDetailsDTO result = accountDetailsService.updateAccountDetails(id, updateAccountDetailsDTO);
 
             assertAll(
-                    () ->assertNotNull(result),
-                    () ->assertEquals(updateAccountDetailsDTO.getMoney(), result.getMoney()),
-                    () ->verify(accountDetailsRepository, times(1)).findById(id),
-                    () ->verify(accountDetailsRepository, times(1)).save(any(AccountDetails.class))
+                    () -> assertNotNull(result),
+                    () -> assertEquals(updateAccountDetailsDTO.getMoney(), result.getMoney()),
+                    () -> verifyFindByIdCalledOnce(id),
+                    () -> verifySaveCalledOnce()
             );
         }
 
-        @DisplayName("updateAccountDetails выбрасывает IllegalArgumentException, при accountDetailsDTO: null")
+        @DisplayName(displayNameIllegalArgumentException)
         @Test
-        public void testUpdateAccountDetailsNegativeAccountDetailsIdNull() {
-
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> accountDetailsService.updateAccountDetails(null,null));
-
-            assertEquals("Идентификатор не может быть null", exception.getMessage());
+        void testUpdateAccountDetailsNegativeIdNull() {
+            assertIllegalArgumentException(
+                    () -> accountDetailsService.updateAccountDetails(null, null),
+                    illegalArgumentExceptionMessage
+            );
+            verify(accountDetailsRepository, never()).save(any());
         }
 
-        @DisplayName("updateAccountDetails выбрасывает RuntimeException, если сохранение в репозитории завершается ошибкой")
+        @DisplayName("Выбрасывает EntityNotFoundException, если id: не найден")
         @Test
-        public void testSaveAccountDetailsNegativeRepositorySaveError() {
+        void testUpdateAccountDetailsNegativeEntityNotFoundException() {
+            assertEntityNotFoundException(
+                    () -> accountDetailsService.updateAccountDetails(id, updateAccountDetailsDTO),
+                    stringFormatEntityNotFoundException(id)
+            );
+            verify(accountDetailsRepository, never()).save(any());
+        }
+    }
 
-            Long id = 1L;
+    @Nested
+    @DisplayName("Тесты для метода deleteAccountDetails")
+    class deleteAccountDetailsTest {
 
-            when(accountDetailsRepository.findById(id)).thenReturn(Optional.of(accountDetailsEntity));
+        @DisplayName("Успешное удаление AccountDetails")
+        @Test
+        void testDeleteAccountDetailsPositive() {
+            when(accountDetailsRepository.findById(id)).thenReturn(Optional.of(accountDetails));
+            doNothing().when(accountDetailsRepository).deleteById(id);
 
-            when(accountDetailsRepository.save(accountDetailsEntity)).thenThrow(new RuntimeException("Ошибка сохранения"));
+            accountDetailsService.deleteAccountDetails(id);
 
-            RuntimeException exception = assertThrows(RuntimeException.class,
-                    () -> accountDetailsService.updateAccountDetails(id, accountDetailsDTO));
+            verify(accountDetailsRepository, times(1)).deleteById(id);
+        }
+
+        @DisplayName(displayNameIllegalArgumentException)
+        @Test
+        void testDeleteAccountDetailsNegativeIllegalArgumentException() {
+            assertIllegalArgumentException(
+                    () -> accountDetailsService.deleteAccountDetails(null),
+                    illegalArgumentExceptionMessage
+            );
+            verify(accountDetailsRepository, never()).deleteById(id);
+        }
+
+        @DisplayName(displayNameEntityNotFoundException)
+        @Test
+        void testDeleteAccountDetailsNegativeEntityNotFoundException() {
+            assertEntityNotFoundException(
+                    () -> accountDetailsService.deleteAccountDetails(id),
+                    stringFormatEntityNotFoundException(id)
+            );
+            verify(accountDetailsRepository, never()).deleteById(id);
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода getAccountDetailsById")
+    class getAccountDetailsByIdTest {
+
+        @DisplayName("Успешное возвращение AccountDetailsDTO")
+        @Test
+        void testGetAccountDetailsByIdPositive() {
+            when(accountDetailsRepository.findById(id)).thenReturn(Optional.of(accountDetails));
+
+            AccountDetailsDTO result = accountDetailsService.getAccountDetailsById(id);
 
             assertAll(
-                    () -> assertEquals("Ошибка сохранения", exception.getMessage()),
-                    () -> verify(accountDetailsRepository, times(1)).save(accountDetailsEntity)
+                    () -> assertNotNull(result),
+                    () -> assertEquals(id, result.getId()),
+                    () -> verifyFindByIdCalledOnce(id)
             );
+        }
+
+        @DisplayName(displayNameIllegalArgumentException)
+        @Test
+        void testGetAccountDetailsByIdNegativeIllegalArgumentException() {
+            assertIllegalArgumentException(
+                    () -> accountDetailsService.getAccountDetailsById(null),
+                    illegalArgumentExceptionMessage
+            );
+            verify(accountDetailsRepository, never()).findById(id);
+        }
+
+        @DisplayName(displayNameEntityNotFoundException)
+        @Test
+        void testGetAccountDetailsByIdNegativeEntityNotFoundException() {
+            assertEntityNotFoundException(
+                    () -> accountDetailsService.getAccountDetailsById(id),
+                    stringFormatEntityNotFoundException(id)
+            );
+            verify(accountDetailsRepository, times(1)).findById(id);
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода GetAccountDetailsByAccountNumber")
+    class getAccountDetailsByAccountNumberTest {
+
+        @DisplayName("Успешное возвращение AccountDetailsDTO")
+        @Test
+        void testGetAccountDetailsByAccountNumberPositive() {
+            when(accountDetailsRepository.findByAccountNumber(accountDetails.getAccountNumber())).thenReturn(Optional.of(accountDetails));
+
+            AccountDetailsDTO result = accountDetailsService.getAccountDetailsByAccountNumber(accountDetails.getAccountNumber());
+
+            assertAll(
+                    () -> assertNotNull(result),
+                    () -> assertEquals(accountDetails.getAccountNumber(), result.getId()),
+                    () -> verify(accountDetailsRepository, times(1)).findByAccountNumber(id)
+            );
+        }
+
+        @DisplayName("Выбрасывает IllegalArgumentException, если номер счета: null")
+        @Test
+        void testGetAccountDetailsByAccountNumberNegativeIllegalArgumentException() {
+
+            assertIllegalArgumentException(
+                    () -> accountDetailsService.getAccountDetailsByAccountNumber(null),
+                    "Номер счета не может быть null"
+            );
+            verify(accountDetailsRepository, never()).findByAccountNumber(id);
+        }
+
+        @DisplayName("Выбрасывает EntityNotFoundException, если номер счета: не найден")
+        @Test
+        void testGetAccountDetailsByAccountNumberNegativeEntityNotFoundException() {
+            assertEntityNotFoundException(
+                    () -> accountDetailsService.getAccountDetailsByAccountNumber(id),
+                    String.format("Информация по номеру счёта: %s, не найдена", id)
+            );
+            verify(accountDetailsRepository, times(1)).findByAccountNumber(id);
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода getAccountDetailsByBankDetailsId")
+    class getAccountDetailsByBankDetailsIdTest {
+
+        @DisplayName("Успешное возвращение AccountDetailsDTO")
+        @Test
+        void testGetAccountDetailsByBankDetailsIdPositive() {
+            when(accountDetailsRepository.findByBankDetailsId(accountDetails.getBankDetailsId())).thenReturn(Optional.of(accountDetails));
+
+            AccountDetailsDTO result = accountDetailsService.getAccountDetailsByBankDetailsId(accountDetails.getBankDetailsId());
+
+            assertAll(
+                    () -> assertNotNull(result),
+                    () -> assertEquals(accountDetails.getBankDetailsId(), result.getId()),
+                    () -> verify(accountDetailsRepository, times(1)).findByBankDetailsId(accountDetails.getBankDetailsId())
+            );
+        }
+
+        @DisplayName("Выбрасывает IllegalArgumentException, если технический идентификатор на реквизиты банка: null")
+        @Test
+        void testGetAccountDetailsByBankDetailsIdNegativeIllegalArgumentException() {
+
+            assertIllegalArgumentException(
+                    () -> accountDetailsService.getAccountDetailsByBankDetailsId(null),
+                    "Технический идентификатор на реквизиты банка не может быть null"
+            );
+            verify(accountDetailsRepository, never()).findByBankDetailsId(id);
+        }
+
+        @DisplayName("Выбрасывает EntityNotFoundException, если технический идентификатор на реквизиты банка: не найден")
+        @Test
+        void testGetAccountDetailsByBankDetailsIdNegativeEntityNotFoundException() {
+            assertEntityNotFoundException(
+                    () -> accountDetailsService.getAccountDetailsByBankDetailsId(accountDetails.getBankDetailsId()),
+                    String.format("Информация по техническому идентификатору на реквизиты банка: %s, не найдена", accountDetails.getBankDetailsId())
+            );
+            verify(accountDetailsRepository, times(1)).findByBankDetailsId(accountDetails.getBankDetailsId());
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода getAllAccountDetails")
+    class getAllAccountDetailsTest {
+
+        @DisplayName("Успешное возвращение страницы AccountDetailsDTO")
+        @Test
+        void testGetAllAccountDetailsPositive() {
+
+            Page<AccountDetails> page = new PageImpl<>(List.of(accountDetails));
+
+            when(accountDetailsRepository.findAll(any(Pageable.class))).thenReturn(page);
+
+            Page<AccountDetailsDTO> result = accountDetailsService.getAllAccountDetails(0, 10);
+
+            assertAll(
+                    () -> assertNotNull(result),
+                    () -> assertEquals(1, result.getContent().size()),
+                    () -> assertEquals(accountDetails.getId(), result.getContent().get(0).getId())
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода buildErrorMessage")
+    class buildErrorMessageTest {
+
+        @DisplayName("Успешное форматирование сообщения об ошибке")
+        @Test
+        void testBuildErrorMessagePositive() {
+            String message = "Информация об аккаунте с идентификатором: %s, не найдена";
+            Long id = 1L;
+
+            String result = accountDetailsService.buildErrorMessage(message, id);
+
+            assertEquals("Информация об аккаунте с идентификатором: 1, не найдена", result);
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода validateArgs")
+    class validateArgsTest {
+
+        @DisplayName("Успешная проверка аргументов")
+        @Test
+        void testValidateArgsPositive() {
+              assertDoesNotThrow(() -> accountDetailsService.validateArgs("Аргумент не может быть null", 1L, "test", BigDecimal.ONE));
+        }
+
+        @DisplayName("Выбрасывает IllegalArgumentException, если аргумент равен null")
+        @Test
+        void testValidateArgsNegative() {
+            // Проверяем, что метод выбрасывает исключение
+            assertThrows(IllegalArgumentException.class, () -> accountDetailsService.validateArgs("Аргумент не может быть null", 1L, null));
         }
     }
 }

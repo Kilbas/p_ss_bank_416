@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @Nested
-@DisplayName("Тесты для метода newAudit")
+@DisplayName("Тесты для класса AuditServiceImp")
 @ExtendWith(MockitoExtension.class)
 class AuditServiceImplTest {
 
