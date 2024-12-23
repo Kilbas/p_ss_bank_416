@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,14 +15,11 @@ import java.util.List;
 
 @Tag(name = "Подозрительные телефонные переводы", description = "Операции, связанные с подозрительными переводами по телефону")
 @RestController
+@AllArgsConstructor
 @RequestMapping("/suspicious-phone-transfers")
 public class SuspiciousPhoneTransfersController {
 
     private final SuspiciousPhoneTransfersService service;
-
-    public SuspiciousPhoneTransfersController(SuspiciousPhoneTransfersService service) {
-        this.service = service;
-    }
 
     @Operation(summary = "Получить перевод по ID", description = "Возвращает подозрительный телефонный перевод по ID")
     @ApiResponses({

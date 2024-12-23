@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,14 +23,11 @@ import java.util.List;
 
 @Tag(name = "Подозрительные переводы с картами", description = "Операции, связанные с подозрительными переводами по картам")
 @RestController
+@AllArgsConstructor
 @RequestMapping("/suspicious-card-transfer")
 public class SuspiciousCardTransferController {
 
     private final SuspiciousCardTransferService service;
-
-    public SuspiciousCardTransferController(SuspiciousCardTransferService service) {
-        this.service = service;
-    }
 
     @Operation(summary = "Получить перевод по ID", description = "Возвращает подозрительный перевод по указанному ID")
     @ApiResponses({
@@ -37,6 +35,7 @@ public class SuspiciousCardTransferController {
             @ApiResponse(responseCode = "404", description = "Перевод не найден"),
             @ApiResponse(responseCode = "400", description = "Некорректный запрос")
     })
+
     @GetMapping("/{id}")
     public ResponseEntity<SuspiciousCardTransferDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findByIdCardTransfer(id));
@@ -71,6 +70,7 @@ public class SuspiciousCardTransferController {
             @ApiResponse(responseCode = "400", description = "Некорректные данные"),
             @ApiResponse(responseCode = "422", description = "Ошибка целостности данных")
     })
+
     @PutMapping("/{id}")
     public ResponseEntity<SuspiciousCardTransferDTO> update(@PathVariable Long id, @Valid @RequestBody SuspiciousCardTransferDTO dto) {
         return ResponseEntity.ok(service.updateCardTransfer(id, dto));
@@ -82,6 +82,7 @@ public class SuspiciousCardTransferController {
             @ApiResponse(responseCode = "404", description = "Перевод не найден"),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.deleteCardTransfer(id);
@@ -93,6 +94,7 @@ public class SuspiciousCardTransferController {
             @ApiResponse(responseCode = "200", description = "Успешное выполнение"),
             @ApiResponse(responseCode = "204", description = "Нет данных")
     })
+
     @GetMapping("/reason")
     public ResponseEntity<List<SuspiciousCardTransferDTO>> findByReason(@RequestParam String reason) {
         List<SuspiciousCardTransferDTO> transfers = service.findTransfersByReason(reason);
