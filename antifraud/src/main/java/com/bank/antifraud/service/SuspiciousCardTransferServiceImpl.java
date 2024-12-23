@@ -93,7 +93,6 @@ public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransfer
     @Override
     public List<SuspiciousCardTransferDTO> findSuspiciousTransfers() {
         return repository.findBySuspiciousTrue().stream()
-                .filter(SuspiciousCardTransfer::isSuspicious)
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
     }
