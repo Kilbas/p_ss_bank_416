@@ -2,32 +2,46 @@ package com.bank.account.controller;
 
 import com.bank.account.DTO.AccountDetailsDTO;
 import com.bank.account.service.AccountDetailsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AccountDetailsController.class)
+@ExtendWith(MockitoExtension.class)
 class AccountDetailsControllerTest {
 
     private AccountDetailsDTO accountDetailsDTO;
     private AccountDetailsDTO updateAccountDetailsDTO;
+    private ObjectMapper objectMapper;
 
     public final String jsonFull = """
                                 {
@@ -40,9 +54,23 @@ class AccountDetailsControllerTest {
                                     "profileId": 1
                                 }""";
 
+    public final String jsonUpdate = """
+                                {
+                                    "money": 28000000.00
+                                }""";
+
+    public final String jsonNotCorrect = """
+                                {
+                                    "money": 28000000.00,
+                                }""";
+
     private final Long id = 1L;
 
     private static final BigDecimal money = BigDecimal.valueOf(18000000.00);
+    private static final BigDecimal updateMoney = BigDecimal.valueOf(28000000.00);
+    private static final String errorNotFound = "Тест на ошибку 404 информация не найдена";
+    private static final String errorServerError = "Ошибка сервера";
+    private static final String EntityNotFound = "Запись не найдена";
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,55 +78,318 @@ class AccountDetailsControllerTest {
     @MockBean
     private AccountDetailsService accountDetailsService;
 
-    @InjectMocks
-    private AccountDetailsController accountController;
-
     @BeforeEach
     void setUp() {
         accountDetailsDTO = createAccountDetailsDTO();
         updateAccountDetailsDTO = new AccountDetailsDTO();
+        objectMapper = new ObjectMapper();
     }
 
     private AccountDetailsDTO createAccountDetailsDTO() {
         return new AccountDetailsDTO(null, 1L, 1L, 1L, money, false, 1L);
     }
 
-    public AccountDetailsControllerTest() {
-        MockitoAnnotations.openMocks(this);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(accountController).build();
+    private void assertJsonResponseEquals(String jsonResponse, AccountDetailsDTO expected) throws Exception {
+
+        AccountDetailsDTO actual = objectMapper.readValue(jsonResponse, AccountDetailsDTO.class);
+
+        AccountDetailsControllerTest.assertEqualsAccountDetailsDTOJsonContent(actual, expected);
+    }
+
+    private void assertJsonResponseContentIndexEquals(String jsonResponse, int index, AccountDetailsDTO expected) throws Exception {
+
+        String elementJson = objectMapper
+                .writeValueAsString(JsonPath
+                        .read(jsonResponse, "$.content[" + index + "]"));
+
+        AccountDetailsControllerTest
+                .assertEqualsAccountDetailsDTOJsonContent(objectMapper
+                        .readValue(elementJson, AccountDetailsDTO.class), expected);
+    }
+
+    public static void assertEqualsAccountDetailsDTOJsonContent(AccountDetailsDTO result, AccountDetailsDTO accountDetailsDTO) {
+
+        assertEquals(accountDetailsDTO.getId(), result.getId());
+        assertEquals(accountDetailsDTO.getPassportId(), result.getPassportId());
+        assertEquals(accountDetailsDTO.getAccountNumber(), result.getAccountNumber());
+        assertEquals(accountDetailsDTO.getBankDetailsId(), result.getBankDetailsId());
+        assertEquals(accountDetailsDTO.getMoney(), result.getMoney());
+        assertEquals(accountDetailsDTO.getNegativeBalance(), result.getNegativeBalance());
+        assertEquals(accountDetailsDTO.getProfileId(), result.getProfileId());
     }
 
     @Nested
     @DisplayName("Тесты для метода saveAccountDetails")
     class saveAccountDetailsTest {
+
         @Test
         @DisplayName("Тест на успешное сохранение информации об аккаунте")
-        void testSaveAccountDetails_Success() throws Exception {
+        void testSaveAccountDetailsPositive() throws Exception {
 
             accountDetailsDTO.setId(1L);
 
             when(accountDetailsService.saveAccountDetails(any(AccountDetailsDTO.class))).thenReturn(accountDetailsDTO);
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/account/")
+            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/account/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonFull))
                     .andExpect(status().isCreated())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.money").value(18000000.00))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.negativeBalance").value(false));
+                    .andReturn();
+
+            String jsonResponse = result.getResponse().getContentAsString();
+
+            assertJsonResponseEquals(jsonResponse, accountDetailsDTO);
         }
 
         @Test
         @DisplayName("Тест на ошибку сервера при сохранении информации об аккаунте")
-        void testSaveAccountDetails_ServerError() throws Exception {
+        void testSaveAccountDetailsNegativeServerError() throws Exception {
 
             when(accountDetailsService.saveAccountDetails(any(AccountDetailsDTO.class)))
-                    .thenThrow(new RuntimeException("Ошибка сервера"));
+                    .thenThrow(new RuntimeException(errorServerError));
 
             mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/account/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonFull))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.message").value("Произошла непредвиденная ошибка: Ошибка сервера"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода updateAccountDetails")
+    class updateAccountDetailsTest {
+
+        @Test
+        @DisplayName("Тест на успешное обновление информации об аккаунте")
+        void testUpdateAccountDetailsPositive() throws Exception {
+
+            accountDetailsDTO.setId(id);
+            accountDetailsDTO.setMoney(updateMoney);
+
+            when(accountDetailsService.updateAccountDetails(anyLong(), any(AccountDetailsDTO.class))).thenReturn(accountDetailsDTO);
+
+            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/account/{id}", id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonUpdate))
+                    .andExpect(status().isCreated())
+                    .andReturn();
+
+            String jsonResponse = result.getResponse().getContentAsString();
+
+            assertJsonResponseEquals(jsonResponse, accountDetailsDTO);
+        }
+
+        @Test
+        @DisplayName("Тест на ошибку сервера при обновлении информации об аккаунте")
+        void testUpdateAccountDetailsNegativeServerError() throws Exception {
+
+            when(accountDetailsService.updateAccountDetails(id, updateAccountDetailsDTO))
+                    .thenThrow(new RuntimeException(errorServerError));
+
+            mockMvc.perform(patch("/api/v1/account/{id}", id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonUpdate))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.message").value("Произошла непредвиденная ошибка: Cannot invoke \"com.bank.account.DTO.AccountDetailsDTO.getId()\" because \"savedAccountDetailsDTO\" is null"));
+        }
+
+        @Test
+        @DisplayName("Тест на ошибку 400 Bad Request при некорректном JSON")
+        void testUpdateAccountDetailsNegativeBadRequest() throws Exception {
+
+            mockMvc.perform(patch("/api/v1/account/{id}", id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonNotCorrect))
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода deleteAccountDetails")
+    class deleteAccountDetailsTest {
+
+        @Test
+        @DisplayName("Тест на успешное удаление информации об аккаунте")
+        void testDeleteAccountDetailsByIDPositive() throws Exception {
+
+            doNothing().when(accountDetailsService).deleteAccountDetails(id);
+
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/account/delete/{id}", id))
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        @DisplayName("Тест на ошибку 404 информация не найдена")
+        void testDeleteAccountDetailsByIDNegativeNotFound() throws Exception {
+
+            doThrow(new EntityNotFoundException(EntityNotFound)).when(accountDetailsService).deleteAccountDetails(id);
+
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/account/delete/{id}", id))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value(EntityNotFound));
+        }
+
+        @Test
+        @DisplayName("Тест на ошибку сервера при удалении информации об аккаунте")
+        void testDeleteAccountDetailsByIDNegativeServerError() throws Exception {
+
+            doThrow(new RuntimeException(errorServerError)).when(accountDetailsService).deleteAccountDetails(id);
+
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/account/delete/{id}", id))
                     .andExpect(status().isInternalServerError());
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода getAccountDetailsByID")
+    class getAccountDetailsByIDTest {
+
+        @Test
+        @DisplayName("Тест на успешный поиск информации об аккаунте по идентификатору")
+        void testGetAccountDetailsByIDPositive() throws Exception {
+
+            accountDetailsDTO.setId(id);
+
+            when(accountDetailsService.getAccountDetailsById(id)).thenReturn(accountDetailsDTO);
+
+            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/id/{id}", id))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String jsonResponse = result.getResponse().getContentAsString();
+
+            assertJsonResponseEquals(jsonResponse, accountDetailsDTO);
+
+        }
+
+        @Test
+        @DisplayName(errorNotFound)
+        void testGetAccountDetailsByIDNegativeNotFound() throws Exception {
+
+            doThrow(new EntityNotFoundException(EntityNotFound)).when(accountDetailsService).getAccountDetailsById(id);
+
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/id/{id}", id))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value(EntityNotFound));
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода getAccountDetailsByAccountNumber")
+    class getAccountDetailsByAccountNumberTest {
+
+        @Test
+        @DisplayName("Тест на успешный поиск информации об аккаунте по номеру счёта")
+        void testGetAccountDetailsByAccountNumberPositive() throws Exception {
+
+            accountDetailsDTO.setId(id);
+
+            when(accountDetailsService.getAccountDetailsByAccountNumber(accountDetailsDTO.getAccountNumber())).thenReturn(accountDetailsDTO);
+
+            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/accountNumber/{accountNumber}", accountDetailsDTO.getAccountNumber()))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String jsonResponse = result.getResponse().getContentAsString();
+
+            assertJsonResponseEquals(jsonResponse, accountDetailsDTO);
+        }
+
+        @Test
+        @DisplayName(errorNotFound)
+        void testGetAccountDetailsByAccountNumberNegativeNotFound() throws Exception {
+
+            doThrow(new EntityNotFoundException(EntityNotFound)).when(accountDetailsService).getAccountDetailsByAccountNumber(accountDetailsDTO.getAccountNumber());
+
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/accountNumber/{accountNumber}", accountDetailsDTO.getAccountNumber()))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value(EntityNotFound));
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода getAccountDetailsByBankDetailsId")
+    class getAccountDetailsByBankDetailsIdTest {
+
+        @Test
+        @DisplayName("Тест на успешный поиск информации об аккаунте по техническому идентификатору на реквизиты банка")
+        void testGetAccountDetailsByBankDetailsIdPositive() throws Exception {
+
+            accountDetailsDTO.setId(id);
+
+            when(accountDetailsService.getAccountDetailsByBankDetailsId(accountDetailsDTO.getBankDetailsId())).thenReturn(accountDetailsDTO);
+
+            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/bankDetailsId/{bankDetailsId}", accountDetailsDTO.getBankDetailsId()))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String jsonResponse = result.getResponse().getContentAsString();
+
+            assertJsonResponseEquals(jsonResponse, accountDetailsDTO);
+        }
+
+        @Test
+        @DisplayName(errorNotFound)
+        void testGetAccountDetailsByBankDetailsIdNegativeNotFound() throws Exception {
+
+            doThrow(new EntityNotFoundException(EntityNotFound)).when(accountDetailsService).getAccountDetailsByBankDetailsId(accountDetailsDTO.getBankDetailsId());
+
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/bankDetailsId/{bankDetailsId}", accountDetailsDTO.getBankDetailsId()))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value(EntityNotFound));
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода getAllAccountDetails")
+    class getAllAccountDetailsTest {
+
+        @Test
+        @DisplayName("Тест на успешное получение списка информации об аккаунтах с пагинацией")
+        void testGetAllAccountDetailsPositive() throws Exception {
+
+            accountDetailsDTO.setId(id);
+
+            int page = 0;
+            int size = 2;
+
+            List<AccountDetailsDTO> accountDetailsList = new ArrayList<>();
+            accountDetailsList.add(accountDetailsDTO);
+            accountDetailsList.add(accountDetailsDTO);
+
+            Page<AccountDetailsDTO> accountDetailsPage = new PageImpl<>(accountDetailsList);
+
+            when(accountDetailsService.getAllAccountDetails(page, size)).thenReturn(accountDetailsPage);
+
+            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/all")
+                            .param("page", String.valueOf(page))
+                            .param("size", String.valueOf(size)))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String jsonResponse = result.getResponse().getContentAsString();
+
+            assertJsonResponseContentIndexEquals(jsonResponse, 0, accountDetailsDTO);
+
+            assertJsonResponseContentIndexEquals(jsonResponse, 1, accountDetailsDTO);
+        }
+
+        @Test
+        @DisplayName("Тест на ошибку сервера при получении списка информации об аккаунтах")
+        void testGetAllAccountDetailsNegativeServerError() throws Exception {
+
+            int page = 0;
+            int size = 10;
+
+            when(accountDetailsService.getAllAccountDetails(page, size))
+                    .thenThrow(new RuntimeException("errorServerError"));
+
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/all")
+                            .param("page", String.valueOf(page))
+                            .param("size", String.valueOf(size)))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.message").value("Произошла непредвиденная ошибка: errorServerError"));
         }
     }
 }

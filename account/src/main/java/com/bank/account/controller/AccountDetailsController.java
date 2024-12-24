@@ -60,7 +60,7 @@ public class AccountDetailsController {
     })
     @PatchMapping("/{id}")
     public ResponseEntity<AccountDetailsDTO> updateAccountDetails(@PathVariable Long id, @RequestBody AccountDetailsDTO accountDetailsDTO) {
-        final AccountDetailsDTO savedAccountDetailsDTO = accountDetailsService.updateAccountDetails(id, accountDetailsDTO);
+        AccountDetailsDTO savedAccountDetailsDTO = accountDetailsService.updateAccountDetails(id, accountDetailsDTO);
         return ResponseEntity.created(URI.create(urlCreate + savedAccountDetailsDTO
                 .getId()))
                 .body(savedAccountDetailsDTO);
@@ -96,7 +96,7 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "404", description = "Информация по идентификатору не найдена"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<AccountDetailsDTO> getAccountDetailsByID(@PathVariable Long id) {
         return ResponseEntity.ok(accountDetailsService.getAccountDetailsById(id));
     }
@@ -107,7 +107,7 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "404", description = "Информацию по номеру счёта не найдена"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
-    @GetMapping("/{accountNumber}")
+    @GetMapping("/accountNumber/{accountNumber}")
     public ResponseEntity<AccountDetailsDTO> getAccountDetailsByAccountNumber(@PathVariable Long accountNumber) {
         return ResponseEntity.ok(accountDetailsService.getAccountDetailsByAccountNumber(accountNumber));
     }
@@ -119,7 +119,7 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "404", description = "Информацию по техническому идентификатору на реквизиты банка не найдена"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
-    @GetMapping("/{bankDetailsId}")
+    @GetMapping("/bankDetailsId/{bankDetailsId}")
     public ResponseEntity<AccountDetailsDTO> getAccountDetailsByBankDetailsId(@PathVariable Long bankDetailsId) {
         return ResponseEntity.ok(accountDetailsService.getAccountDetailsByBankDetailsId(bankDetailsId));
     }

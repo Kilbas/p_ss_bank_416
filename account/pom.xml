@@ -46,6 +46,17 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
+                <configuration>
+                    <excludes>
+                        <exclude>com/bank/account/aspect/*</exclude>
+                        <exclude>com/bank/account/config/*</exclude>
+                        <exclude>com/bank/account/*</exclude>
+                        <exclude>com/bank/account/entity/*</exclude>
+<!--                        <exclude>com/bank/account/exception/*</exclude>-->
+<!--                        <exclude>com/bank/account/mapper/*</exclude>-->
+<!--                        <exclude>com/bank/account/repository/*</exclude>-->
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
