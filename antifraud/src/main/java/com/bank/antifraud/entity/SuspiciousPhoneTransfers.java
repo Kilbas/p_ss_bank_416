@@ -47,14 +47,14 @@ public class SuspiciousPhoneTransfers {
      * true - перевод заблокирован, false - нет.
      */
     @Column(name = "is_blocked", nullable = false)
-    private boolean isBlocked;
+    private boolean blocked;
 
     /**
      * Статус подозрительности перевода.
      * true - перевод является подозрительным, false - нет.
      */
     @Column(name = "is_suspicious")
-    private boolean isSuspicious;
+    private boolean suspicious;
 
     /**
      * Причина блокировки перевода.

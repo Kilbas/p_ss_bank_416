@@ -1,9 +1,10 @@
-package com.bank.antifraud.service;
+package com.bank.antifraud.serviceImpl;
 
 import com.bank.antifraud.dto.SuspiciousAccountTransfersDTO;
 import com.bank.antifraud.entity.SuspiciousAccountTransfers;
 import com.bank.antifraud.mapper.SuspiciousAccountTransfersMapper;
 import com.bank.antifraud.repository.SuspiciousAccountTransfersRepository;
+import com.bank.antifraud.service.SuspiciousAccountTransfersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

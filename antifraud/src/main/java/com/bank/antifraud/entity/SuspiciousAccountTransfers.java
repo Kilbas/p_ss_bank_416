@@ -33,10 +33,10 @@ public class SuspiciousAccountTransfers {
     private Long accountTransferId;
 
     @Column(name = "is_blocked", nullable = false)
-    private boolean isBlocked;
+    private boolean blocked;
 
-    @Column(name = "is_suspicious", nullable = false, columnDefinition = "text")
-    private boolean isSuspicious;
+    @Column(name = "is_suspicious", nullable = false)
+    private boolean suspicious;
 
     @Column(name = "blocked_reason", columnDefinition = "text")
     private String blockedReason;
