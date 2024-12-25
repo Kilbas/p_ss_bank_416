@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
@@ -109,13 +110,7 @@ class AccountDetailsControllerTest {
 
     public static void assertEqualsAccountDetailsDTOJsonContent(AccountDetailsDTO result, AccountDetailsDTO accountDetailsDTO) {
 
-        assertEquals(accountDetailsDTO.getId(), result.getId());
-        assertEquals(accountDetailsDTO.getPassportId(), result.getPassportId());
-        assertEquals(accountDetailsDTO.getAccountNumber(), result.getAccountNumber());
-        assertEquals(accountDetailsDTO.getBankDetailsId(), result.getBankDetailsId());
-        assertEquals(accountDetailsDTO.getMoney(), result.getMoney());
-        assertEquals(accountDetailsDTO.getNegativeBalance(), result.getNegativeBalance());
-        assertEquals(accountDetailsDTO.getProfileId(), result.getProfileId());
+        assertEquals(result, accountDetailsDTO);
     }
 
     @Nested
@@ -139,6 +134,20 @@ class AccountDetailsControllerTest {
             String jsonResponse = result.getResponse().getContentAsString();
 
             assertJsonResponseEquals(jsonResponse, accountDetailsDTO);
+        }
+
+        @Test
+        @DisplayName("Тест на ошибку сервера: ошибка целостности данных")
+        void testSaveAccountDetailsNegativeUnprocessableEntity() throws Exception {
+
+            when(accountDetailsService.saveAccountDetails(any(AccountDetailsDTO.class)))
+                    .thenThrow(new DataIntegrityViolationException(""));
+
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/account/")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonFull))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.message").value("Ошибка целостности данных: "));
         }
 
         @Test
@@ -181,8 +190,24 @@ class AccountDetailsControllerTest {
         }
 
         @Test
+        @DisplayName("Тест на ошибку сервера: ошибка целостности данных")
+        void testSaveAccountDetailsNegativeUnprocessableEntity() throws Exception {
+
+            when(accountDetailsService.updateAccountDetails(anyLong(), any(AccountDetailsDTO.class)))
+                    .thenThrow(new DataIntegrityViolationException(""));
+
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/account/{id}", id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonFull))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.message").value("Ошибка целостности данных: "));
+        }
+
+        @Test
         @DisplayName("Тест на ошибку сервера при обновлении информации об аккаунте")
         void testUpdateAccountDetailsNegativeServerError() throws Exception {
+
+            updateAccountDetailsDTO.setId(id);
 
             when(accountDetailsService.updateAccountDetails(id, updateAccountDetailsDTO))
                     .thenThrow(new RuntimeException(errorServerError));

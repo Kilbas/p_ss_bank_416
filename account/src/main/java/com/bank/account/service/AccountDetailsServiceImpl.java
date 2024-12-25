@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -30,6 +29,8 @@ import javax.persistence.EntityNotFoundException;
 @AllArgsConstructor
 public class AccountDetailsServiceImpl implements AccountDetailsService {
 
+    private final String idNotNull = "Идентификатор не может быть null";
+
     private final AccountDetailsRepository accountDetailsRepository;
     private final AccountDetailsMapper accountDetailsMapper;
 
@@ -42,7 +43,18 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public AccountDetailsDTO saveAccountDetails(AccountDetailsDTO accountDetailsDTO) {
-        validateArgs("Объект accountDetailsDTO не может быть null", accountDetailsDTO);
+
+        if (accountDetailsDTO == null) {
+            throw new IllegalArgumentException("Объект accountDetailsDTO не может быть null");
+        }
+
+        validateArgs("Поля объекта accountDetailsDTO не могут быть null",
+                accountDetailsDTO.getPassportId(),
+                accountDetailsDTO.getAccountNumber(),
+                accountDetailsDTO.getBankDetailsId(),
+                accountDetailsDTO.getMoney(),
+                accountDetailsDTO.getNegativeBalance(),
+                accountDetailsDTO.getProfileId());
 
         return accountDetailsMapper
                 .toDto(accountDetailsRepository
@@ -61,7 +73,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public AccountDetailsDTO updateAccountDetails(Long id, AccountDetailsDTO accountDetailsDTO) {
-        validateArgs("Идентификатор не может быть null", id);
+        validateArgs(idNotNull, id);
 
         AccountDetails accountDetails = accountDetailsMapper
                 .toEntity(this.getAccountDetailsById(id));
@@ -81,7 +93,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public void deleteAccountDetails(Long id) {
-        validateArgs("Идентификатор не может быть null", id);
+        validateArgs(idNotNull, id);
 
         this.getAccountDetailsById(id);
         accountDetailsRepository.deleteById(id);
@@ -97,7 +109,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      */
     @Override
     public AccountDetailsDTO getAccountDetailsById(Long id) {
-        validateArgs("Идентификатор не может быть null", id);
+        validateArgs(idNotNull, id);
 
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.findById(id)
@@ -179,9 +191,11 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      * @throws IllegalArgumentException Если аргумент равен null.
      */
     @SafeVarargs
-    public final <t> void validateArgs(String message, t... args) {
-        for (t arg : args) {
-            Assert.notNull(arg, message);
+    public final <T> void validateArgs(String message, T... args) {
+        for (T arg : args) {
+            if (arg == null) {
+                throw new IllegalArgumentException(message);
+            }
         }
     }
 }

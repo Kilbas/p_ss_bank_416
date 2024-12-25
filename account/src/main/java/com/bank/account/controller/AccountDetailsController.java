@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 
 @RestController
@@ -59,7 +60,7 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<AccountDetailsDTO> updateAccountDetails(@PathVariable Long id, @RequestBody AccountDetailsDTO accountDetailsDTO) {
+    public ResponseEntity<AccountDetailsDTO> updateAccountDetails(@PathVariable @NotNull Long id, @RequestBody AccountDetailsDTO accountDetailsDTO) {
         AccountDetailsDTO savedAccountDetailsDTO = accountDetailsService.updateAccountDetails(id, accountDetailsDTO);
         return ResponseEntity.created(URI.create(urlCreate + savedAccountDetailsDTO
                 .getId()))
@@ -73,7 +74,7 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<AccountDetailsDTO> deleteAccountDetailsByID(@PathVariable Long id) {
+    public ResponseEntity<AccountDetailsDTO> deleteAccountDetailsByID(@PathVariable @NotNull Long id) {
         accountDetailsService.deleteAccountDetails(id);
         return ResponseEntity.noContent().build();
     }
@@ -97,7 +98,7 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping("/id/{id}")
-    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByID(@PathVariable Long id) {
+    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByID(@PathVariable @NotNull Long id) {
         return ResponseEntity.ok(accountDetailsService.getAccountDetailsById(id));
     }
 
@@ -108,7 +109,7 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping("/accountNumber/{accountNumber}")
-    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByAccountNumber(@PathVariable Long accountNumber) {
+    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByAccountNumber(@PathVariable @NotNull Long accountNumber) {
         return ResponseEntity.ok(accountDetailsService.getAccountDetailsByAccountNumber(accountNumber));
     }
 
@@ -120,7 +121,7 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @GetMapping("/bankDetailsId/{bankDetailsId}")
-    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByBankDetailsId(@PathVariable Long bankDetailsId) {
+    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByBankDetailsId(@PathVariable @NotNull Long bankDetailsId) {
         return ResponseEntity.ok(accountDetailsService.getAccountDetailsByBankDetailsId(bankDetailsId));
     }
 }

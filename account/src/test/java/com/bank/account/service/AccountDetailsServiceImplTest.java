@@ -114,16 +114,37 @@ class AccountDetailsServiceImplTest {
             );
         }
 
-        @DisplayName("Выбрасывает IllegalArgumentException, если accountDetailsDTO: null")
         @Test
-        void testSaveAccountDetailsNegativeAccountDetailsDtoNull() {
+        @DisplayName("Выбрасывает исключение, если accountDetailsDTO равен null")
+        void testSaveAccountDetailsNullDTO() {
+
+            String errorMessage = "Объект accountDetailsDTO не может быть null";
 
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> accountDetailsService.saveAccountDetails(null));
 
             assertAll(
-                    () -> assertEquals("Объект accountDetailsDTO не может быть null", exception.getMessage()),
-                    () -> verify(accountDetailsRepository, never()).save(any())
+                    () -> assertEquals(errorMessage, exception.getMessage()),
+                    () -> verify(accountDetailsRepository, never()).save(any()),
+                    () -> verify(accountDetailsMapper, never()).toEntitySave(any()),
+                    () -> verify(accountDetailsMapper, never()).toDto(any())
+            );
+        }
+
+        @Test
+        @DisplayName("Выбрасывает исключение, если поля accountDetailsDTO равны null")
+        void testSaveAccountDetailsNullFields() {
+
+            String errorMessage = "Поля объекта accountDetailsDTO не могут быть null";
+
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                    () -> accountDetailsService.saveAccountDetails(updateAccountDetailsDTO));
+
+            assertAll(
+                    () -> assertEquals(errorMessage, exception.getMessage()),
+                    () -> verify(accountDetailsRepository, never()).save(any()),
+                    () -> verify(accountDetailsMapper, never()).toEntitySave(any()),
+                    () -> verify(accountDetailsMapper, never()).toDto(any())
             );
         }
     }

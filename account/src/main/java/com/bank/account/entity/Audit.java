@@ -3,6 +3,7 @@ package com.bank.account.entity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Table(name = "audit", schema = "account")
 @FieldDefaults(level= AccessLevel.PRIVATE)
+@EqualsAndHashCode
 public class Audit {
 
     @Id
