@@ -47,14 +47,26 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
                 <configuration>
+                    <rules>
+                        <rule>
+                            <element>BUNDLE</element>
+                            <limits>
+                                <limit>
+                                    <counter>LINE</counter>
+                                    <value>COVERED_RATIO</value>
+                                    <minimum>0.8</minimum>
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
                     <excludes>
-                        <exclude>com/bank/account/aspect/*</exclude>
-                        <exclude>com/bank/account/config/*</exclude>
-                        <exclude>com/bank/account/*</exclude>
-                        <exclude>com/bank/account/entity/*</exclude>
-<!--                        <exclude>com/bank/account/exception/*</exclude>-->
-<!--                        <exclude>com/bank/account/mapper/*</exclude>-->
-<!--                        <exclude>com/bank/account/repository/*</exclude>-->
+                        <exclude>com/bank/account/aspect/**/*</exclude>
+                        <exclude>com/bank/account/config/**/*</exclude>
+                        <exclude>com/bank/account/entity/**/*</exclude>
+                        <!--                        <exclude>com/bank/account/*</exclude>-->
+<!--                        <exclude>com/bank/account/exception/ErrorResponse.java</exclude>-->
+                        <!--                        <exclude>com/bank/account/mapper/**/*</exclude>-->
+                        <!--                        <exclude>com/bank/account/repository/**/*</exclude>-->
                     </excludes>
                 </configuration>
                 <executions>

@@ -67,11 +67,11 @@ class AccountDetailsServiceImplTest {
     }
 
     private AccountDetailsDTO createAccountDetailsDTO() {
-        return new AccountDetailsDTO(null, 1L, 1L, 1L, money, false, 1L);
+        return new AccountDetailsDTO(null, id, id, id, money, false, id);
     }
 
     private AccountDetails createAccountDetails() {
-        return new AccountDetails(1L, 1L, 1L, 1L, money, false, 1L);
+        return new AccountDetails(id, id, id, id, money, false, id);
     }
 
     private String stringFormatEntityNotFoundException (Long id) {
@@ -109,7 +109,7 @@ class AccountDetailsServiceImplTest {
 
             assertAll(
                     () -> assertNotNull(result),
-                    () -> assertEquals(1L, result.getId()),
+                    () -> assertEquals(id, result.getId()),
                     () -> verifySaveCalledOnce()
             );
         }
@@ -117,7 +117,6 @@ class AccountDetailsServiceImplTest {
         @Test
         @DisplayName("Выбрасывает исключение, если accountDetailsDTO равен null")
         void testSaveAccountDetailsNullDTO() {
-
             String errorMessage = "Объект accountDetailsDTO не может быть null";
 
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -134,7 +133,6 @@ class AccountDetailsServiceImplTest {
         @Test
         @DisplayName("Выбрасывает исключение, если поля accountDetailsDTO равны null")
         void testSaveAccountDetailsNullFields() {
-
             String errorMessage = "Поля объекта accountDetailsDTO не могут быть null";
 
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -289,7 +287,6 @@ class AccountDetailsServiceImplTest {
         @DisplayName("Выбрасывает IllegalArgumentException, если номер счета: null")
         @Test
         void testGetAccountDetailsByAccountNumberNegativeIllegalArgumentException() {
-
             assertIllegalArgumentException(
                     () -> accountDetailsService.getAccountDetailsByAccountNumber(null),
                     "Номер счета не может быть null"
@@ -329,7 +326,6 @@ class AccountDetailsServiceImplTest {
         @DisplayName("Выбрасывает IllegalArgumentException, если технический идентификатор на реквизиты банка: null")
         @Test
         void testGetAccountDetailsByBankDetailsIdNegativeIllegalArgumentException() {
-
             assertIllegalArgumentException(
                     () -> accountDetailsService.getAccountDetailsByBankDetailsId(null),
                     "Технический идентификатор на реквизиты банка не может быть null"
@@ -355,7 +351,6 @@ class AccountDetailsServiceImplTest {
         @DisplayName("Успешное возвращение страницы AccountDetailsDTO")
         @Test
         void testGetAllAccountDetailsPositive() {
-
             Page<AccountDetails> page = new PageImpl<>(List.of(accountDetails));
 
             when(accountDetailsRepository.findAll(any(Pageable.class))).thenReturn(page);
@@ -378,7 +373,6 @@ class AccountDetailsServiceImplTest {
         @Test
         void testBuildErrorMessagePositive() {
             String message = "Информация об аккаунте с идентификатором: %s, не найдена";
-            Long id = 1L;
 
             String result = accountDetailsService.buildErrorMessage(message, id);
 
@@ -393,14 +387,13 @@ class AccountDetailsServiceImplTest {
         @DisplayName("Успешная проверка аргументов")
         @Test
         void testValidateArgsPositive() {
-              assertDoesNotThrow(() -> accountDetailsService.validateArgs("Аргумент не может быть null", 1L, "test", BigDecimal.ONE));
+              assertDoesNotThrow(() -> accountDetailsService.validateArgs("Аргумент не может быть null", id, "test", BigDecimal.ONE));
         }
 
         @DisplayName("Выбрасывает IllegalArgumentException, если аргумент равен null")
         @Test
         void testValidateArgsNegative() {
-            // Проверяем, что метод выбрасывает исключение
-            assertThrows(IllegalArgumentException.class, () -> accountDetailsService.validateArgs("Аргумент не может быть null", 1L, null));
+            assertThrows(IllegalArgumentException.class, () -> accountDetailsService.validateArgs("Аргумент не может быть null", id, null));
         }
     }
 }

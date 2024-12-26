@@ -28,7 +28,6 @@ public class AuditAspect {
     @Around("execution(* com.bank.account.service.*Service.save*(..)) || " +
             "execution(* com.bank.account.service.*Service.update*(..))")
     public Object auditLog(ProceedingJoinPoint joinPoint) throws Throwable {
-
         Object result = joinPoint.proceed();
         Audit audit = new Audit();
 
@@ -73,7 +72,6 @@ public class AuditAspect {
 
     private void updateAudit(Long id, String entityType, Audit audit) {
         Audit oldAudit = auditService.findByEntityTypeAndEntityId(entityType, id);
-
 
         audit.setCreatedAt(oldAudit.getCreatedAt());
         audit.setCreatedBy(oldAudit.getCreatedBy());

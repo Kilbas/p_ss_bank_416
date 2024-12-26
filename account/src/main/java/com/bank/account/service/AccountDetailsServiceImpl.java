@@ -22,7 +22,6 @@ import javax.persistence.EntityNotFoundException;
  * @author Александр Федотов
  * @version 1.0.0
  */
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -43,7 +42,6 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public AccountDetailsDTO saveAccountDetails(AccountDetailsDTO accountDetailsDTO) {
-
         if (accountDetailsDTO == null) {
             throw new IllegalArgumentException("Объект accountDetailsDTO не может быть null");
         }
@@ -167,6 +165,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     public Page<AccountDetailsDTO> getAllAccountDetails(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+
         return accountDetailsRepository
                 .findAll(pageable)
                 .map(accountDetailsMapper::toDto);

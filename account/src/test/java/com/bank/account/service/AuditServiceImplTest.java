@@ -2,7 +2,6 @@ package com.bank.account.service;
 
 import com.bank.account.entity.Audit;
 import com.bank.account.repository.AuditRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,16 +30,13 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 @ExtendWith(MockitoExtension.class)
 class AuditServiceImplTest {
 
+    private static final Long id = 1L;
+
     @Mock
     private AuditRepository auditRepository;
 
     @InjectMocks
     private AuditServiceImpl auditService;
-
-    @BeforeEach
-    public void setUp() {
-
-    }
 
     @Nested
     @DisplayName("Тесты для метода newAudit")
@@ -48,7 +44,6 @@ class AuditServiceImplTest {
         @DisplayName("newAudit успешное сохранение Audit")
         @Test
         public void testNewAuditPositiveSave() {
-
             Audit audit = new Audit();
             when(auditRepository.save(audit)).thenReturn(audit);
 
@@ -60,7 +55,6 @@ class AuditServiceImplTest {
         @DisplayName("newAudit выбрасывает IllegalArgumentException при Audit: null")
         @Test
         public void testNewAuditNegativeAuditNull() {
-
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> auditService.newAudit(null));
 
@@ -70,7 +64,6 @@ class AuditServiceImplTest {
         @DisplayName("newAudit выбрасывает DataIntegrityViolationException при не удачном сохранении")
         @Test
         public void testNewAuditNegativeDataIntegrityViolationException() {
-
             Audit audit = new Audit();
             when(auditRepository.save(audit)).thenThrow(new DataIntegrityViolationException("Database error"));
 
@@ -90,9 +83,8 @@ class AuditServiceImplTest {
         @DisplayName("findByEntityTypeAndEntityId успешно находит аудит")
         @Test
         public void testFindByEntityTypeAndEntityIdPositiveFind() {
-
             String entityType = "Account";
-            Long entityId = 1L;
+            Long entityId = id;
             Audit audit = new Audit();
             when(auditRepository.findByEntityTypeAndEntityId(entityType, entityId.toString())).thenReturn(audit);
 
@@ -110,7 +102,6 @@ class AuditServiceImplTest {
         @NullSource
         @ValueSource(strings = {"AccountDetails"})
         public void testFindByEntityTypeAndEntityIdNegativeNullInput(String entityType) {
-
             Long entityId = calculateEntityId(entityType);
 
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -122,9 +113,8 @@ class AuditServiceImplTest {
         @DisplayName("findByEntityTypeAndEntityId выбрасывает RuntimeException, если аудит не найден")
         @Test
         public void testFindByEntityTypeAndEntityIdNegativeAuditNotFound() {
-
             String entityType = "Account";
-            Long entityId = 1L;
+            Long entityId = id;
             when(auditRepository.findByEntityTypeAndEntityId(entityType, entityId.toString())).thenReturn(null);
 
             RuntimeException exception = assertThrows(RuntimeException.class,
@@ -136,9 +126,8 @@ class AuditServiceImplTest {
         @DisplayName("findByEntityTypeAndEntityId выбрасывает RuntimeException при DataAccessException")
         @Test
         public void testFindByEntityTypeAndEntityIdNegativeDataAccessException() {
-
             String entityType = "Account";
-            Long entityId = 1L;
+            Long entityId = id;
             when(auditRepository.findByEntityTypeAndEntityId(entityType, entityId.toString()))
                     .thenThrow(new DataAccessException("Database error") {});
 
@@ -152,7 +141,7 @@ class AuditServiceImplTest {
         }
 
         private Long calculateEntityId(String entityType) {
-            return entityType == null ? 1L : null;
+            return entityType == null ? id : null;
         }
     }
 }
