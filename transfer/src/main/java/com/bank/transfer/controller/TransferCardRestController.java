@@ -4,6 +4,7 @@ import com.bank.transfer.dto.CardTransferDTO;
 import com.bank.transfer.mapper.CardTransferMapper;
 import com.bank.transfer.model.CardTransfer;
 import com.bank.transfer.service.TransferCardService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,6 +36,7 @@ public class TransferCardRestController {
             @ApiResponse(responseCode = "200", description = "Список переводов успешно получен"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
+    @Timed("gettingAllCardTransfers")
     @GetMapping
     public ResponseEntity<List<CardTransferDTO>> getCardTransfers() {
         List<CardTransfer> cardTransfers = transferCardService.getAllCardTransfers();
