@@ -3,13 +3,16 @@ package com.bank.transfer.service;
 import com.bank.transfer.model.Audit;
 import com.bank.transfer.repository.AuditRepository;
 import com.bank.transfer.serviceImpl.AuditServiceImpl;
+import com.bank.transfer.util.TestAuditConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
@@ -23,6 +26,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class TransferAuditServiceTest {
     @Mock
     private AuditRepository auditRepository;
@@ -34,17 +38,15 @@ public class TransferAuditServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
         audit = new Audit(
-                "entityType",
-                "operationType",
-                "createdBy",
-                "modifyBy",
+                TestAuditConstants.ENTITY_TYPE,
+                TestAuditConstants.OPERATION_TYPE,
+                TestAuditConstants.CREATED_BY,
+                TestAuditConstants.MODIFY_BY,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                "NewEntityJson",
-                "entityJson"
+                TestAuditConstants.NEW_ENTITY_JSON,
+                TestAuditConstants.ENTITY_JSON
         );
 
         audit.setId(123L);
@@ -63,25 +65,30 @@ public class TransferAuditServiceTest {
     @Test
     @DisplayName("findByEntityTypeAndEntityId успешный Поиск Audit по EntityId и EntityType")
     void findByEntityTypeAndEntityId_ShouldReturnAudit_WhenAuditExists() {
-        when(auditRepository.findByEntityTypeAndEntityId("entityType", "123")).thenReturn(audit);
+        when(auditRepository.findByEntityTypeAndEntityId(TestAuditConstants.ENTITY_TYPE, TestAuditConstants.ENTITY_ID)).thenReturn(audit);
 
-        Audit result = auditService.findByEntityTypeAndEntityId("entityType", "123");
+        Audit result = auditService.findByEntityTypeAndEntityId(TestAuditConstants.ENTITY_TYPE, TestAuditConstants.ENTITY_ID);
 
         assertNotNull(result);
         assertEquals(audit.getId(), result.getId());
         assertEquals(audit.getEntityType(), result.getEntityType());
-        verify(auditRepository, times(2)).findByEntityTypeAndEntityId("entityType", "123");
+        verify(auditRepository, times(2))
+                .findByEntityTypeAndEntityId(TestAuditConstants.ENTITY_TYPE, TestAuditConstants.ENTITY_ID);
     }
 
     @Test
     @DisplayName("findByEntityTypeAndEntityId поиск Audit по EntityId и EntityType выбрасывает EntityNotFoundException")
     void findByEntityTypeAndEntityId_ShouldThrowException_WhenAuditNotFound() {
-        when(auditRepository.findByEntityTypeAndEntityId("type", "1234")).thenReturn(null);
+        when(auditRepository
+                .findByEntityTypeAndEntityId(TestAuditConstants.NON_EXISTENT_ENTITY_TYPE, TestAuditConstants.NON_EXISTENT_ENTITY_ID))
+                .thenReturn(null);
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> auditService.findByEntityTypeAndEntityId("type", "1234"));
+                () -> auditService.findByEntityTypeAndEntityId(TestAuditConstants.NON_EXISTENT_ENTITY_TYPE, TestAuditConstants.NON_EXISTENT_ENTITY_ID));
 
-        assertEquals("не найден аудит с типом сущности type и айди сущности 1234", exception.getMessage());
-        verify(auditRepository, times(1)).findByEntityTypeAndEntityId("type", "1234");
+        assertEquals(String.format(TestAuditConstants.ENTITY_NOT_FOUND_MESSAGE,
+                TestAuditConstants.NON_EXISTENT_ENTITY_TYPE, TestAuditConstants.NON_EXISTENT_ENTITY_ID), exception.getMessage());
+        verify(auditRepository, times(1))
+                .findByEntityTypeAndEntityId(TestAuditConstants.NON_EXISTENT_ENTITY_TYPE, TestAuditConstants.NON_EXISTENT_ENTITY_ID);
     }
 }
