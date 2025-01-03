@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 class GlobalExceptionHandlerTest {
 
-    GlobalExceptionHandler handler;
+    private GlobalExceptionHandler handler;
 
     @BeforeEach
     void setUp() {

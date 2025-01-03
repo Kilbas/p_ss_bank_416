@@ -23,9 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-@Nested
 @DisplayName("Тесты для класса AuditServiceImp")
 @ExtendWith(MockitoExtension.class)
 class AuditServiceImplTest {
@@ -49,7 +47,7 @@ class AuditServiceImplTest {
 
             assertDoesNotThrow(() -> auditService.newAudit(audit));
 
-            verify(auditRepository, times(1)).save(audit);
+            verify(auditRepository).save(audit);
         }
 
         @DisplayName("newAudit выбрасывает IllegalArgumentException при Audit: null")
@@ -93,7 +91,7 @@ class AuditServiceImplTest {
             assertAll(
                     () -> assertNotNull(result),
                     () -> assertEquals(audit, result),
-                    () -> verify(auditRepository, times(1)).findByEntityTypeAndEntityId(entityType, entityId.toString())
+                    () -> verify(auditRepository).findByEntityTypeAndEntityId(entityType, entityId.toString())
             );
         }
 

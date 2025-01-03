@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
@@ -32,7 +31,10 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,7 +42,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 class AccountDetailsControllerTest {
 
-    public final String jsonFull = """
+    private AccountDetailsDTO accountDetailsDTO;
+    private AccountDetailsDTO updateAccountDetailsDTO;
+    private ObjectMapper objectMapper;
+
+    private static final String jsonFull = """
                                 {
                                     "id": 1,
                                     "passportId": 1,
@@ -51,12 +57,12 @@ class AccountDetailsControllerTest {
                                     "profileId": 1
                                 }""";
 
-    public final String jsonUpdate = """
+    private static final String jsonUpdate = """
                                 {
                                     "money": 28000000.00
                                 }""";
 
-    public final String jsonNotCorrect = """
+    private static final String jsonNotCorrect = """
                                 {
                                     "money": 28000000.00,
                                 }""";
@@ -69,10 +75,6 @@ class AccountDetailsControllerTest {
     private static final String errorNotFound = "Тест на ошибку 404 информация не найдена";
     private static final String errorServerError = "Ошибка сервера";
     private static final String EntityNotFound = "Запись не найдена";
-
-    private AccountDetailsDTO accountDetailsDTO;
-    private AccountDetailsDTO updateAccountDetailsDTO;
-    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mockMvc;
@@ -97,12 +99,10 @@ class AccountDetailsControllerTest {
     }
 
     private void assertJsonResponseContentIndexEquals(String jsonResponse, int index, AccountDetailsDTO expected) throws Exception {
-        String elementJson = objectMapper
-                .writeValueAsString(JsonPath
+        String elementJson = objectMapper.writeValueAsString(JsonPath
                         .read(jsonResponse, "$.content[" + index + "]"));
 
-        AccountDetailsControllerTest
-                .assertEqualsAccountDetailsDTOJsonContent(objectMapper
+        AccountDetailsControllerTest.assertEqualsAccountDetailsDTOJsonContent(objectMapper
                         .readValue(elementJson, AccountDetailsDTO.class), expected);
     }
 
@@ -121,7 +121,7 @@ class AccountDetailsControllerTest {
 
             when(accountDetailsService.saveAccountDetails(any(AccountDetailsDTO.class))).thenReturn(accountDetailsDTO);
 
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/account/")
+            MvcResult result = mockMvc.perform(post("/api/v1/account/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonFull))
                     .andExpect(status().isCreated())
@@ -138,7 +138,7 @@ class AccountDetailsControllerTest {
             when(accountDetailsService.saveAccountDetails(any(AccountDetailsDTO.class)))
                     .thenThrow(new DataIntegrityViolationException(""));
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/account/")
+            mockMvc.perform(post("/api/v1/account/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonFull))
                     .andExpect(status().isUnprocessableEntity())
@@ -151,7 +151,7 @@ class AccountDetailsControllerTest {
             when(accountDetailsService.saveAccountDetails(any(AccountDetailsDTO.class)))
                     .thenThrow(new RuntimeException(errorServerError));
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/account/")
+            mockMvc.perform(post("/api/v1/account/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonFull))
                     .andExpect(status().isInternalServerError())
@@ -171,7 +171,7 @@ class AccountDetailsControllerTest {
 
             when(accountDetailsService.updateAccountDetails(anyLong(), any(AccountDetailsDTO.class))).thenReturn(accountDetailsDTO);
 
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/account/{id}", id)
+            MvcResult result = mockMvc.perform(patch("/api/v1/account/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonUpdate))
                     .andExpect(status().isCreated())
@@ -188,7 +188,7 @@ class AccountDetailsControllerTest {
             when(accountDetailsService.updateAccountDetails(anyLong(), any(AccountDetailsDTO.class)))
                     .thenThrow(new DataIntegrityViolationException(""));
 
-            mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/account/{id}", id)
+            mockMvc.perform(patch("/api/v1/account/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonFull))
                     .andExpect(status().isUnprocessableEntity())
@@ -230,7 +230,7 @@ class AccountDetailsControllerTest {
         void testDeleteAccountDetailsByIDPositive() throws Exception {
             doNothing().when(accountDetailsService).deleteAccountDetails(id);
 
-            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/account/delete/{id}", id))
+            mockMvc.perform(delete("/api/v1/account/delete/{id}", id))
                     .andExpect(status().isNoContent());
         }
 
@@ -239,7 +239,7 @@ class AccountDetailsControllerTest {
         void testDeleteAccountDetailsByIDNegativeNotFound() throws Exception {
             doThrow(new EntityNotFoundException(EntityNotFound)).when(accountDetailsService).deleteAccountDetails(id);
 
-            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/account/delete/{id}", id))
+            mockMvc.perform(delete("/api/v1/account/delete/{id}", id))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value(EntityNotFound));
         }
@@ -249,7 +249,7 @@ class AccountDetailsControllerTest {
         void testDeleteAccountDetailsByIDNegativeServerError() throws Exception {
             doThrow(new RuntimeException(errorServerError)).when(accountDetailsService).deleteAccountDetails(id);
 
-            mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/account/delete/{id}", id))
+            mockMvc.perform(delete("/api/v1/account/delete/{id}", id))
                     .andExpect(status().isInternalServerError());
         }
     }
@@ -265,7 +265,7 @@ class AccountDetailsControllerTest {
 
             when(accountDetailsService.getAccountDetailsById(id)).thenReturn(accountDetailsDTO);
 
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/id/{id}", id))
+            MvcResult result = mockMvc.perform(get("/api/v1/account/id/{id}", id))
                     .andExpect(status().isOk())
                     .andReturn();
 
@@ -279,7 +279,7 @@ class AccountDetailsControllerTest {
         void testGetAccountDetailsByIDNegativeNotFound() throws Exception {
             doThrow(new EntityNotFoundException(EntityNotFound)).when(accountDetailsService).getAccountDetailsById(id);
 
-            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/id/{id}", id))
+            mockMvc.perform(get("/api/v1/account/id/{id}", id))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value(EntityNotFound));
         }
@@ -296,7 +296,7 @@ class AccountDetailsControllerTest {
 
             when(accountDetailsService.getAccountDetailsByAccountNumber(accountDetailsDTO.getAccountNumber())).thenReturn(accountDetailsDTO);
 
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/accountNumber/{accountNumber}", accountDetailsDTO.getAccountNumber()))
+            MvcResult result = mockMvc.perform(get("/api/v1/account/accountNumber/{accountNumber}", accountDetailsDTO.getAccountNumber()))
                     .andExpect(status().isOk())
                     .andReturn();
 
@@ -310,7 +310,7 @@ class AccountDetailsControllerTest {
         void testGetAccountDetailsByAccountNumberNegativeNotFound() throws Exception {
             doThrow(new EntityNotFoundException(EntityNotFound)).when(accountDetailsService).getAccountDetailsByAccountNumber(accountDetailsDTO.getAccountNumber());
 
-            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/accountNumber/{accountNumber}", accountDetailsDTO.getAccountNumber()))
+            mockMvc.perform(get("/api/v1/account/accountNumber/{accountNumber}", accountDetailsDTO.getAccountNumber()))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value(EntityNotFound));
         }
@@ -327,7 +327,7 @@ class AccountDetailsControllerTest {
 
             when(accountDetailsService.getAccountDetailsByBankDetailsId(accountDetailsDTO.getBankDetailsId())).thenReturn(accountDetailsDTO);
 
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/bankDetailsId/{bankDetailsId}", accountDetailsDTO.getBankDetailsId()))
+            MvcResult result = mockMvc.perform(get("/api/v1/account/bankDetailsId/{bankDetailsId}", accountDetailsDTO.getBankDetailsId()))
                     .andExpect(status().isOk())
                     .andReturn();
 
@@ -341,7 +341,7 @@ class AccountDetailsControllerTest {
         void testGetAccountDetailsByBankDetailsIdNegativeNotFound() throws Exception {
             doThrow(new EntityNotFoundException(EntityNotFound)).when(accountDetailsService).getAccountDetailsByBankDetailsId(accountDetailsDTO.getBankDetailsId());
 
-            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/bankDetailsId/{bankDetailsId}", accountDetailsDTO.getBankDetailsId()))
+            mockMvc.perform(get("/api/v1/account/bankDetailsId/{bankDetailsId}", accountDetailsDTO.getBankDetailsId()))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value(EntityNotFound));
         }
@@ -364,7 +364,7 @@ class AccountDetailsControllerTest {
 
             when(accountDetailsService.getAllAccountDetails(page, size)).thenReturn(accountDetailsPage);
 
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/all")
+            MvcResult result = mockMvc.perform(get("/api/v1/account/all")
                             .param("page", String.valueOf(page))
                             .param("size", String.valueOf(size)))
                     .andExpect(status().isOk())
@@ -383,7 +383,7 @@ class AccountDetailsControllerTest {
             when(accountDetailsService.getAllAccountDetails(page, size))
                     .thenThrow(new RuntimeException("errorServerError"));
 
-            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/account/all")
+            mockMvc.perform(get("/api/v1/account/all")
                             .param("page", String.valueOf(page))
                             .param("size", String.valueOf(size)))
                     .andExpect(status().isInternalServerError())

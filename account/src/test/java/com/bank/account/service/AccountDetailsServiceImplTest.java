@@ -33,7 +33,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @DisplayName("Тесты для класса AccountDetailsServiceImpl")
 @ExtendWith(MockitoExtension.class)
@@ -43,10 +42,10 @@ class AccountDetailsServiceImplTest {
     private AccountDetailsDTO updateAccountDetailsDTO;
     private AccountDetails accountDetails;
 
-    private final Long id = 1L;
-    private final String illegalArgumentExceptionMessage = "Идентификатор не может быть null";
-    private final String displayNameIllegalArgumentException = "Выбрасывает IllegalArgumentException, если id: null";
-    private final String displayNameEntityNotFoundException = "Выбрасывает EntityNotFoundException, если id: не найден";
+    private static final Long id = 1L;
+    private static final String illegalArgumentExceptionMessage = "Идентификатор не может быть null";
+    private static final String displayNameIllegalArgumentException = "Выбрасывает IllegalArgumentException, если id: null";
+    private static final String displayNameEntityNotFoundException = "Выбрасывает EntityNotFoundException, если id: не найден";
 
     private static final BigDecimal money = BigDecimal.valueOf(18000000.00);
 
@@ -61,17 +60,9 @@ class AccountDetailsServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        accountDetailsDTO = createAccountDetailsDTO();
+        accountDetailsDTO = new AccountDetailsDTO(null, id, id, id, money, false, id);
         updateAccountDetailsDTO = new AccountDetailsDTO();
-        accountDetails = createAccountDetails();
-    }
-
-    private AccountDetailsDTO createAccountDetailsDTO() {
-        return new AccountDetailsDTO(null, id, id, id, money, false, id);
-    }
-
-    private AccountDetails createAccountDetails() {
-        return new AccountDetails(id, id, id, id, money, false, id);
+        accountDetails = new AccountDetails(id, id, id, id, money, false, id);
     }
 
     private String stringFormatEntityNotFoundException (Long id) {
@@ -89,11 +80,11 @@ class AccountDetailsServiceImplTest {
     }
 
     private void verifyFindByIdCalledOnce(Long id) {
-        verify(accountDetailsRepository, times(1)).findById(id);
+        verify(accountDetailsRepository).findById(id);
     }
 
     private void verifySaveCalledOnce() {
-        verify(accountDetailsRepository, times(1)).save(any(AccountDetails.class));
+        verify(accountDetailsRepository).save(any(AccountDetails.class));
     }
 
     @Nested
@@ -203,7 +194,7 @@ class AccountDetailsServiceImplTest {
 
             accountDetailsService.deleteAccountDetails(id);
 
-            verify(accountDetailsRepository, times(1)).deleteById(id);
+            verify(accountDetailsRepository).deleteById(id);
         }
 
         @DisplayName(displayNameIllegalArgumentException)
@@ -262,7 +253,7 @@ class AccountDetailsServiceImplTest {
                     () -> accountDetailsService.getAccountDetailsById(id),
                     stringFormatEntityNotFoundException(id)
             );
-            verify(accountDetailsRepository, times(1)).findById(id);
+            verify(accountDetailsRepository).findById(id);
         }
     }
 
@@ -279,8 +270,8 @@ class AccountDetailsServiceImplTest {
 
             assertAll(
                     () -> assertNotNull(result),
-                    () -> assertEquals(accountDetails.getAccountNumber(), result.getId()),
-                    () -> verify(accountDetailsRepository, times(1)).findByAccountNumber(id)
+                    () -> assertEquals(accountDetails.getAccountNumber(), result.getAccountNumber()),
+                    () -> verify(accountDetailsRepository).findByAccountNumber(id)
             );
         }
 
@@ -301,7 +292,7 @@ class AccountDetailsServiceImplTest {
                     () -> accountDetailsService.getAccountDetailsByAccountNumber(id),
                     String.format("Информация по номеру счёта: %s, не найдена", id)
             );
-            verify(accountDetailsRepository, times(1)).findByAccountNumber(id);
+            verify(accountDetailsRepository).findByAccountNumber(id);
         }
     }
 
@@ -319,7 +310,7 @@ class AccountDetailsServiceImplTest {
             assertAll(
                     () -> assertNotNull(result),
                     () -> assertEquals(accountDetails.getBankDetailsId(), result.getId()),
-                    () -> verify(accountDetailsRepository, times(1)).findByBankDetailsId(accountDetails.getBankDetailsId())
+                    () -> verify(accountDetailsRepository).findByBankDetailsId(accountDetails.getBankDetailsId())
             );
         }
 
@@ -340,7 +331,7 @@ class AccountDetailsServiceImplTest {
                     () -> accountDetailsService.getAccountDetailsByBankDetailsId(accountDetails.getBankDetailsId()),
                     String.format("Информация по техническому идентификатору на реквизиты банка: %s, не найдена", accountDetails.getBankDetailsId())
             );
-            verify(accountDetailsRepository, times(1)).findByBankDetailsId(accountDetails.getBankDetailsId());
+            verify(accountDetailsRepository).findByBankDetailsId(accountDetails.getBankDetailsId());
         }
     }
 
