@@ -1,5 +1,6 @@
 package com.bank.history.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import javax.validation.constraints.Min;
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString
+@AllArgsConstructor
 
 public class HistoryDTO {
 

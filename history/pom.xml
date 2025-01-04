@@ -35,6 +35,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.5.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -58,6 +64,41 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>com/bank/history/dto/**</exclude>
+                                <exclude>com/bank/history/aspects/**</exclude>
+                                <exclude>com/bank/history/mappers/**</exclude>
+                                <exclude>com/bank/history/services/AuditServiceImpl.class</exclude>
+                                <exclude>com/bank/history/repositories/**</exclude>
+                                <exclude>com/bank/history/models/**</exclude>
+                                <exclude>com/bank/history/services/AuditService.class</exclude>
+                                <exclude>**/generated/**</exclude>
+                                <exclude>com/bank/history/services/HistoryService.class</exclude>
+                                <exclude>com/bank/history/HELP.md</exclude>
+                                <exclude>com/bank/history/history.iml</exclude>
+                                <exclude>com/bank/history/pom.xml</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

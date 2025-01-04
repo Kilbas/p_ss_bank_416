@@ -34,7 +34,7 @@ public class HistoryController {
     public ResponseEntity<HttpStatus> saveHistory(@Valid @RequestBody HistoryDTO historyDTO) {
         log.info("saveHistory: метод вызван в контроллере");
         historyService.save(historyDTO);
-        return ResponseEntity.ok(HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(HttpStatus.CREATED);
     }
 
     @GetMapping

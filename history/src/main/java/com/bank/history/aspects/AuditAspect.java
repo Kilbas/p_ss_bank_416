@@ -24,21 +24,21 @@ public class AuditAspect {
 
     private static final String ENTITY = "History";
     private static final String CREATED_WHO = "System";
-    private static final String MODIFIED_WHO = "System";
     private final AuditService auditService;
     private final ObjectMapper objectMapper;
     private final HistoryService historyService;
 
-    @Around("execution(com.bank.history.models.History com.bank.history.services.HistoryService.save(com.bank.history.dto.HistoryDTO))")
+    @Around("execution(com.bank.history.models.History com.bank.history.services" +
+            ".HistoryService.save(com.bank.history.dto.HistoryDTO))")
     public void aroundHistoryServiceSaveAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
-        log.info("aroundHistoryServiceSaveAdvice: Попытка добавить сущность History в базу данных");
-        Object result = joinPoint.proceed();
-        log.info("aroundHistoryServiceSaveAdvice: сущность History добавлена в базу данных");
         Audit audit = new Audit();
         audit.setOperation(Operation.CREATE);
         audit.setEntityType(ENTITY);
         audit.setCreatedBy(CREATED_WHO);
         audit.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        log.info("aroundHistoryServiceSaveAdvice: Попытка добавить сущность History в базу данных");
+        Object result = joinPoint.proceed();
+        log.info("aroundHistoryServiceSaveAdvice: сущность History добавлена в базу данных");
         audit.setNewEntityJson(objectMapper.writeValueAsString(result));
         auditService.newAudit(Optional.of(audit));
     }
@@ -61,7 +61,7 @@ public class AuditAspect {
         Audit oldAudit = auditService.getAuditByEntityId(entityIdAsString);
         audit.setEntityType(oldAudit.getEntityType());
         audit.setCreatedBy(oldAudit.getCreatedBy());
-        audit.setModifiedBy(MODIFIED_WHO);
+        audit.setModifiedBy(CREATED_WHO);
         audit.setCreatedAt(oldAudit.getCreatedAt());
         audit.setModifiedAt(Timestamp.valueOf(LocalDateTime.now()));
         audit.setNewEntityJson(objectMapper.writeValueAsString(historyService.findById(entityId)));
