@@ -246,5 +246,4 @@ public class HistoryServiceImplTest {
         Collections.addAll(historyList, histories);
         return historyList;
     }
-
 }

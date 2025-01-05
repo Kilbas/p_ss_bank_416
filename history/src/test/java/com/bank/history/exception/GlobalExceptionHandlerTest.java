@@ -91,5 +91,4 @@ class GlobalExceptionHandlerTest {
                         "Сообщение должно содержать информацию об ошибке")
         );
     }
-
 }
