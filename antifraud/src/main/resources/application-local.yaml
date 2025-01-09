@@ -1,7 +1,8 @@
 server:
   port: 8086
   servlet:
-    context-path: /api/anti-fraud
+    context-path: /api/V1/anti-fraud
+
 management:
   server:
     port: 8186
@@ -12,15 +13,31 @@ management:
     web:
       exposure:
         include: '*'
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
+    url: jdbc:postgresql://localhost:5434/postgres
+    username: postgres
     password: password
+  jpa:
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     default-schema: anti_fraud
     change-log: db/changelog/db.changelog-master.yaml
     enabled: ${LIQUIBASE_ENABLED:true}
-    drop-first: ${LIQUIBASE_DROP_FIRST:false}
+    drop-first: ${LIQUIBASE_DROP_FIRST:true}
   application:
     name: anti-fraud-app
+
+swagger:
+  server:
+    url: http://localhost:8086/api/V1/anti-fraud
+    description: "Локальный сервер для Анти-фрод API"
+  api:
+    title: "Анти-фрод API"
+    description: "API документация для анти-фрод системы в локальной среде"
+    version: "1.0.0"
+
+
+
