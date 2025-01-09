@@ -58,18 +58,26 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.10</version> <!-- Укажите нужную версию -->
+                <version>0.8.12</version>
+                <configuration>
+                    <includes>
+                    </includes>
+                    <excludes>
+                        <exclude>com/bank/transfer/dto/**</exclude>
+                        <exclude>com/bank/transfer/mapper/*</exclude>
+                        <exclude>com/bank/transfer/repository/*</exclude>
+                        <exclude>com/bank/transfer/service/*</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
-                    <!-- Включаем анализ покрытия при фазе test -->
                     <execution>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
-                    <!-- Генерация отчета после тестов -->
                     <execution>
                         <id>report</id>
-                        <phase>test</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
