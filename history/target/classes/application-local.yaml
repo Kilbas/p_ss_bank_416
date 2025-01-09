@@ -12,7 +12,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: prometheus,health
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
 
 spring:
   datasource:
@@ -47,3 +54,4 @@ springdoc:
     path: /swagger-ui.html
     url: /api-docs/springdoc.yaml
     disable-swagger-default-url: true
+
