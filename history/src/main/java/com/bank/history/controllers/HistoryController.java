@@ -2,6 +2,7 @@ package com.bank.history.controllers;
 
 import com.bank.history.dto.HistoryDTO;
 import com.bank.history.services.HistoryService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class HistoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(HttpStatus.CREATED);
     }
 
+    @Timed
     @GetMapping
     public Object getAllHistory(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size) {
