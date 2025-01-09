@@ -2,6 +2,7 @@ package com.bank.publicinfo.controller;
 
 import com.bank.publicinfo.dto.AtmDTO;
 import com.bank.publicinfo.service.interfaceEntity.AtmService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -36,6 +37,8 @@ public class AtmRestController {
             @ApiResponse(responseCode = "200", description = "Список банкоматов успешно получен"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
+
+    @Timed("getAtm")
     @GetMapping()
     public ResponseEntity<List<AtmDTO>> getAllAtm(@PageableDefault Pageable pageable) {
         return ResponseEntity.ok(atmService.getAllAtms(pageable));
