@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -23,12 +22,13 @@ import javax.persistence.EntityNotFoundException;
  * @author Александр Федотов
  * @version 1.0.0
  */
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
 @AllArgsConstructor
 public class AccountDetailsServiceImpl implements AccountDetailsService {
+
+    private final String idNotNull = "Идентификатор не может быть null";
 
     private final AccountDetailsRepository accountDetailsRepository;
     private final AccountDetailsMapper accountDetailsMapper;
@@ -42,6 +42,18 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public AccountDetailsDTO saveAccountDetails(AccountDetailsDTO accountDetailsDTO) {
+        if (accountDetailsDTO == null) {
+            throw new IllegalArgumentException("Объект accountDetailsDTO не может быть null");
+        }
+
+        validateArgs("Поля объекта accountDetailsDTO не могут быть null",
+                accountDetailsDTO.getPassportId(),
+                accountDetailsDTO.getAccountNumber(),
+                accountDetailsDTO.getBankDetailsId(),
+                accountDetailsDTO.getMoney(),
+                accountDetailsDTO.getNegativeBalance(),
+                accountDetailsDTO.getProfileId());
+
         return accountDetailsMapper
                 .toDto(accountDetailsRepository
                         .save(accountDetailsMapper.toEntitySave(accountDetailsDTO)));
@@ -59,11 +71,12 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public AccountDetailsDTO updateAccountDetails(Long id, AccountDetailsDTO accountDetailsDTO) {
-        validateArg(id, "Идентификатор не может быть null");
+        validateArgs(idNotNull, id);
 
         AccountDetails accountDetails = accountDetailsMapper
                 .toEntity(this.getAccountDetailsById(id));
         accountDetailsMapper.toDtoUpdate(accountDetailsDTO, accountDetails);
+
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.save(accountDetails));
     }
@@ -78,7 +91,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     @Transactional
     public void deleteAccountDetails(Long id) {
-        validateArg(id, "Идентификатор не может быть null");
+        validateArgs(idNotNull, id);
 
         this.getAccountDetailsById(id);
         accountDetailsRepository.deleteById(id);
@@ -94,7 +107,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      */
     @Override
     public AccountDetailsDTO getAccountDetailsById(Long id) {
-        validateArg(id, "Идентификатор не может быть null");
+        validateArgs(idNotNull, id);
 
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.findById(id)
@@ -113,12 +126,12 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      */
     @Override
     public AccountDetailsDTO getAccountDetailsByAccountNumber(Long accountNumber) {
-        validateArg(accountNumber, "Номер счета не может быть null");
+        validateArgs("Номер счета не может быть null", accountNumber);
 
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        buildErrorMessage("Информация по номеру счёта не найдена %s", accountNumber)
+                        buildErrorMessage("Информация по номеру счёта: %s, не найдена", accountNumber)
                 )));
     }
 
@@ -132,13 +145,13 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      */
     @Override
     public AccountDetailsDTO getAccountDetailsByBankDetailsId(Long bankDetailsId) {
-        validateArg(bankDetailsId, "Технический идентификатор на реквизиты банка не может быть null");
+        validateArgs("Технический идентификатор на реквизиты банка не может быть null", bankDetailsId);
 
         return accountDetailsMapper
                 .toDto(accountDetailsRepository.findByBankDetailsId(bankDetailsId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         buildErrorMessage("Информация по техническому идентификатору" +
-                                " на реквизиты банка не найдена %s", bankDetailsId)
+                                " на реквизиты банка: %s, не найдена", bankDetailsId)
                 )));
     }
 
@@ -152,6 +165,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     @Override
     public Page<AccountDetailsDTO> getAllAccountDetails(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+
         return accountDetailsRepository
                 .findAll(pageable)
                 .map(accountDetailsMapper::toDto);
@@ -164,18 +178,23 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
      * @param value Значение, которое нужно подставить в сообщение.
      * @return Сформированное сообщение об ошибке.
      */
-    private String buildErrorMessage(String message, Object value) {
+    public String buildErrorMessage(String message, Object value) {
         return String.format(message, value);
     }
 
     /**
      * Проверяет, что указанный аргумент не равен null.
      *
-     * @param arg Аргумент, который нужно проверить.
-     * @param message Сообщение об ошибке, если аргумент равен null.
+     * @param args Аргументы, которые нужно проверить.
+     * @param message Сообщение об ошибке, если хотя бы один из аргументов равен null.
      * @throws IllegalArgumentException Если аргумент равен null.
      */
-    private void validateArg(Long arg, String message) {
-        Assert.notNull(arg, message);
+    @SafeVarargs
+    public final <T> void validateArgs(String message, T... args) {
+        for (T arg : args) {
+            if (arg == null) {
+                throw new IllegalArgumentException(message);
+            }
+        }
     }
 }

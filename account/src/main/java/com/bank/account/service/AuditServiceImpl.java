@@ -39,7 +39,7 @@ public class AuditServiceImpl implements AuditService {
         try {
             Audit audit = auditRepository.findByEntityTypeAndEntityId(entityType, entityId.toString());
             if (audit == null) {
-                throw new RuntimeException(String.format("Аудит не найден для entityType=%s и entityId=%s", entityType, entityId));
+                throw new RuntimeException(String.format("Аудит не найден для entityType = %s и entityId = %s", entityType, entityId));
             }
             return audit;
         } catch (DataAccessException e) {

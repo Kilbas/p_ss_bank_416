@@ -2,6 +2,7 @@ server:
   port: 8085
   servlet:
     context-path: /api/v1/account
+
 management:
   server:
     port: 8185
@@ -10,8 +11,10 @@ management:
       enabled: true
   endpoints:
     web:
+      base-path: /api/v1/account/actuator
       exposure:
         include: '*'
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/db
@@ -22,5 +25,15 @@ spring:
     change-log: db.changelog/db.changelog-master.yaml
     enabled: ${LIQUIBASE_ENABLED:true}
     drop-first: ${LIQUIBASE_DROP_FIRST:false}
-  application:
-    name: account-app
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+swagger:
+  server:
+    url: http://localhost:8085/api/v1/account
+    description: J0xanshi%dcepseppaspa6orkw
+  api:
+    title: accountDetailsApi
+    description: API for managing account details
+    version: 1.0.0

@@ -3,6 +3,7 @@ package com.bank.account.DTO;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level= AccessLevel.PRIVATE)
+@EqualsAndHashCode
 public class AccountDetailsDTO {
 
     Long id;
@@ -42,17 +44,4 @@ public class AccountDetailsDTO {
 
     @NotNull(message = "Поле profileId не может быть пустым")
     Long profileId;
-
-    @Override
-    public String toString() {
-        return "AccountDetailsDTO{" +
-                "id=" + id +
-                ", passportId=" + passportId +
-                ", accountNumber=" + accountNumber +
-                ", bankDetailsId=" + bankDetailsId +
-                ", money=" + money +
-                ", negativeBalance=" + negativeBalance +
-                ", profileId=" + profileId +
-                '}';
-    }
 }

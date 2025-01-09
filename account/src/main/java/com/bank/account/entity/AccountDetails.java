@@ -3,6 +3,7 @@ package com.bank.account.entity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -25,6 +25,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Table (name = "account_details", schema = "account")
 @FieldDefaults(level=AccessLevel.PRIVATE)
+@EqualsAndHashCode
 public class AccountDetails {
 
     @Id
@@ -49,18 +50,6 @@ public class AccountDetails {
 
     @Column(name = "profile_id", nullable = false)
     long profileId;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AccountDetails that)) return false;
-        return id == that.id && passportId == that.passportId && accountNumber == that.accountNumber && bankDetailsId == that.bankDetailsId && negativeBalance == that.negativeBalance && profileId == that.profileId && Objects.equals(money, that.money);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, passportId, accountNumber, bankDetailsId, money, negativeBalance, profileId);
-    }
 
     @Override
     public String toString() {

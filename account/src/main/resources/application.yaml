@@ -3,18 +3,3 @@ spring:
     name: account-app
   profiles:
     active: local
-  datasource:
-    url: jdbc:postgresql://localhost:5432/db
-    username: admin
-    password: admin
-  jpa:
-    hibernate:
-      ddl-auto: update
-swagger:
-  server:
-    url: http://localhost:8085/api/v1/account
-    description: Локальный сервер разработки
-  api:
-    title: accountDetailsApi
-    description: API for managing account details
-    version: 1.0.0

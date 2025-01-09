@@ -2,6 +2,7 @@ package com.bank.account.controller;
 
 import com.bank.account.DTO.AccountDetailsDTO;
 import com.bank.account.service.AccountDetailsService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 
 @RestController
@@ -43,6 +45,7 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PostMapping("/")
+    @Timed("saveAccountDetails")
     public ResponseEntity<AccountDetailsDTO> saveAccountDetails(@Valid @RequestBody AccountDetailsDTO accountDetailsDTO) {
         AccountDetailsDTO savedAccountDetailsDTO = accountDetailsService.saveAccountDetails(accountDetailsDTO);
         return ResponseEntity.created(URI.create(urlCreate + savedAccountDetailsDTO
@@ -59,8 +62,9 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<AccountDetailsDTO> updateAccountDetails(@PathVariable Long id, @RequestBody AccountDetailsDTO accountDetailsDTO) {
-        final AccountDetailsDTO savedAccountDetailsDTO = accountDetailsService.updateAccountDetails(id, accountDetailsDTO);
+    @Timed("updateAccountDetails")
+    public ResponseEntity<AccountDetailsDTO> updateAccountDetails(@PathVariable @NotNull Long id, @RequestBody AccountDetailsDTO accountDetailsDTO) {
+        AccountDetailsDTO savedAccountDetailsDTO = accountDetailsService.updateAccountDetails(id, accountDetailsDTO);
         return ResponseEntity.created(URI.create(urlCreate + savedAccountDetailsDTO
                 .getId()))
                 .body(savedAccountDetailsDTO);
@@ -73,7 +77,8 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<AccountDetailsDTO> deleteAccountDetailsByID(@PathVariable Long id) {
+    @Timed("deleteAccountDetailsByID")
+    public ResponseEntity<AccountDetailsDTO> deleteAccountDetailsByID(@PathVariable @NotNull Long id) {
         accountDetailsService.deleteAccountDetails(id);
         return ResponseEntity.noContent().build();
     }
@@ -83,8 +88,8 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "200", description = "Список информации об аккаунтах успешно получен"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
-
     @GetMapping("/all")
+    @Timed("getAllAccountDetails")
     public ResponseEntity<Page<AccountDetailsDTO>> getAllAccountDetails(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -97,8 +102,9 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "404", description = "Информация по идентификатору не найдена"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByID(@PathVariable Long id) {
+    @GetMapping("/id/{id}")
+    @Timed("getAccountDetailsByID")
+    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByID(@PathVariable @NotNull Long id) {
         return ResponseEntity.ok(accountDetailsService.getAccountDetailsById(id));
     }
 
@@ -108,8 +114,8 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "404", description = "Информацию по номеру счёта не найдена"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
-    @GetMapping("/{accountNumber}")
-    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByAccountNumber(@PathVariable Long accountNumber) {
+    @GetMapping("/accountNumber/{accountNumber}")
+    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByAccountNumber(@PathVariable @NotNull Long accountNumber) {
         return ResponseEntity.ok(accountDetailsService.getAccountDetailsByAccountNumber(accountNumber));
     }
 
@@ -120,8 +126,8 @@ public class AccountDetailsController {
             @ApiResponse(responseCode = "404", description = "Информацию по техническому идентификатору на реквизиты банка не найдена"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
-    @GetMapping("/{bankDetailsId}")
-    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByBankDetailsId(@PathVariable Long bankDetailsId) {
+    @GetMapping("/bankDetailsId/{bankDetailsId}")
+    public ResponseEntity<AccountDetailsDTO> getAccountDetailsByBankDetailsId(@PathVariable @NotNull Long bankDetailsId) {
         return ResponseEntity.ok(accountDetailsService.getAccountDetailsByBankDetailsId(bankDetailsId));
     }
 }
