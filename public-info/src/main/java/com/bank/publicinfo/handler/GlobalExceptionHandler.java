@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * GlobalExceptionHandler обрабатывает исключения, возникающие в контроллерах приложения.
@@ -28,10 +26,10 @@ public class GlobalExceptionHandler {
      * @param ex исключение, содержащее информацию о нарушениях валидации
      * @return ResponseEntity с кодом статуса 400 (BAD REQUEST) и картой ошибок
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<List<ErrorResponse>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        List<ErrorResponse> errors = new ArrayList<>();
+        ex.getBindingResult().getFieldErrors().forEach((error) -> errors.add(new ErrorResponse(error.getField(), error.getDefaultMessage())));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
@@ -41,11 +39,9 @@ public class GlobalExceptionHandler {
      * @param ex исключение, связанное с доступом к данным
      * @return ResponseEntity с кодом статуса 422 (UNPROCESSABLE ENTITY) и списком ошибок
      */
-    @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<List<String>> handleEntityExceptions(DataAccessException ex) {
-
-        List<String> error = new ArrayList<>();
-        error.add(ex.getMessage());
+    @ExceptionHandler({DataAccessException.class})
+    public ResponseEntity<ErrorResponse> handleEntityExceptions(DataAccessException ex) {
+        ErrorResponse error = new ErrorResponse("DataAccessException", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 
@@ -55,12 +51,10 @@ public class GlobalExceptionHandler {
      * @param ex исключение, возникающее при отсутствии сущности
      * @return ResponseEntity с кодом статуса 404 (NOT FOUND) и списком ошибок
      */
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<List<String>> handleEntityExceptions(EntityNotFoundException ex) {
-
-        List<String> error = new ArrayList<>();
-        error.add(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    @ExceptionHandler({EntityNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleEntityExceptions(EntityNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse("EntityNotFound", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     /**
@@ -69,11 +63,9 @@ public class GlobalExceptionHandler {
      * @param ex исключение, связанное с ошибками маппинга JSON
      * @return ResponseEntity с кодом статуса 500 (INTERNAL SERVER ERROR) и сообщением об ошибке
      */
-    @ExceptionHandler(JsonProcessingException.class)
-    public ResponseEntity<List<String>> handleMappingJsonEntityExceptions(JsonProcessingException ex) {
-
-        List<String> error = new ArrayList<>();
-        error.add("При маппинге Json Entity в аудит произошла ошибка: " + ex.getMessage());
+    @ExceptionHandler({JsonProcessingException.class})
+    public ResponseEntity<ErrorResponse> handleMappingJsonEntityExceptions(JsonProcessingException ex) {
+        ErrorResponse error = new ErrorResponse("JsonProcessingException", "При маппинге Json Entity в аудит произошла ошибка: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
@@ -83,11 +75,9 @@ public class GlobalExceptionHandler {
      * @param ex непредвиденное исключение
      * @return ResponseEntity с кодом статуса 500 (INTERNAL SERVER ERROR) и сообщением об ошибке
      */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<List<String>> handleAllExceptions(Exception ex) {
-
-        List<String> error = new ArrayList<>();
-        error.add("Непредвиденная ошибка: " + ex.getMessage());
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
+        ErrorResponse error = new ErrorResponse("Exception", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

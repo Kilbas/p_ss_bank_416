@@ -11,7 +11,8 @@ public enum EntityTypeEnum {
     ATM("Atm"),
     BRANCH("Branch"),
     CERTIFICATE("Certificate"),
-    LICENSE("License");
+    LICENSE("License"),
+    UNSUPPORTED_ENTITY("unsupportedEntity");
 
     private final String value;
 }
