@@ -4,6 +4,7 @@ import com.bank.transfer.dto.PhoneTransferDTO;
 import com.bank.transfer.mapper.PhoneTransferMapper;
 import com.bank.transfer.model.PhoneTransfer;
 import com.bank.transfer.service.TransferPhoneService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,6 +36,7 @@ public class TransferPhoneRestController {
             @ApiResponse(responseCode = "200", description = "Список переводов успешно получен"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
+    @Timed("gettingAllPhoneTransfers")
     @GetMapping
     public ResponseEntity<List<PhoneTransferDTO>> getPhoneTransfers() {
         List<PhoneTransfer> phoneTransfers = transferPhoneService.getAllPhoneTransfers();

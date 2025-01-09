@@ -4,6 +4,7 @@ import com.bank.transfer.dto.AccountTransferDTO;
 import com.bank.transfer.mapper.AccountTransferMapper;
 import com.bank.transfer.model.AccountTransfer;
 import com.bank.transfer.service.TransferAccountService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,6 +36,7 @@ public class TransferAccountRestController {
             @ApiResponse(responseCode = "200", description = "Список переводов успешно получен"),
             @ApiResponse(responseCode = "500", description = "Ошибка на сервере")
     })
+    @Timed("gettingAllAccountTransfers")
     @GetMapping
     public ResponseEntity<List<AccountTransferDTO>> getAccountTransfers() {
         List<AccountTransfer> accountTransfers = transferAccountService.getAllAccountTransfers();
