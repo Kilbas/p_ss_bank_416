@@ -1,5 +1,6 @@
 package com.bank.antifraud.controller;
 
+import com.bank.antifraud.dto.SuspiciousCardTransferDTO;
 import com.bank.antifraud.dto.SuspiciousPhoneTransferDTO;
 import com.bank.antifraud.service.SuspiciousPhoneTransfersService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @Tag(name = "Подозрительные телефонные переводы", description = "Операции, связанные с подозрительными переводами по телефону")
@@ -52,7 +54,9 @@ public class SuspiciousPhoneTransfersController {
     })
     @PostMapping
     public ResponseEntity<SuspiciousPhoneTransferDTO> create(@Valid @RequestBody SuspiciousPhoneTransferDTO dto) {
-        return ResponseEntity.ok(service.createNewPhoneTransfers(dto));
+        SuspiciousPhoneTransferDTO createdDto = service.createNewPhoneTransfers(dto);
+        URI location = URI.create("/api/v1/suspicious-phone-transfers/" + createdDto.getId());
+        return ResponseEntity.created(location).body(createdDto);
     }
 
     @Operation(summary = "Обновить перевод", description = "Обновляет существующий перевод по указанному ID")

@@ -6,6 +6,7 @@ import com.bank.antifraud.entity.SuspiciousCardTransfer;
 import com.bank.antifraud.mapper.SuspiciousCardTransferMapper;
 import com.bank.antifraud.repository.SuspiciousCardTransferRepository;
 import com.bank.antifraud.service.SuspiciousCardTransferService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,17 +17,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 @Service
 public class SuspiciousCardTransferServiceImpl implements SuspiciousCardTransferService {
 
     private final SuspiciousCardTransferRepository repository;
     private final SuspiciousCardTransferMapper mapper;
-
-    public SuspiciousCardTransferServiceImpl(SuspiciousCardTransferRepository repository,
-                                             SuspiciousCardTransferMapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
-    }
 
 
     @Override
