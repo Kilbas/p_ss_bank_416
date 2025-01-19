@@ -2,6 +2,7 @@ package com.bank.antifraud.controller;
 
 import com.bank.antifraud.dto.SuspiciousAccountTransfersDTO;
 import com.bank.antifraud.service.SuspiciousAccountTransfersService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -27,7 +28,7 @@ public class SuspiciousAccountTransfersController {
             @ApiResponse(responseCode = "200", description = "Успешное выполнение"),
             @ApiResponse(responseCode = "404", description = "Перевод не найден")
     })
-
+    @Timed
     @GetMapping("/{id}")
     public ResponseEntity<SuspiciousAccountTransfersDTO> findById(@PathVariable Long id) {
         SuspiciousAccountTransfersDTO dto = service.findByIdAccountTransfer(id);
@@ -36,6 +37,7 @@ public class SuspiciousAccountTransfersController {
 
     @Operation(summary = "Получить все переводы", description = "Возвращает список всех подозрительных переводов")
     @ApiResponse(responseCode = "200", description = "Успешное выполнение")
+    @Timed
     @GetMapping
     public ResponseEntity<List<SuspiciousAccountTransfersDTO>> findAll() {
         List<SuspiciousAccountTransfersDTO> transfers = service.findAllAccountTransfers();
@@ -49,6 +51,7 @@ public class SuspiciousAccountTransfersController {
             @ApiResponse(responseCode = "422", description = "Ошибка целостности данных")
     })
 
+    @Timed
     @PostMapping
     public ResponseEntity<SuspiciousAccountTransfersDTO> create(
             @Valid @RequestBody SuspiciousAccountTransfersDTO dto) {
@@ -65,6 +68,7 @@ public class SuspiciousAccountTransfersController {
             @ApiResponse(responseCode = "422", description = "Ошибка целостности данных")
     })
 
+    @Timed
     @PutMapping("/{id}")
     public ResponseEntity<SuspiciousAccountTransfersDTO> update(
             @PathVariable Long id, @Valid @RequestBody SuspiciousAccountTransfersDTO dto) {
@@ -78,6 +82,7 @@ public class SuspiciousAccountTransfersController {
             @ApiResponse(responseCode = "404", description = "Перевод не найден")
     })
 
+    @Timed
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.deleteAccountTransfer(id);
@@ -89,7 +94,6 @@ public class SuspiciousAccountTransfersController {
             @ApiResponse(responseCode = "200", description = "Успешное выполнение"),
             @ApiResponse(responseCode = "204", description = "Нет данных")
     })
-
     @GetMapping("/reason")
     public ResponseEntity<List<SuspiciousAccountTransfersDTO>> findByReason(@RequestParam String reason) {
         List<SuspiciousAccountTransfersDTO> transfers = service.findTransfersByReason(reason);

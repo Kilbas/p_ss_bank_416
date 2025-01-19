@@ -63,6 +63,7 @@ public class SuspiciousAccountTransfersServiceImpl implements SuspiciousAccountT
                         String.format("Запись с ID %d не найдена поиск невозможен", id)));
     }
 
+
     @Override
     public List<SuspiciousAccountTransfersDTO> findAllAccountTransfers() {
         return repository.findAll().stream()

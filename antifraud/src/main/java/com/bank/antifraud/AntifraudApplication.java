@@ -11,3 +11,7 @@ public class AntifraudApplication {
 
     }
 }
+//docker exec -it antifraud-bank-db-1 psql -U postgres
+//CREATE SCHEMA anti_fraud;
+//\dn
+//\q

@@ -1,0 +1,55 @@
+version: '3.7'
+services:
+
+  # Database Service
+  bank-db:
+    image: postgres
+    hostname: bank-db
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+
+  # Prometheus Service
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: antifraud-prometheus
+    ports:
+      - 9090:9090
+    volumes:
+#      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+     - /Users/kilbas/IdeaProjects/p_ss_bank_416/antifraud/src/main/java/com/bank/antifraud/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  # Grafana Service
+  grafana:
+    image: grafana/grafana:latest
+    container_name: antifraud-grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  # Antifraud Application Service
+  antifraud-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: antifraud-app
+    ports:
+      - 8086:8086
+      - 8186:8186
+    depends_on:
+      - bank-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://bank-db:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+
+volumes:
+  grafana-data:
