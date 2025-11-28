@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @Tag(name = "Подозрительные переводы с картами", description = "Операции, связанные с подозрительными переводами по картам")
@@ -59,8 +60,11 @@ public class SuspiciousCardTransferController {
             @ApiResponse(responseCode = "422", description = "Ошибка целостности данных")
     })
     @PostMapping
-    public ResponseEntity<SuspiciousCardTransferDTO> create(@Valid @RequestBody SuspiciousCardTransferDTO dto) {
-        return ResponseEntity.ok(service.createNewCardTransfer(dto));
+    public ResponseEntity<SuspiciousCardTransferDTO> create(
+            @Valid @RequestBody SuspiciousCardTransferDTO dto) {
+        SuspiciousCardTransferDTO createdDto = service.createNewCardTransfer(dto);
+        URI location = URI.create("/api/v1/suspicious-card-transfer/" + createdDto.getId());
+        return ResponseEntity.created(location).body(createdDto);
     }
 
     @Operation(summary = "Обновить перевод", description = "Обновляет существующий перевод по ID")

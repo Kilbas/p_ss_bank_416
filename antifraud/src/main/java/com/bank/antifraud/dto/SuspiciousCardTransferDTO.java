@@ -1,5 +1,6 @@
 package com.bank.antifraud.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,9 +23,11 @@ public class SuspiciousCardTransferDTO {
     @NotNull(message = "Идентификатор перевода по карте не может быть пустым")
     private Long cardTransferId;
 
+    @JsonProperty("isBlocked")
     @NotNull(message = "Статус блокировки не может быть пустым")
     private boolean isBlocked;
 
+    @JsonProperty("isSuspicious")
     @NotNull(message = "Статус подозрительности не может быть пустым")
     private boolean isSuspicious;
 
