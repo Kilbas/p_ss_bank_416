@@ -29,7 +29,7 @@ management:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/postgres
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: password
   jpa:
@@ -51,6 +51,7 @@ swagger:
     title: "Анти-фрод API"
     description: "API документация для анти-фрод системы в локальной среде"
     version: "1.0.0"
+
 
 
 
