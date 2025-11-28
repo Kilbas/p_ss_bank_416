@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: anti-fraud-app
+  profiles:
+    active: local
+

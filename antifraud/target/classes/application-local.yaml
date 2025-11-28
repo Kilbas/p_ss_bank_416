@@ -1,0 +1,57 @@
+server:
+  port: 8086
+  servlet:
+    context-path: /api/V1/anti-fraud
+
+management:
+  server:
+    port: 8186
+  endpoint:
+    shutdown:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    tags:
+      application: "anti-fraud-app"
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+        "[timed]": true # Включает гистограммы для всех методов с @Timed
+      percentiles:
+        "[timed]": [0.5, 0.95] # Настройка перцентилей (например, медиана и 95-й процентиль)
+
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: password
+  jpa:
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    default-schema: anti_fraud
+    change-log: db/changelog/db.changelog-master.yaml
+    enabled: ${LIQUIBASE_ENABLED:true}
+    drop-first: ${LIQUIBASE_DROP_FIRST:true}
+  application:
+    name: anti-fraud-app
+
+swagger:
+  server:
+    url: http://localhost:8086/api/V1/anti-fraud
+    description: "Локальный сервер для Анти-фрод API"
+  api:
+    title: "Анти-фрод API"
+    description: "API документация для анти-фрод системы в локальной среде"
+    version: "1.0.0"
+
+
+
+
