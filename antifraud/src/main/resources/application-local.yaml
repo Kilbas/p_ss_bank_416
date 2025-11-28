@@ -13,10 +13,23 @@ management:
     web:
       exposure:
         include: '*'
+  metrics:
+    tags:
+      application: "anti-fraud-app"
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+        "[timed]": true # Включает гистограммы для всех методов с @Timed
+      percentiles:
+        "[timed]": [0.5, 0.95] # Настройка перцентилей (например, медиана и 95-й процентиль)
+
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/postgres
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: password
   jpa:
@@ -38,6 +51,7 @@ swagger:
     title: "Анти-фрод API"
     description: "API документация для анти-фрод системы в локальной среде"
     version: "1.0.0"
+
 
 
 
